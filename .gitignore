@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### 이건 안돼요~ ###
+application.properties
