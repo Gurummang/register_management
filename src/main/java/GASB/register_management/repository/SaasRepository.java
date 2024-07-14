@@ -1,4 +1,7 @@
 package GASB.register_management.repository;
 
-public interface SaasRepository {
+import GASB.register_management.entity.Saas;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface SaasRepository extends JpaRepository<Saas, Integer> {
 }
