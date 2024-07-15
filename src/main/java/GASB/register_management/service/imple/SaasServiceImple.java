@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,33 +26,36 @@ public class SaasServiceImple implements SaasService {
         Saas saveSaas = saasRepository.save(saas);
 
         return new SaasResponse("success", "Register Success: " + saveSaas.getSaas_name(), saveSaas.getId());
-//        {
-//            "status": "success",
-//            "messege": "Register Success: Slack",
-//            "id": 1
-//        }
     }
 
     @Override
     public SaasResponse modifySaas(SaasRequest saasRequest) {
-        Saas saas = new Saas();
-        saas.setSaas_name(saasRequest.getSaas_name());
-        Saas saveSaas = saasRepository.save(saas);
-
-        return new SaasResponse("success", "Modify Success: " + saveSaas.getSaas_name(), saveSaas.getId());
+        Optional<Saas> optionalSaas = saasRepository.findById(saasRequest.getId());
+        if (optionalSaas.isPresent()) {
+            Saas saas = optionalSaas.get();
+            saas.setSaas_name(saasRequest.getSaas_name());
+            Saas updatedSaas = saasRepository.save(saas);
+            return new SaasResponse("success", "Modify Success: " + updatedSaas.getSaas_name(), updatedSaas.getId());
+        } else {
+            return new SaasResponse("failure", "SaaS not found for ID: " + saasRequest.getId(), null);
+        }
     }
 
     @Override
-    public SaasResponse deleteSaas(SaasRequest saasRequest) {
-        Saas saas = new Saas();
-        saas.setSaas_name(saasRequest.getSaas_name());
-        Saas saveSaas = saasRepository.save(saas);
-
-        return new SaasResponse("success", "Delete Success: " + saveSaas.getSaas_name(), saveSaas.getId());
+    public SaasResponse deleteSaas(Integer id) {
+        Optional<Saas> optionalSaas = saasRepository.findById(id);
+        if (optionalSaas.isPresent()) {
+            saasRepository.deleteById(id);
+            return new SaasResponse("success", "Delete Success for ID: " + id, id);
+        } else {
+            return new SaasResponse("failure", "SaaS not found for ID: " + id, null);
+        }
     }
 
     @Override
-    public List<SaasResponse> getSaasList(){
-        return saasRepository.findAll().stream().map(saas -> new SaasResponse(saas.getId(), saas.getSaas_name())).collect(Collectors.toList());
+    public List<SaasResponse> getSaasList() {
+        return saasRepository.findAll().stream()
+                .map(saas -> new SaasResponse(saas.getId(), saas.getSaas_name()))
+                .collect(Collectors.toList());
     }
 }

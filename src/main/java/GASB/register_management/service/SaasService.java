@@ -10,6 +10,6 @@ public interface SaasService {
     SaasResponse registerSaas(SaasRequest saasRequest);
     SaasResponse modifySaas(SaasRequest saasRequest);
     // delete는 id만 받으면 됨
-    SaasResponse deleteSaas(SaasRequest saasRequest);
+    SaasResponse deleteSaas(Integer id);
     List<SaasResponse> getSaasList();
 }

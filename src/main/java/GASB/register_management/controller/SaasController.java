@@ -6,7 +6,7 @@ import GASB.register_management.service.SaasService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
+
 import java.util.List;
 
 @RestController
@@ -15,8 +15,6 @@ public class SaasController {
 
     @Autowired
     private SaasService saasService;
-//    @Autowired
-//    private InternalResourceViewResolver defaultViewResolver;
 
     @PostMapping("/register")
     public SaasResponse registerSaas(@RequestBody SaasRequest saasRequest) {
@@ -30,11 +28,11 @@ public class SaasController {
 
     @PostMapping("/delete")
     public SaasResponse deleteSaas(@RequestBody SaasRequest saasRequest) {
-        return saasService.deleteSaas(saasRequest);
+        return saasService.deleteSaas(saasRequest.getId());
     }
 
     @GetMapping
-    public List<SaasResponse> getSaasList(){
+    public List<SaasResponse> getSaasList() {
         return saasService.getSaasList();
     }
 }
