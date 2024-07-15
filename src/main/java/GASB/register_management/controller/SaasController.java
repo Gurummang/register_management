@@ -15,19 +15,22 @@ public class SaasController {
 
     @Autowired
     private SaasService saasService;
-    @Autowired
-    private InternalResourceViewResolver defaultViewResolver;
+//    @Autowired
+//    private InternalResourceViewResolver defaultViewResolver;
 
-    @PostMapping
-    public SaasResponse manageSaas(@RequestBody SaasRequest saasRequest) {
-        return switch (saasRequest.getAction()) {
-            case "register" -> saasService.registerSaas(saasRequest);
-            case "modify" -> saasService.modifySaas(saasRequest);
-            case "delete" -> saasService.deleteSaas(saasRequest);
-            // 예외처리 부분
-            // 다음 task에서 진행, 우선은 CRUD 구현 먼저
-            case null, default -> throw new IllegalArgumentException("Invalid action: " + saasRequest.getAction());
-        };
+    @PostMapping("/register")
+    public SaasResponse registerSaas(@RequestBody SaasRequest saasRequest) {
+        return saasService.registerSaas(saasRequest);
+    }
+
+    @PostMapping("/modify")
+    public SaasResponse modifySaas(@RequestBody SaasRequest saasRequest) {
+        return saasService.modifySaas(saasRequest);
+    }
+
+    @PostMapping("/delete")
+    public SaasResponse deleteSaas(@RequestBody SaasRequest saasRequest) {
+        return saasService.deleteSaas(saasRequest);
     }
 
     @GetMapping
