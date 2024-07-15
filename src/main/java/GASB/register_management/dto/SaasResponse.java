@@ -2,27 +2,26 @@ package GASB.register_management.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Getter
 @Setter
 public class SaasResponse {
 
     private String status;
-    private String messeage;
+    private String message;
     private Integer id;
     private String saas_name;
 
-    // have to check and fix constructor ovveride
-
-    // Response for POST
-    public SaasResponse(String status, String messeage, Integer id) {
+    // Constructor for POST responses
+    public SaasResponse(String status, String message, Integer id) {
         this.status = status;
-        this.messeage = messeage;
+        this.message = message;
         this.id = id;
     }
 
-    // Response for GET
-    public SaasResponse(Integer id, String saas_name){
+    // Constructor for GET responses
+    public SaasResponse(Integer id, String saas_name) {
         this.id = id;
         this.saas_name = saas_name;
     }
