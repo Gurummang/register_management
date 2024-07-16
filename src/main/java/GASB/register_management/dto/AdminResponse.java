@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -29,14 +29,19 @@ public class AdminResponse {
         this.id = id;
     }
     // GET
-    public AdminResponse(Integer id, Integer org_id, String email, String name, Timestamp last_login) {
+//    public AdminResponse(Integer id, Integer org_id, String email, String name, Timestamp last_login) {
+//        this.id = id;
+//        this.org_id = org_id;
+//        this.email = email;
+//        this.name = name;
+//        this.last_login = last_login;
+//    }
+
+    public AdminResponse(Integer id, Integer org_id, String email, String name, java.sql.Timestamp last_login) {
         this.id = id;
         this.org_id = org_id;
         this.email = email;
         this.name = name;
         this.last_login = last_login;
-    }
-
-    public AdminResponse(Integer id, Integer orgId, String email, String name, java.sql.Timestamp lastLogin) {
     }
 }
