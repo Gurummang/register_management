@@ -36,4 +36,7 @@ public class AdminResponse {
         this.name = name;
         this.last_login = last_login;
     }
+
+    public AdminResponse(Integer id, Integer orgId, String email, String name, java.sql.Timestamp lastLogin) {
+    }
 }
