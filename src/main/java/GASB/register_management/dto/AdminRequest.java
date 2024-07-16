@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class AdminRequest {
 
+    private Integer id;
     private Integer org_id;
     private String email;
     private String password;
