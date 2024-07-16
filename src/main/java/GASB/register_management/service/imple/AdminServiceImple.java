@@ -38,7 +38,8 @@ public class AdminServiceImple implements AdminService {
 
         if (optionalAdmin.isPresent()) {
             Admin admin = optionalAdmin.get();
-            if (admin.getEmail().equals(adminRequest.getEmail()) && admin.getPassword().equals(adminRequest.getPassword())) {
+
+            if (admin.getEmail().equals(adminRequest.getCur_email()) && admin.getPassword().equals(adminRequest.getCur_password())) {
                 admin.setOrg_id(adminRequest.getOrg_id());
                 admin.setEmail(adminRequest.getEmail());
                 admin.setPassword(adminRequest.getPassword());
