@@ -9,8 +9,13 @@ public class AdminRequest {
 
     private Integer id;
     private Integer org_id;
-    private String email;
-    private String password;
     private String first_name;
     private String last_name;
+
+    // For Modify
+    private String cur_email;
+    private String cur_password;
+    // For Regi, Modify, Delete
+    private String email;
+    private String password;
 }
