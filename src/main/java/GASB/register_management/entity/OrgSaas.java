@@ -16,6 +16,7 @@ public class OrgSaas {
     private Integer org_id;
     private Integer saas_id;
     private Integer config_file;
-    private Integer status;
+    @Column(name = "status", nullable = false, columnDefinition = "int default 0")
+    private Integer status = 0;
     private Integer security_score;
 }
