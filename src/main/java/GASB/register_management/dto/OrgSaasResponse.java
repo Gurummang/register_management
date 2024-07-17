@@ -11,56 +11,26 @@ import java.sql.Timestamp;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrgSaasResponse {
 
-    // private String message; // "[Success / Failure]: ~~~ " -> 나중에 하자, 급한거 아님
-
-    private Integer org_saas_id;
-    private Timestamp ts;
-    private Integer regi_status;     // 등록 상태
-    private String webhook_url;
+    // Workspace_config
+    private Integer config_id;      // workspace_config.id
+    private String workspace_name;
+    private String alias;
     private String saas_admin_email;
-    private String saas_alias;
+    private String webhook;
+    private Timestamp register_date;
+    private String token;           // 이건 굳이?
+//  private String validation;    // 나중에
+    // OrgSaas
+    private Integer org_saas_id;
+    private Integer status;         // 연동 상태
+    private String security_score;
 
-    private String err_message;
+// private String message; // "[Success / Failure]: ~~~ " -> 나중에 하자, 급한거 아님
 
     // POST(register)
-    public OrgSaasResponse(Integer org_saas_id, String saas_admin_email, Timestamp ts) {
-
-        this.org_saas_id = org_saas_id;
-        this.saas_admin_email = saas_admin_email;
-        this.ts = ts;
+    public OrgSaasResponse(Integer config_id, String workspace_name) {
+        this.config_id = config_id;
+        this.workspace_name = workspace_name;
     }
 
-//    // POST(Modify)
-//    public OrgSaasResponse(String status, Integer org_saas_id, Integer regi_status, String webhook_url, String saas_admin_email, String saas_alias) {
-//
-//        this.status = status;
-//        this.org_saas_id = org_saas_id;
-//        this.regi_status = regi_status;
-//        this.webhook_url = webhook_url;
-//        this.saas_admin_email = saas_admin_email;
-//        this.saas_alias = saas_alias;
-//    }
-//    // POST (Delete)
-//    public OrgSaasResponse(String status, Integer org_saas_id, String saas_admin_email) {
-//
-//        this.status = status;
-//        this.org_saas_id = org_saas_id;
-//        this.saas_admin_email = saas_admin_email;
-//    }
-//    // POST (예외)
-//    public OrgSaasResponse(String status, String message) {
-//        this.status = status;
-//        this.message = message;
-//    }
-//    // GET getOrgSaasList()
-//    public OrgSaasResponse(String status, Integer org_saas_id, Integer regi_status, String webhook_url, String saas_admin_email, String saas_alias, Timestamp ts) {
-//
-//        this.status = status;
-//        this.org_saas_id = org_saas_id;
-//        this.regi_status = regi_status;
-//        this.webhook_url = webhook_url;
-//        this.saas_admin_email = saas_admin_email;
-//        this.saas_alias = saas_alias;
-//        this.ts = ts;
-//    }
 }
