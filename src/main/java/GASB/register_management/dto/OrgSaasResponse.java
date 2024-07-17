@@ -11,58 +11,56 @@ import java.sql.Timestamp;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrgSaasResponse {
 
-    // 공통
     private Integer org_saas_id;
-
-    // register
     private String status;
-    private String valid;       // Email & API key 검사
     private Timestamp ts;
-
-    // modify
-    // private String status;
-    // private String valid;    // Email & API Key not matching~
-
-    // delete
-    // private String status;
-
-    // get
-    // org_saas_id
-    // name
-    private String regi_status;
+    private Integer regi_status;     // 등록 상태
     private String webhook_url;
     private String saas_admin_email;
     private String saas_alias;
-    // register_date
+
+    //    // GET /api/v1/org-saas/{saasId}/mkUrl
+//    // 버튼 누를 때 생성
+//    //
+//    public OrgSaasResponse(String status, String webhook_url) {
+//        this.status = status;
+//        this.webhook_url = webhook_url; // https://grum.com/saas/uuid
+//    }
 
     // POST(register)
-    public OrgSaasResponse(String status, Integer org_saas_id, String valid, Timestamp ts) {
+    public OrgSaasResponse(String status, Integer org_saas_id, String saas_admin_email, Timestamp ts) {
 
-        //
         this.status = status;
         this.org_saas_id = org_saas_id;
-        //
-        this.valid = valid;
+        this.saas_admin_email = saas_admin_email;
         this.ts = ts;
     }
+    // POST(Modify)
+    public OrgSaasResponse(String status, Integer org_saas_id, Integer regi_status, String webhook_url, String saas_admin_email, String saas_alias) {
 
-    // GET /api/v1/org-saas/{saasId}/mkUrl
-    // 버튼 누를 때 생성
-    //
-    public OrgSaasResponse(String status, String webhook_url) {
-        this.status = status;
-        this.webhook_url = webhook_url; // https://grum.com/saas/uuid
-    }
-
-
-    // GET getOrgSaasList()
-    public OrgSaasResponse(String status, Integer org_saas_id, String valid, Integer regi_satus, String webhook_url, String saas_admin_email, Timestamp ts) {
         this.status = status;
         this.org_saas_id = org_saas_id;
-        this.valid = valid;
         this.regi_status = regi_status;
         this.webhook_url = webhook_url;
         this.saas_admin_email = saas_admin_email;
+        this.saas_alias = saas_alias;
+    }
+    // POST (Delete)
+    public OrgSaasResponse(String status, Integer org_saas_id, String saas_admin_email) {
+
+        this.status = status;
+        this.org_saas_id = org_saas_id;
+        this.saas_admin_email = saas_admin_email;
+    }
+    // GET getOrgSaasList()
+    public OrgSaasResponse(String status, Integer org_saas_id, Integer regi_status, String webhook_url, String saas_admin_email, String saas_alias, Timestamp ts) {
+
+        this.status = status;
+        this.org_saas_id = org_saas_id;
+        this.regi_status = regi_status;
+        this.webhook_url = webhook_url;
+        this.saas_admin_email = saas_admin_email;
+        this.saas_alias = saas_alias;
         this.ts = ts;
     }
 

@@ -7,17 +7,14 @@ import lombok.Setter;
 @Setter
 public class OrgSaasRequest {
 
-    // For Register
-    private Integer org_id;     //
+    // POST // Register
+    private Integer org_id;
     private Integer saas_id;
 
-    // For modify & delete
+    // POST // Modify & Delete
     private Integer org_saas_id;
-
-    // For Register & modify
     private String saas_admin_email;
     private String webhook_url;
     private String api_key;
-    // private String nickname;  // 필요 없나?
     private String saas_alias;
 }
