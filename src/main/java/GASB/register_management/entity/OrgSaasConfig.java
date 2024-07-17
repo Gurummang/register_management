@@ -19,7 +19,7 @@ public class OrgSaasConfig {
     private String api_key;
     private String webhook_url;
     private String validation;
-    private String nickname;
+//    private String nickname;
     private String saas_alias;
     private Timestamp register_date;
 }

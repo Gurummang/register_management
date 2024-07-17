@@ -19,6 +19,7 @@ public class OrgSaasResponse {
     private String saas_admin_email;
     private String saas_alias;
 
+    private String message;
     //    // GET /api/v1/org-saas/{saasId}/mkUrl
 //    // 버튼 누를 때 생성
 //    //
@@ -52,6 +53,11 @@ public class OrgSaasResponse {
         this.org_saas_id = org_saas_id;
         this.saas_admin_email = saas_admin_email;
     }
+    // POST (예외)
+    public OrgSaasResponse(String status, String message) {
+        this.status = status;
+        this.message = message;
+    }
     // GET getOrgSaasList()
     public OrgSaasResponse(String status, Integer org_saas_id, Integer regi_status, String webhook_url, String saas_admin_email, String saas_alias, Timestamp ts) {
 
@@ -63,6 +69,4 @@ public class OrgSaasResponse {
         this.saas_alias = saas_alias;
         this.ts = ts;
     }
-
-
 }
