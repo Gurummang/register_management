@@ -15,8 +15,8 @@ public class OrgSaas {
     private Integer id;
     private Integer org_id;
     private Integer saas_id;
-    private Integer config_id;
-    //    @Column(name = "status", nullable = false, columnDefinition = "int default 0")
-    private Integer status = 0;
+    private String space_id;    // workspace_id
+    private Integer config;     // ref:> workspace_config.id
+    private Integer status = 0; // default
     private Integer security_score;
 }
