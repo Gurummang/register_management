@@ -20,6 +20,6 @@ public class Workspace {
     private String token;       // api_key, api_token
     private String webhook; // webhook은 workspace당 한개로!
     private String validation = "[default]";
-    private String alias;
+    private String alias = "[default]";
     private Timestamp register_date;
 }
