@@ -4,11 +4,9 @@ import GASB.register_management.dto.OrgSaasRequest;
 import GASB.register_management.dto.OrgSaasResponse;
 import GASB.register_management.service.OrgSaasService;
 import GASB.register_management.entity.OrgSaas;
-import GASB.register_management.entity.OrgSaasConfig;
+import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;
-import GASB.register_management.repository.OrgSaasConfigRepository;
-import GASB.register_management.entity.Saas;
-import GASB.register_management.repository.SaasRepository;
+import GASB.register_management.repository.WorkspaceRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,9 +14,6 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.UUID;
 
 @Service
 public class OrgSaasServiceImple implements OrgSaasService {
@@ -26,26 +21,29 @@ public class OrgSaasServiceImple implements OrgSaasService {
     @Autowired
     private OrgSaasRepository orgSaasRepository;
     @Autowired
-    private OrgSaasConfigRepository orgSaasConfigRepository;
+    private WorkspaceRepository workspaceRepository;
 
     @Override
     public OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest) {
         OrgSaas orgSaas = new OrgSaas();
-        OrgSaasConfig orgSaasConfig = new OrgSaasConfig();
+        Workspace workSpace = new Workspace();
 
-        orgSaasConfig.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
-        orgSaasConfig.setApi_key(orgSaasRequest.getApi_key());
-        orgSaasConfig.setWebhook_url(orgSaasRequest.getWebhook_url());
-        orgSaasConfig.setSaas_alias(orgSaasRequest.getSaas_alias());
-        orgSaasConfig.setRegister_date(Timestamp.valueOf(LocalDateTime.now()));
-        OrgSaasConfig saveOrgSaasConfig = orgSaasConfigRepository.save(orgSaasConfig);
-
-        orgSaas.setOrg_id(orgSaasRequest.getOrg_id());
+        // config
+        workSpace.setWorkspace_name(orgSaasRequest.getWorkspace_name());
+//      workSpace.setAlias(orgSaasRequest.getAlias());  // 용도가 애매해
+        workSpace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
+        workSpace.setWebhook(orgSaasRequest.getWebhook_url());
+        workSpace.setToken(orgSaasRequest.getToken());
+        Workspace saveWorkSpace = workspaceRepository.save(workSpace);
+        // OrgSaas
+        orgSaas.setOrg_id(orgSaasRequest.getOrg_id());;
         orgSaas.setSaas_id(orgSaasRequest.getSaas_id());
-        orgSaas.setConfig_id(saveOrgSaasConfig.getId());
+        orgSaas.setConfig(saveWorkSpace.getId());
+        orgSaas.setSpace_id(String.valueOf(orgSaasRequest.getSpace_id()));  // Setter가 id라 int로 인식한듯?
         OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
 
-        return new OrgSaasResponse( saveOrgSaas.getId(), saveOrgSaasConfig.getSaas_admin_email(), saveOrgSaasConfig.getRegister_date());
+        return new OrgSaasResponse(saveWorkSpace.getId(), saveWorkSpace.getWorkspace_name());
+
     }
 
     @Override
