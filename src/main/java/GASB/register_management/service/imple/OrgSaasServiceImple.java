@@ -69,11 +69,11 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
     @Override
     public OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest) {
-        Workspace workspace = new Workspace();
-
+//        Workspace workspace = new Workspace();
+        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getConfig_id()));
 //        < Req >
 //        {
-//            "config_id": int,
+//            "config_id": Long,
 //            "workspace_name": string,
 //            "saas_admin_email": string,
 //            "token": string
@@ -87,11 +87,22 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //            "register_date": ts
 //        }
 
-        if(workspace.getId().equals(orgSaasRequest.getConfig_id())) {
-            workspace.setWorkspace_name(orgSaasRequest.getWorkspace_name());
-            workspace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
-            workspace.setToken(orgSaasRequest.getToken());
-//          workspace.setWebhook(orgSaasRequest.getWebhook_url());  // 이걸 수정 할 일이 있을까?
+        if(optionalWorkspace.isPresent()) {
+            Workspace workspace = optionalWorkspace.get();
+
+            // 이렇게 안하면 입력 안한 속성이 null되버림
+            if (orgSaasRequest.getWorkspace_name() != null) {
+                workspace.setWorkspace_name(orgSaasRequest.getWorkspace_name());
+            }
+            if (orgSaasRequest.getSaas_admin_email() != null) {
+                workspace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
+            }
+            if (orgSaasRequest.getToken() != null) {
+                workspace.setToken(orgSaasRequest.getToken());
+            }
+            if (orgSaasRequest.getWebhook_url() != null) {
+                workspace.setWebhook(orgSaasRequest.getWebhook_url());
+            }
             workspace.setRegister_date(Timestamp.valueOf(LocalDateTime.now()));     //register_date긴한데 그냥 last_modified~로 이해하면 됨
             Workspace saveWorkspace = workspaceRepository.save(workspace);
 

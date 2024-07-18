@@ -22,4 +22,7 @@ public class OrgSaasRequest {
     private Integer org_id;
     private Integer saas_id;
     private String space_id;
+
+
+
 }

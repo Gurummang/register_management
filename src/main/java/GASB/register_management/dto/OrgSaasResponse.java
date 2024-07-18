@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrgSaasResponse {
 
+    private String message;
     // Workspace_config
     private Integer config_id;      // workspace_config.id
     private String workspace_name;
@@ -27,10 +28,12 @@ public class OrgSaasResponse {
 
 // private String message; // "[Success / Failure]: ~~~ " -> 나중에 하자, 급한거 아님
 
-    // POST(register)
-    public OrgSaasResponse(Integer config_id, String workspace_name) {
+    // POST(regi, modify)
+    public OrgSaasResponse(String message,Integer config_id, String workspace_name, Timestamp register_date) {
+        this.message = message;
         this.config_id = config_id;
         this.workspace_name = workspace_name;
+        this.register_date = register_date;
     }
 
 }
