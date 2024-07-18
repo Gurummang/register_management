@@ -18,5 +18,5 @@ public class OrgSaas {
     private String space_id;    // workspace_id
     private Integer config;     // ref:> workspace_config.id
     private Integer status = 0; // default
-    private Integer security_score;
+    private Integer security_score = 0; // default
 }
