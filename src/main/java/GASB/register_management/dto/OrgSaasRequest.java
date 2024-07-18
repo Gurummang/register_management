@@ -19,6 +19,7 @@ public class OrgSaasRequest {
     private String token;
 
     // OrgSaas
+    private Integer org_saas_id;
     private Integer org_id;
     private Integer saas_id;
     private String space_id;

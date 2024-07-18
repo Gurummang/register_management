@@ -115,7 +115,20 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
     @Override
     public OrgSaasResponse deleteOrgSaas(OrgSaasRequest orgSaasRequest) {
-        return null;
+        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getConfig_id()));
+
+
+        if(optionalWorkspace.isPresent()) {
+            Workspace workspace = optionalWorkspace.get();
+
+            List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(Long.valueOf(orgSaasRequest.getConfig_id()));
+            orgSaasRepository.deleteAll(orgSaasList);
+            workspaceRepository.delete(workspace);
+            return new OrgSaasResponse("Success", workspace.getId());
+        }
+        else {
+            return new OrgSaasResponse("failure", orgSaasRequest.getConfig_id());
+        }
     }
 
     @Override

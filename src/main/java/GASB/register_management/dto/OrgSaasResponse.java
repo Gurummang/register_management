@@ -36,4 +36,11 @@ public class OrgSaasResponse {
         this.register_date = register_date;
     }
 
+    // POST(delete)
+    public OrgSaasResponse(String message, Integer config_id) {
+        this.message = message;
+        this.org_saas_id = org_saas_id;
+        this.config_id = config_id;
+    }
+
 }
