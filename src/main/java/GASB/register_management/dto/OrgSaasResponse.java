@@ -60,4 +60,8 @@ public class OrgSaasResponse {
         this.register_date = register_date;
     }
 
+    public OrgSaasResponse(String message, String webhook) {
+        this.message = message;
+        this.webhook = webhook;
+    }
 }

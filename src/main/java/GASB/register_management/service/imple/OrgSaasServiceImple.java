@@ -2,6 +2,8 @@ package GASB.register_management.service.imple;
 
 import GASB.register_management.dto.OrgSaasRequest;
 import GASB.register_management.dto.OrgSaasResponse;
+import GASB.register_management.entity.Saas;
+import GASB.register_management.repository.SaasRepository;
 import GASB.register_management.service.OrgSaasService;
 import GASB.register_management.entity.OrgSaas;
 import GASB.register_management.entity.Workspace;
@@ -16,6 +18,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +28,22 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private OrgSaasRepository orgSaasRepository;
     @Autowired
     private WorkspaceRepository workspaceRepository;
+    @Autowired
+    private SaasRepository saasRepository;
+
+    @Override
+    public OrgSaasResponse getUrl(Integer saasId){
+        Optional<Saas> saasOptional = saasRepository.findById(saasId);
+
+        if(saasOptional.isPresent()){
+            Saas saas = saasOptional.get();
+
+            return new OrgSaasResponse("success", "http//gurm.com/" + saas.getSaas_name() + "/" + UUID.randomUUID().toString());
+        }
+        else {
+            return new OrgSaasResponse("failure: Saas not found for id" + saasId, "");
+        }
+    }
 
     @Override
     public OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest) {
@@ -132,36 +151,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
         }
     }
 
-//    @Override
-//    public List<OrgSaasResponse> getOrgSaasList(Integer orgId) {
-//        // org_id에 해당하는 OrgSaas 엔티티 리스트 조회 (조인된 결과를 바로 가져옴)
-//        List<OrgSaas> orgSaasList = orgSaasRepository.findByOrgId(orgId);
-//
-//        // OrgSaas 엔티티를 OrgSaasResponse로 매핑하여 리스트에 추가
-//        List<OrgSaasResponse> orgSaasResponseList = orgSaasList.stream()
-//                .map(orgSaas -> {
-//                    OrgSaasResponse response = new OrgSaasResponse();
-//                    response.setMessage("Success"); // 예시 메시지 설정
-//                    response.setSaas_id(orgSaas.getSaas_id());
-//                    response.setConfig_id(orgSaas.getConfig()); // workspace_config.id
-//                    response.setStatus(orgSaas.getStatus());
-//
-//                    Workspace workspace = orgSaas.getWorkspace();
-//                    if (workspace != null) {
-//                        response.setWorkspace_name(workspace.getWorkspace_name());
-//                        response.setToken(workspace.getToken());
-//                        response.setWebhook(workspace.getWebhook());
-//                        response.setSaas_admin_email(workspace.getSaas_admin_email());
-//                        response.setRegister_date(workspace.getRegister_date());
-//                    }
-//
-//                    return response;
-//                })
-//                .collect(Collectors.toList());
-//
-//        return orgSaasResponseList;
-//        return null;
-//    }
     @Override
     public List<OrgSaasResponse> getOrgSaasList(Integer orgId) {
         List<Object[]> results = orgSaasRepository.findByOrgId(orgId);
@@ -184,4 +173,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
             );
         }).collect(Collectors.toList());
     }
+
+
 }

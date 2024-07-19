@@ -16,6 +16,11 @@ public class OrgSaasController {
     @Autowired
     private OrgSaasService orgSaasService;
 
+    @GetMapping("/{saasId}/mkUrl")
+    public OrgSaasResponse mkUrl(@PathVariable Integer saasId) {
+        return orgSaasService.getUrl(saasId);
+    }
+
     @PostMapping("/register")
     public OrgSaasResponse register(@RequestBody OrgSaasRequest orgSaasRequest) {
         return orgSaasService.registerOrgSaas(orgSaasRequest);
