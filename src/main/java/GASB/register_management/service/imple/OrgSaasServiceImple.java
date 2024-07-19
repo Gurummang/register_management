@@ -54,13 +54,15 @@ public class OrgSaasServiceImple implements OrgSaasService {
         OrgSaas orgSaas = new OrgSaas();
         Workspace workSpace = new Workspace();
 
-        String slackInfo;
         try {
+            List<String> slackInfo;
             slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
-
+            String teamName = slackInfo.get(0);
+            workSpace.setWorkspace_name(teamName);
+//            String teamId = slackInfo.get(1);
+//            String teamUrl = slackInfo.get(2);
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            slackInfo = "Failed to fetch Slack team info.";
+            return new OrgSaasResponse("failure: " + e.getMessage(), null, null, null);
         }
 
 //        < Req >
@@ -82,7 +84,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //        }
 
         // config
-        workSpace.setWorkspace_name(orgSaasRequest.getWorkspace_name());
 //      workSpace.setAlias(orgSaasRequest.getAlias());  // 용도가 애매해
         workSpace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
         workSpace.setWebhook(orgSaasRequest.getWebhook_url());
@@ -104,6 +105,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
     public OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest) {
 //        Workspace workspace = new Workspace();
         Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getConfig_id()));
+        Workspace workspace = optionalWorkspace.get();
 //        < Req >
 //        {
 //            "config_id": Long,
@@ -119,23 +121,22 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //            "workspace_name": string,
 //            "register_date": ts
 //        }
-
         // Slack API 호출
-        String slackInfo;
         try {
+            List<String> slackInfo;
             slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
+            String teamName = slackInfo.get(0);
+            workspace.setWorkspace_name(teamName);
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            slackInfo = "Failed to fetch Slack team info.";
+            return new OrgSaasResponse("failure: " + e.getMessage(), null, null, null);
         }
 
         if(optionalWorkspace.isPresent()) {
-            Workspace workspace = optionalWorkspace.get();
 
-            // 이렇게 안하면 입력 안한 속성이 null되버림
-            if (orgSaasRequest.getWorkspace_name() != null) {
-                workspace.setWorkspace_name(orgSaasRequest.getWorkspace_name());
-            }
+//            // 이렇게 안하면 입력 안한 속성이 null되버림
+//            if (orgSaasRequest.getWorkspace_name() != null) {
+//                workspace.setWorkspace_name(orgSaasRequest.getWorkspace_name());
+//            }
             if (orgSaasRequest.getSaas_admin_email() != null) {
                 workspace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
             }

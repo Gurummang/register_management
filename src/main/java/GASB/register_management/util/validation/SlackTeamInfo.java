@@ -9,13 +9,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class SlackTeamInfo {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String getTeamInfo(String token) throws IOException, InterruptedException {
+    public List<String> getTeamInfo(String token) throws IOException, InterruptedException {
         String url = "https://slack.com/api/team.info";
 
         // HttpClient 생성
@@ -41,17 +43,24 @@ public class SlackTeamInfo {
             // JSON 응답에서 필요한 값 추출
             if (jsonNode.path("ok").asBoolean()) {
                 JsonNode teamNode = jsonNode.path("team");
-                String teamName = teamNode.path("name").asText("No Team Name");
-                String teamId = teamNode.path("id").asText("No Team ID");
+
+                String teamName = teamNode.path("name").asText("");
+                String teamId = teamNode.path("id").asText("");
+                String teamDomain = teamNode.path("domain").asText("");
+
+                List<String> teamInfo = new ArrayList<>();
+                teamInfo.add(teamName);
+                teamInfo.add(teamId);
+                teamInfo.add(teamDomain);
 
                 // 특정 값 반환
-                return String.format("Team Name: %s\nTeam ID: %s", teamName, teamId);
+                return teamInfo;
             } else {
                 String error = jsonNode.path("error").asText("Unknown error");
-                return "Error: " + error;
+                throw new IOException("Error: " + error);
             }
         } else {
-            return "Failed to fetch team info. Status code: " + response.statusCode();
+            throw new IOException("Failed to fetch team info. Status code: " + response.statusCode());
         }
     }
 }
