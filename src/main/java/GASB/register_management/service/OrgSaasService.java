@@ -9,5 +9,5 @@ public interface OrgSaasService {
     OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest);
     OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest);
     OrgSaasResponse deleteOrgSaas(OrgSaasRequest orgSaasRequest);
-    List<OrgSaasResponse> getOrgSaasList();
+    List<OrgSaasResponse> getOrgSaasList(Integer orgId);
 }

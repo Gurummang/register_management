@@ -23,9 +23,11 @@ public class OrgSaasResponse {
 //  private String validation;    // 나중에
     // OrgSaas
     private Integer org_saas_id;
+    private Integer org_id;
+    private Integer saas_id;
     private Integer status;         // 연동 상태
     private String security_score;
-
+    private String saas_name;
 // private String message; // "[Success / Failure]: ~~~ " -> 나중에 하자, 급한거 아님
 
     // POST(regi, modify)
@@ -39,8 +41,23 @@ public class OrgSaasResponse {
     // POST(delete)
     public OrgSaasResponse(String message, Integer config_id) {
         this.message = message;
-        this.org_saas_id = org_saas_id;
         this.config_id = config_id;
+    }
+
+    public OrgSaasResponse(String message, Integer saas_id, Integer config_id, Integer status,
+                           String workspace_name, String token, String webhook,
+                           String saas_admin_email, Timestamp register_date) {
+
+        this.message = message;
+        this.saas_id = saas_id;
+        this.config_id = config_id;
+        this.status = status;
+
+        this.workspace_name = workspace_name;
+        this.token = token;
+        this.webhook = webhook;
+        this.saas_admin_email = saas_admin_email;
+        this.register_date = register_date;
     }
 
 }

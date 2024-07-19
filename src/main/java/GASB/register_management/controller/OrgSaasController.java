@@ -31,8 +31,9 @@ public class OrgSaasController {
         return orgSaasService.deleteOrgSaas(orgSaasRequest);
     }
 
-    @GetMapping
-    public List<OrgSaasResponse> getOrgSaasList() {
-        return orgSaasService.getOrgSaasList();
+    @GetMapping("/{orgId}")
+    public List<OrgSaasResponse> getOrgSaasList(@PathVariable Integer orgId) {
+        System.out.println(orgId);
+        return orgSaasService.getOrgSaasList(orgId);
     }
 }

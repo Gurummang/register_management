@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrgSaasServiceImple implements OrgSaasService {
@@ -131,11 +132,56 @@ public class OrgSaasServiceImple implements OrgSaasService {
         }
     }
 
+//    @Override
+//    public List<OrgSaasResponse> getOrgSaasList(Integer orgId) {
+//        // org_id에 해당하는 OrgSaas 엔티티 리스트 조회 (조인된 결과를 바로 가져옴)
+//        List<OrgSaas> orgSaasList = orgSaasRepository.findByOrgId(orgId);
+//
+//        // OrgSaas 엔티티를 OrgSaasResponse로 매핑하여 리스트에 추가
+//        List<OrgSaasResponse> orgSaasResponseList = orgSaasList.stream()
+//                .map(orgSaas -> {
+//                    OrgSaasResponse response = new OrgSaasResponse();
+//                    response.setMessage("Success"); // 예시 메시지 설정
+//                    response.setSaas_id(orgSaas.getSaas_id());
+//                    response.setConfig_id(orgSaas.getConfig()); // workspace_config.id
+//                    response.setStatus(orgSaas.getStatus());
+//
+//                    Workspace workspace = orgSaas.getWorkspace();
+//                    if (workspace != null) {
+//                        response.setWorkspace_name(workspace.getWorkspace_name());
+//                        response.setToken(workspace.getToken());
+//                        response.setWebhook(workspace.getWebhook());
+//                        response.setSaas_admin_email(workspace.getSaas_admin_email());
+//                        response.setRegister_date(workspace.getRegister_date());
+//                    }
+//
+//                    return response;
+//                })
+//                .collect(Collectors.toList());
+//
+//        return orgSaasResponseList;
+//        return null;
+//    }
     @Override
-    public List<OrgSaasResponse> getOrgSaasList() {
-        return List.of();
+    public List<OrgSaasResponse> getOrgSaasList(Integer orgId) {
+        List<Object[]> results = orgSaasRepository.findByOrgId(orgId);
+
+        return results.stream().map(result -> {
+            OrgSaas orgSaas = (OrgSaas) result[0];
+            Workspace workspace = (Workspace) result[1];
+
+            return new OrgSaasResponse(
+                    "Success",
+                    orgSaas.getSaas_id(),
+                    orgSaas.getConfig(),
+                    orgSaas.getStatus(),
+
+                    workspace.getWorkspace_name(),
+                    workspace.getToken(),
+                    workspace.getWebhook(),
+                    workspace.getSaas_admin_email(),
+                    workspace.getRegister_date()
+            );
+        }).collect(Collectors.toList());
     }
-
-
-
 }
