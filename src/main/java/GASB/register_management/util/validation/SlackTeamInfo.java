@@ -46,12 +46,10 @@ public class SlackTeamInfo {
 
                 String teamName = teamNode.path("name").asText("");
                 String teamId = teamNode.path("id").asText("");
-                String teamDomain = teamNode.path("domain").asText("");
 
                 List<String> teamInfo = new ArrayList<>();
                 teamInfo.add(teamName);
                 teamInfo.add(teamId);
-                teamInfo.add(teamDomain);
 
                 // 특정 값 반환
                 return teamInfo;

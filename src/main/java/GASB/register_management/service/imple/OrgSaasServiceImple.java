@@ -58,9 +58,11 @@ public class OrgSaasServiceImple implements OrgSaasService {
             List<String> slackInfo;
             slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
             String teamName = slackInfo.get(0);
+            String teamId = slackInfo.get(1);
             workSpace.setWorkspace_name(teamName);
-//            String teamId = slackInfo.get(1);
-//            String teamUrl = slackInfo.get(2);
+            orgSaas.setSpace_id(teamId);
+            System.out.println("teamName: " + teamName);
+            System.out.println("teamId: " + teamId);
         } catch (IOException | InterruptedException e) {
             return new OrgSaasResponse("failure: " + e.getMessage(), null, null, null);
         }
@@ -70,7 +72,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //            "org_id": int,                  // FE가 입력 // 세션에 있을듯?
 //            "saas_id": int,                 // 등록할 때 받아서 POST
 //            "space_id": string,             // space_id랑 뭐가 다르지?
-//            "workspace_name": string,       // API로 얻어서 입력 // 서현이가? // valid때 내가 할수도? // client가 입력할수도?
+//            "alias": string,
 //            "saas_admin_email": string,
 //            "webhook_url": string,          // BE가 생성해서 넘겨준 url // 보여주기만 하고 다시 POST
 //            "token": string                // client가 입력
@@ -84,7 +86,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //        }
 
         // config
-//      workSpace.setAlias(orgSaasRequest.getAlias());  // 용도가 애매해
+        workSpace.setAlias(orgSaasRequest.getAlias());  // 용도가 애매해
         workSpace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
         workSpace.setWebhook(orgSaasRequest.getWebhook_url());
         workSpace.setToken(orgSaasRequest.getToken());
@@ -92,9 +94,8 @@ public class OrgSaasServiceImple implements OrgSaasService {
         Workspace saveWorkSpace = workspaceRepository.save(workSpace);
         // OrgSaas
         orgSaas.setConfig(saveWorkSpace.getId());
-        orgSaas.setOrg_id(orgSaasRequest.getOrg_id());;
+        orgSaas.setOrg_id(orgSaasRequest.getOrg_id());
         orgSaas.setSaas_id(orgSaasRequest.getSaas_id());
-        orgSaas.setSpace_id(String.valueOf(orgSaasRequest.getSpace_id()));  // Setter가 id라 int로 인식한듯?
         OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
 
         return new OrgSaasResponse("Success", saveWorkSpace.getId(), saveWorkSpace.getWorkspace_name(), saveWorkSpace.getRegister_date());
@@ -103,9 +104,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
     @Override
     public OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest) {
-//        Workspace workspace = new Workspace();
         Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getConfig_id()));
         Workspace workspace = optionalWorkspace.get();
+        Optional<OrgSaas> optionalOrgSaas = orgSaasRepository.findById(orgSaasRequest.getConfig_id());
+        OrgSaas orgSaas = optionalOrgSaas.get();
 //        < Req >
 //        {
 //            "config_id": Long,
@@ -126,17 +128,22 @@ public class OrgSaasServiceImple implements OrgSaasService {
             List<String> slackInfo;
             slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
             String teamName = slackInfo.get(0);
+            String teamId = slackInfo.get(1);
             workspace.setWorkspace_name(teamName);
+            orgSaas.setSpace_id(teamId);
+            OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
+
+
         } catch (IOException | InterruptedException e) {
             return new OrgSaasResponse("failure: " + e.getMessage(), null, null, null);
         }
 
         if(optionalWorkspace.isPresent()) {
 
-//            // 이렇게 안하면 입력 안한 속성이 null되버림
-//            if (orgSaasRequest.getWorkspace_name() != null) {
-//                workspace.setWorkspace_name(orgSaasRequest.getWorkspace_name());
-//            }
+            // 이렇게 안하면 입력 안한 속성이 null되버림
+            if (orgSaasRequest.getAlias() != null) {
+                workspace.setAlias(orgSaasRequest.getAlias());
+            }
             if (orgSaasRequest.getSaas_admin_email() != null) {
                 workspace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
             }
@@ -188,7 +195,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                     orgSaas.getConfig(),
                     orgSaas.getStatus(),
 
-                    workspace.getWorkspace_name(),
+                    workspace.getAlias(),
                     workspace.getToken(),
                     workspace.getWebhook(),
                     workspace.getSaas_admin_email(),
