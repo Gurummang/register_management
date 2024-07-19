@@ -42,19 +42,16 @@ public class AdminServiceImple implements AdminService {
         if (optionalAdmin.isPresent()) {
             Admin admin = optionalAdmin.get();
 
-            if (admin.getEmail().equals(adminRequest.getCur_email()) && admin.getPassword().equals(adminRequest.getCur_password())) {
-                admin.setOrg_id(adminRequest.getOrg_id());
-                admin.setEmail(adminRequest.getEmail());
-                admin.setPassword(adminRequest.getPassword());
-                admin.setFirst_name(adminRequest.getFirst_name());
-                admin.setLast_name(adminRequest.getLast_name());
-                admin.setLast_login(Timestamp.valueOf(LocalDateTime.now()));
-                Admin updatedAdmin = adminRepository.save(admin);
+            admin.setOrg_id(adminRequest.getOrg_id());
+            admin.setEmail(adminRequest.getEmail());
+            admin.setPassword(adminRequest.getPassword());
+            admin.setFirst_name(adminRequest.getFirst_name());
+            admin.setLast_name(adminRequest.getLast_name());
+            admin.setLast_login(Timestamp.valueOf(LocalDateTime.now()));
+            Admin updatedAdmin = adminRepository.save(admin);
 
-                return new AdminResponse("success", "Modify Success: " + updatedAdmin.getFirst_name() + " " + updatedAdmin.getLast_name(), updatedAdmin.getId());
-            } else {
-                return new AdminResponse("failure", "Email or password do not match for ID: " + adminRequest.getId(), null);
-            }
+            return new AdminResponse("success", "Modify Success: " + updatedAdmin.getFirst_name() + " " + updatedAdmin.getLast_name(), updatedAdmin.getId());
+
         } else {
             return new AdminResponse("failure", "Admin not found for ID: " + adminRequest.getId(), null);
         }
