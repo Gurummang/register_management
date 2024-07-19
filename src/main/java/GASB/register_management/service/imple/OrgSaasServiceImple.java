@@ -10,10 +10,12 @@ import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
 
+import GASB.register_management.util.validation.SlackTeamInfo;
 import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +32,8 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private WorkspaceRepository workspaceRepository;
     @Autowired
     private SaasRepository saasRepository;
+    @Autowired
+    private SlackTeamInfo slackTeamInfo;
 
     @Override
     public OrgSaasResponse getUrl(Integer saasId){
@@ -49,6 +53,15 @@ public class OrgSaasServiceImple implements OrgSaasService {
     public OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest) {
         OrgSaas orgSaas = new OrgSaas();
         Workspace workSpace = new Workspace();
+
+        String slackInfo;
+        try {
+            slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            slackInfo = "Failed to fetch Slack team info.";
+        }
 
 //        < Req >
 //        {
@@ -106,6 +119,15 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //            "workspace_name": string,
 //            "register_date": ts
 //        }
+
+        // Slack API 호출
+        String slackInfo;
+        try {
+            slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            slackInfo = "Failed to fetch Slack team info.";
+        }
 
         if(optionalWorkspace.isPresent()) {
             Workspace workspace = optionalWorkspace.get();
