@@ -1,6 +1,7 @@
 package GASB.register_management.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,6 +14,7 @@ public class SaasResponse {
     private String status;
     private String message;
     private Integer id;
+    @JsonProperty("saasName")
     private String saas_name;
 
     // Constructor for POST responses
