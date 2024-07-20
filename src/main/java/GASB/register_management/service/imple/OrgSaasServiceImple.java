@@ -185,20 +185,21 @@ public class OrgSaasServiceImple implements OrgSaasService {
     public List<OrgSaasResponse> getOrgSaasList(Integer orgId) {
         List<Object[]> results = orgSaasRepository.findByOrgId(orgId);
 
+
         return results.stream().map(result -> {
             OrgSaas orgSaas = (OrgSaas) result[0];
             Workspace workspace = (Workspace) result[1];
 
             return new OrgSaasResponse(
                     "Success",
-                    orgSaas.getSaas_id(),
-                    orgSaas.getConfig(),
-                    orgSaas.getStatus(),
+                    orgSaas.getConfig(),    // id
+                    orgSaas.getSaas_id(),   // saas_name
+                    workspace.getAlias(),   // alias
+                    orgSaas.getStatus(),    // status
 
-                    workspace.getAlias(),
+                    workspace.getSaas_admin_email(),
                     workspace.getToken(),
                     workspace.getWebhook(),
-                    workspace.getSaas_admin_email(),
                     workspace.getRegister_date()
             );
         }).collect(Collectors.toList());
