@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "message", "config_id", "saas_id", "alias", "status",
+        "message", "config_id", "saasName", "alias", "status",
         "saas_admin_email", "token", "validation", "webhook", "register_date"
 })
 public class OrgSaasResponse {
@@ -37,6 +37,7 @@ public class OrgSaasResponse {
     private Integer org_id;
     @JsonProperty("saasId")
     private Integer saas_id;
+    private String saasName;
     private Integer status;         // 연동 상태
     private String security_score;
     private String saas_name;
@@ -56,13 +57,13 @@ public class OrgSaasResponse {
         this.config_id = config_id;
     }
 
-    public OrgSaasResponse(String message, Integer config_id, Integer saas_id, String alias, Integer status,
+    public OrgSaasResponse(String message, Integer config_id, String saas_name, String alias, Integer status,
                            String saas_admin_email, String token, String validation, String webhook,
                             Timestamp register_date) {
 
         this.message = message;
         this.config_id = config_id;
-        this.saas_id = saas_id;
+        this.saasName = saas_name;
         this.alias = alias;
         this.status = status;
         this.saas_admin_email = saas_admin_email;

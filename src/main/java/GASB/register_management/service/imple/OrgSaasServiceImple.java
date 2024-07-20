@@ -234,16 +234,21 @@ public class OrgSaasServiceImple implements OrgSaasService {
     @Override
     public List<OrgSaasResponse> getOrgSaasList(Integer orgId) {
         List<Object[]> results = orgSaasRepository.findByOrgId(orgId);
+        System.out.println(orgId);
 
 
         return results.stream().map(result -> {
             OrgSaas orgSaas = (OrgSaas) result[0];
             Workspace workspace = (Workspace) result[1];
 
+            Optional<Saas> saasOptional = saasRepository.findById(orgSaas.getSaas_id());
+            String saasName = saasOptional.get().getSaas_name();
+            System.out.println(saasName);
+
             return new OrgSaasResponse(
                     "Success",
                     orgSaas.getConfig(),    // id
-                    orgSaas.getSaas_id(),   // saas_name
+                    saasName,   // saas_name
                     workspace.getAlias(),   // alias
                     orgSaas.getStatus(),    // status
 
