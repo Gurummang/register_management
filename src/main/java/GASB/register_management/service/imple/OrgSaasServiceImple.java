@@ -74,7 +74,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             orgSaas.setSaas_id(orgSaasRequest.getSaas_id());
             OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
 
-            return new OrgSaasResponse("Success", saveWorkSpace.getId(), saveWorkSpace.getWorkspace_name(), saveWorkSpace.getRegister_date());
+            return new OrgSaasResponse("Success", saveWorkSpace.getId(), saveWorkSpace.getAlias(), saveWorkSpace.getRegister_date());
         } catch (IOException | InterruptedException e) {
             workSpace.setValidation("Invalid");
 
@@ -142,7 +142,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             orgSaas.setSaas_id(orgSaasRequest.getSaas_id());
             OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
 
-            return new OrgSaasResponse("Success", saveWorkSpace.getId(), saveWorkSpace.getWorkspace_name(), saveWorkSpace.getRegister_date());
+            return new OrgSaasResponse("Success", saveWorkSpace.getId(), saveWorkSpace.getAlias(), saveWorkSpace.getRegister_date());
         } catch (IOException | InterruptedException e) {
             workSpace.setValidation("Invalid");
 
