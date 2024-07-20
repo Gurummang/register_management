@@ -55,18 +55,44 @@ public class OrgSaasServiceImple implements OrgSaasService {
         Workspace workSpace = new Workspace();
 
         try {
-            List<String> slackInfo;
-            slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
+            List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
             String teamName = slackInfo.get(0);
             String teamId = slackInfo.get(1);
             workSpace.setWorkspace_name(teamName);
             orgSaas.setSpace_id(teamId);
-            System.out.println("teamName: " + teamName);
-            System.out.println("teamId: " + teamId);
-            workSpace.setValidation("API Token Valid");
+            workSpace.setValidation("Valid");
+
+            workSpace.setAlias(orgSaasRequest.getAlias());
+            workSpace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
+            workSpace.setWebhook(orgSaasRequest.getWebhook_url());
+            workSpace.setToken(orgSaasRequest.getToken());
+            workSpace.setRegister_date(Timestamp.valueOf(LocalDateTime.now()));
+            Workspace saveWorkSpace = workspaceRepository.save(workSpace);
+            // OrgSaas
+            orgSaas.setConfig(saveWorkSpace.getId());
+            orgSaas.setOrg_id(orgSaasRequest.getOrg_id());
+            orgSaas.setSaas_id(orgSaasRequest.getSaas_id());
+            OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
+
+            return new OrgSaasResponse("Success", saveWorkSpace.getId(), saveWorkSpace.getWorkspace_name(), saveWorkSpace.getRegister_date());
         } catch (IOException | InterruptedException e) {
-            return new OrgSaasResponse("failure: " + e.getMessage(), null, null, null);
+            workSpace.setValidation("Invalid");
+
+            workSpace.setAlias(orgSaasRequest.getAlias());
+            workSpace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
+            workSpace.setWebhook(orgSaasRequest.getWebhook_url());
+            workSpace.setToken(orgSaasRequest.getToken());
+            workSpace.setRegister_date(Timestamp.valueOf(LocalDateTime.now()));
+            Workspace saveWorkSpace = workspaceRepository.save(workSpace);
+            // OrgSaas
+            orgSaas.setConfig(saveWorkSpace.getId());
+            orgSaas.setOrg_id(orgSaasRequest.getOrg_id());
+            orgSaas.setSaas_id(orgSaasRequest.getSaas_id());
+            OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
+            return new OrgSaasResponse("Failure: " + e.getMessage(), null, null, null);
         }
+
+    }
 
 //        < Req >
 //        {
@@ -86,29 +112,53 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //            "register_date": timestamp      // YYYY/MM/DD
 //        }
 
-        // config
-        workSpace.setAlias(orgSaasRequest.getAlias());  // 용도가 애매해
-        workSpace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
-        workSpace.setWebhook(orgSaasRequest.getWebhook_url());
-        workSpace.setToken(orgSaasRequest.getToken());
-        workSpace.setRegister_date(Timestamp.valueOf(LocalDateTime.now()));
-        Workspace saveWorkSpace = workspaceRepository.save(workSpace);
-        // OrgSaas
-        orgSaas.setConfig(saveWorkSpace.getId());
-        orgSaas.setOrg_id(orgSaasRequest.getOrg_id());
-        orgSaas.setSaas_id(orgSaasRequest.getSaas_id());
-        OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
 
-        return new OrgSaasResponse("Success", saveWorkSpace.getId(), saveWorkSpace.getWorkspace_name(), saveWorkSpace.getRegister_date());
 
-    }
 
     @Override
     public OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest) {
         Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getConfig_id()));
-        Workspace workspace = optionalWorkspace.get();
+        Workspace workSpace = optionalWorkspace.get();
         Optional<OrgSaas> optionalOrgSaas = orgSaasRepository.findById(orgSaasRequest.getConfig_id());
         OrgSaas orgSaas = optionalOrgSaas.get();
+
+        try {
+            List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
+            String teamName = slackInfo.get(0);
+            String teamId = slackInfo.get(1);
+            workSpace.setWorkspace_name(teamName);
+            orgSaas.setSpace_id(teamId);
+            workSpace.setValidation("Valid");
+
+            workSpace.setAlias(orgSaasRequest.getAlias());
+            workSpace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
+            workSpace.setWebhook(orgSaasRequest.getWebhook_url());
+            workSpace.setToken(orgSaasRequest.getToken());
+            workSpace.setRegister_date(Timestamp.valueOf(LocalDateTime.now()));
+            Workspace saveWorkSpace = workspaceRepository.save(workSpace);
+            // OrgSaas
+            orgSaas.setConfig(saveWorkSpace.getId());
+            orgSaas.setOrg_id(orgSaasRequest.getOrg_id());
+            orgSaas.setSaas_id(orgSaasRequest.getSaas_id());
+            OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
+
+            return new OrgSaasResponse("Success", saveWorkSpace.getId(), saveWorkSpace.getWorkspace_name(), saveWorkSpace.getRegister_date());
+        } catch (IOException | InterruptedException e) {
+            workSpace.setValidation("Invalid");
+
+            workSpace.setAlias(orgSaasRequest.getAlias());
+            workSpace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
+            workSpace.setWebhook(orgSaasRequest.getWebhook_url());
+            workSpace.setToken(orgSaasRequest.getToken());
+            workSpace.setRegister_date(Timestamp.valueOf(LocalDateTime.now()));
+            Workspace saveWorkSpace = workspaceRepository.save(workSpace);
+            // OrgSaas
+            orgSaas.setConfig(saveWorkSpace.getId());
+            orgSaas.setOrg_id(orgSaasRequest.getOrg_id());
+            orgSaas.setSaas_id(orgSaasRequest.getSaas_id());
+            OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
+            return new OrgSaasResponse("Failure: " + e.getMessage(), null, null, null);
+        }
 //        < Req >
 //        {
 //            "config_id": Long,
@@ -125,42 +175,42 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //            "register_date": ts
 //        }
         // Slack API 호출
-        try {
-            List<String> slackInfo;
-            slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
-            String teamName = slackInfo.get(0);
-            String teamId = slackInfo.get(1);
-            workspace.setWorkspace_name(teamName);
-            orgSaas.setSpace_id(teamId);
-            OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
-            workspace.setValidation("API Token Valid");
-        } catch (IOException | InterruptedException e) {
-            return new OrgSaasResponse("failure: " + e.getMessage(), null, null, null);
-        }
-
-        if(optionalWorkspace.isPresent()) {
-
-            // 이렇게 안하면 입력 안한 속성이 null되버림
-            if (orgSaasRequest.getAlias() != null) {
-                workspace.setAlias(orgSaasRequest.getAlias());
-            }
-            if (orgSaasRequest.getSaas_admin_email() != null) {
-                workspace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
-            }
-            if (orgSaasRequest.getToken() != null) {
-                workspace.setToken(orgSaasRequest.getToken());
-            }
-            if (orgSaasRequest.getWebhook_url() != null) {
-                workspace.setWebhook(orgSaasRequest.getWebhook_url());
-            }
-            workspace.setRegister_date(Timestamp.valueOf(LocalDateTime.now()));     //register_date긴한데 그냥 last_modified~로 이해하면 됨
-            Workspace saveWorkspace = workspaceRepository.save(workspace);
-
-            return new OrgSaasResponse("Success", saveWorkspace.getId(), saveWorkspace.getWorkspace_name(), saveWorkspace.getRegister_date());
-        }
-        else {
-            return new OrgSaasResponse("Failure: Not found by ID", orgSaasRequest.getConfig_id(), null, null);
-        }
+//        try {
+//            List<String> slackInfo;
+//            slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getToken());
+//            String teamName = slackInfo.get(0);
+//            String teamId = slackInfo.get(1);
+//            workspace.setWorkspace_name(teamName);
+//            orgSaas.setSpace_id(teamId);
+//            OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
+//            workspace.setValidation("API Token Valid");
+//        } catch (IOException | InterruptedException e) {
+//            return new OrgSaasResponse("failure: " + e.getMessage(), null, null, null);
+//        }
+//
+//        if(optionalWorkspace.isPresent()) {
+//
+//            // 이렇게 안하면 입력 안한 속성이 null되버림
+//            if (orgSaasRequest.getAlias() != null) {
+//                workspace.setAlias(orgSaasRequest.getAlias());
+//            }
+//            if (orgSaasRequest.getSaas_admin_email() != null) {
+//                workspace.setSaas_admin_email(orgSaasRequest.getSaas_admin_email());
+//            }
+//            if (orgSaasRequest.getToken() != null) {
+//                workspace.setToken(orgSaasRequest.getToken());
+//            }
+//            if (orgSaasRequest.getWebhook_url() != null) {
+//                workspace.setWebhook(orgSaasRequest.getWebhook_url());
+//            }
+//            workspace.setRegister_date(Timestamp.valueOf(LocalDateTime.now()));     //register_date긴한데 그냥 last_modified~로 이해하면 됨
+//            Workspace saveWorkspace = workspaceRepository.save(workspace);
+//
+//            return new OrgSaasResponse("Success", saveWorkspace.getId(), saveWorkspace.getWorkspace_name(), saveWorkspace.getRegister_date());
+//        }
+//        else {
+//            return new OrgSaasResponse("Failure: Not found by ID", orgSaasRequest.getConfig_id(), null, null);
+//        }
     }
 
     @Override
