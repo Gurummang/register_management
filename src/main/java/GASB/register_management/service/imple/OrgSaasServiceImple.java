@@ -42,7 +42,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
         if(saasOptional.isPresent()){
             Saas saas = saasOptional.get();
 
-            return new OrgSaasResponse("success", "http//gurm.com/" + saas.getSaas_name() + "/" + UUID.randomUUID().toString());
+            return new OrgSaasResponse("success", "https://gurm.com/" + saas.getSaas_name() + "/" + UUID.randomUUID().toString());
         }
         else {
             return new OrgSaasResponse("failure: Saas not found for id" + saasId, "");
@@ -63,6 +63,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             orgSaas.setSpace_id(teamId);
             System.out.println("teamName: " + teamName);
             System.out.println("teamId: " + teamId);
+            workSpace.setValidation("API Token Valid");
         } catch (IOException | InterruptedException e) {
             return new OrgSaasResponse("failure: " + e.getMessage(), null, null, null);
         }
@@ -132,8 +133,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             workspace.setWorkspace_name(teamName);
             orgSaas.setSpace_id(teamId);
             OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
-
-
+            workspace.setValidation("API Token Valid");
         } catch (IOException | InterruptedException e) {
             return new OrgSaasResponse("failure: " + e.getMessage(), null, null, null);
         }
@@ -199,6 +199,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
                     workspace.getSaas_admin_email(),
                     workspace.getToken(),
+                    workspace.getValidation(),
                     workspace.getWebhook(),
                     workspace.getRegister_date()
             );
