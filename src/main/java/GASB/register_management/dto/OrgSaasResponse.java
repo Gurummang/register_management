@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "message", "config_id", "saas_id", "alias", "status",
-        "saas_admin_email", "token", "webhook", "register_date"
+        "saas_admin_email", "token", "validation", "webhook", "register_date"
 })
 public class OrgSaasResponse {
 
@@ -25,13 +25,13 @@ public class OrgSaasResponse {
     private String alias;
     @JsonProperty("adminEmail")
     private String saas_admin_email;
-    @JsonProperty("webhookURL")
+    @JsonProperty("webhookUrl")
     private String webhook;
     @JsonProperty("registerDate")
     private Timestamp register_date;
     @JsonProperty("apiToken")
     private String token;           // 이건 굳이?
-//  private String validation;    // 나중에
+    private String validation;    // 나중에
     // OrgSaas
     private Integer org_saas_id;
     private Integer org_id;
@@ -56,7 +56,7 @@ public class OrgSaasResponse {
     }
 
     public OrgSaasResponse(String message, Integer config_id, Integer saas_id, String alias, Integer status,
-                           String saas_admin_email, String token, String webhook,
+                           String saas_admin_email, String token, String validation, String webhook,
                             Timestamp register_date) {
 
         this.message = message;
@@ -66,6 +66,7 @@ public class OrgSaasResponse {
         this.status = status;
         this.saas_admin_email = saas_admin_email;
         this.token = token;
+        this.validation = validation;
         this.webhook = webhook;
         this.register_date = register_date;
     }
