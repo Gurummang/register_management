@@ -1,8 +1,8 @@
 package GASB.register_management.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,69 +12,73 @@ import java.sql.Timestamp;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "message", "config_id", "saasName", "alias", "status",
-        "saas_admin_email", "token", "validation", "webhook", "register_date"
+        "ok",
+        "errorCode",
+        "errorMessage",
+        "configId",
+        "saasName",
+        "alias",
+        "status",
+        "adminEmail",
+        "apiToken",
+        "validation",
+        "webhookUrl",
+        "registerDate"
 })
 public class OrgSaasResponse {
 
-    private String message;
+    private boolean ok;
+    private Integer errorCode;
+    private String errorMessage;
+
     // Workspace_config
-    @JsonProperty("id")
-    private Integer config_id;      // workspace_config.id
-    private String workspace_name;
+    private Integer configId;
     private String alias;
-    @JsonProperty("adminEmail")
-    private String saas_admin_email;
-    @JsonProperty("webhookUrl")
-    private String webhook;
-    @JsonProperty("registerDate")
-    private Timestamp register_date;
-    @JsonProperty("apiToken")
-    private String token;           // 이건 굳이?
-    private String validation;    // 나중에
+    private String adminEmail;
+    private String apiToken;
+    private Boolean validation;
+    private String webhookUrl;
+    private Timestamp registerDate;
+
     // OrgSaas
-    private Integer org_saas_id;
-    private Integer org_id;
-    @JsonProperty("saasId")
-    private Integer saas_id;
+    private Integer orgSaasId;
+    private Integer orgId;
+    private String saasId;
     private String saasName;
-    private Integer status;         // 연동 상태
-    private String security_score;
-    private String saas_name;
-// private String message; // "[Success / Failure]: ~~~ " -> 나중에 하자, 급한거 아님
+    private Integer status;
+    private String securityScore;
 
-    // POST(regi, modify)
-    public OrgSaasResponse(String message,Integer config_id, String alias, Timestamp register_date) {
-        this.message = message;
-        this.config_id = config_id;
-        this.alias = alias;
-        this.register_date = register_date;
+    // POST(regi, modify, delete)
+    public OrgSaasResponse(Boolean ok, Integer errorCode, String errorMessage, Integer configId, Timestamp registerDate) {
+        this.ok = ok;
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+        this.configId = configId;
+        this.registerDate = registerDate;
     }
-
-    // POST(delete)
-    public OrgSaasResponse(String message, Integer config_id) {
-        this.message = message;
-        this.config_id = config_id;
+    // GET(mkUrl)
+    public OrgSaasResponse(Boolean ok, Integer errorCode, String errorMessage, String webhookUrl) {
+        this.ok = ok;
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+        this.webhookUrl = webhookUrl;
     }
-
-    public OrgSaasResponse(String message, Integer config_id, String saas_name, String alias, Integer status,
-                           String saas_admin_email, String token, String validation, String webhook,
-                            Timestamp register_date) {
-
-        this.message = message;
-        this.config_id = config_id;
-        this.saasName = saas_name;
+    // GET(list)
+    public OrgSaasResponse(Boolean ok, Integer errorCode, String errorMessage,
+                           Integer configId, String saasName, String alias, Integer status,
+                           String adminEmail, String apiToken, Boolean validation, String webhookUrl, Timestamp registerDate) {
+        this.ok = ok;
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+        this.configId = configId;
+        this.saasName = saasName;
         this.alias = alias;
         this.status = status;
-        this.saas_admin_email = saas_admin_email;
-        this.token = token;
+        this.adminEmail = adminEmail;
+        this.apiToken = apiToken;
         this.validation = validation;
-        this.webhook = webhook;
-        this.register_date = register_date;
+        this.webhookUrl = webhookUrl;
+        this.registerDate = registerDate;
     }
 
-    public OrgSaasResponse(String message, String webhook) {
-        this.message = message;
-        this.webhook = webhook;
-    }
 }
