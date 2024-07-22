@@ -2,8 +2,6 @@ package GASB.register_management.repository;
 
 import GASB.register_management.entity.OrgSaas;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,6 +10,6 @@ import java.util.List;
 public interface OrgSaasRepository extends JpaRepository<OrgSaas, Integer> {
     List<OrgSaas> findByConfig(int config);
 
-    List<Object[]> findByOrgId(Integer orgId);
+    List<OrgSaas> findByOrgId(Integer orgId);
 }
 

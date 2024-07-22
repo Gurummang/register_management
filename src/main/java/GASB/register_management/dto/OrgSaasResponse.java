@@ -1,6 +1,8 @@
 package GASB.register_management.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +11,20 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+        "ok",
+        "errorCode",
+        "errorMessage",
+        "configId",
+        "saasName",
+        "alias",
+        "status",
+        "adminEmail",
+        "apiToken",
+        "validation",
+        "webhookUrl",
+        "registerDate"
+})
 public class OrgSaasResponse {
 
     private boolean ok;

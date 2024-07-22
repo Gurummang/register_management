@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -100,11 +101,12 @@ public class OrgSaasServiceImple implements OrgSaasService {
     @Override
     public OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest) {
         Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getConfigId()));
-        Optional<OrgSaas> optionalOrgSaas = orgSaasRepository.findById(orgSaasRequest.getConfigId());
+        List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(orgSaasRequest.getConfigId());
 
-        if (optionalWorkspace.isPresent() && optionalOrgSaas.isPresent()) {
+        if (optionalWorkspace.isPresent()) {
             Workspace workspace = optionalWorkspace.get();
-            OrgSaas orgSaas = optionalOrgSaas.get();
+            OrgSaas orgSaas = orgSaasList.get(0);
+
             try {
                 List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
                 // token validation
@@ -143,15 +145,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 return new OrgSaasResponse(true, 201, "API token Invalid", registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
             }
         } else {
-            // 두 Optional 중 하나라도 비어있을 경우 처리
-            String errorMessage = "Not found for ID";
-            if (optionalWorkspace.isEmpty()) {
-                errorMessage += " (Workspace)";
-            }
-            if (optionalOrgSaas.isEmpty()) {
-                errorMessage += " (OrgSaas)";
-            }
-            return new OrgSaasResponse(true, 199, errorMessage, null);
+            return new OrgSaasResponse(true, 199, "Not found for ID", null);
         }
     }
 
@@ -175,29 +169,45 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
     @Override
     public List<OrgSaasResponse> getOrgSaasList(Integer orgId) {
-        List<Object[]> results = orgSaasRepository.findByOrgId(orgId);
+        // 1. orgId로 org_saas 테이블에서 튜플 조회
+        List<OrgSaas> orgSaasList = orgSaasRepository.findByOrgId(orgId);
 
-        return results.stream().map(result -> {
-            OrgSaas orgSaas = (OrgSaas) result[0];
-            Workspace workspace = (Workspace) result[1];
+        // 2. 조회된 orgSaas 데이터에서 config 값을 추출
+        List<Integer> configIds = orgSaasList.stream()
+                .map(OrgSaas::getConfig)
+                .distinct()  // 중복 제거
+                .collect(Collectors.toList());
+
+        // 3. config 값을 사용하여 workspace_config 테이블에서 데이터 조회
+        List<Workspace> workspaceList = workspaceRepository.findByConfigIdIn(configIds);
+
+        // 4. configId를 기준으로 Workspace 객체를 맵으로 변환
+        Map<Integer, Workspace> workspaceMap = workspaceList.stream()
+                .collect(Collectors.toMap(Workspace::getConfigId, workspace -> workspace));
+
+        // 5. 결과 리스트 생성
+        return orgSaasList.stream().map(orgSaas -> {
+            // Lookup workspace by configId
+            Workspace workspace = workspaceMap.get(orgSaas.getConfig());
 
             Optional<Saas> saasOptional = saasRepository.findById(orgSaas.getSaasId());
-            String saasName = saasOptional.get().getSaas_name();
+            String saasName = saasOptional.map(Saas::getSaas_name).orElse("Unknown");
 
             return new OrgSaasResponse(
                     true,
                     200,
                     null,
-                    workspace.getConfigId(),
+                    workspace != null ? workspace.getConfigId() : null,
                     saasName,
-                    workspace.getAlias(),
+                    workspace != null ? workspace.getAlias() : null,
                     orgSaas.getStatus(),
-                    workspace.getAdminEmail(),
-                    workspace.getApiToken(),
-                    workspace.getValidation(),
-                    workspace.getWebhookUrl(),
-                    workspace.getRegisterDate()
+                    workspace != null ? workspace.getAdminEmail() : null,
+                    workspace != null ? workspace.getApiToken() : null,
+                    workspace != null ? workspace.getValidation() : null,
+                    workspace != null ? workspace.getWebhookUrl() : null,
+                    workspace != null ? workspace.getRegisterDate() : null
             );
         }).collect(Collectors.toList());
     }
+
 }
