@@ -169,7 +169,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 return new OrgSaasResponse(true, 201, "API token Invalid", registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
             }
         } else {
-            return new OrgSaasResponse(true, 199, "Not found for ID", null);
+            return new OrgSaasResponse(false, 199, "Not found for ID", null);
         }
     }
 
@@ -188,7 +188,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
             return new OrgSaasResponse(true, 200, null, null);
         } else {
-            return new OrgSaasResponse(true, 199, "Not found for ID", null);
+            return new OrgSaasResponse(false, 199, "Not found for ID", null);
         }
     }
 
