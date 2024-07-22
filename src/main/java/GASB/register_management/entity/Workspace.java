@@ -25,7 +25,7 @@ public class Workspace {
     @Column(name = "webhook")
     private String webhookUrl; // webhook은 workspace당 한개로!
     private Boolean validation = false;
-    private String alias = "[default]";
+    private String alias = "NULL";
     @Column (name = "register_date")
     private Timestamp registerDate;
 }
