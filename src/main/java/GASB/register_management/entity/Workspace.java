@@ -14,12 +14,18 @@ public class Workspace {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;         // config_id == org_saas_space_id?
-    private String workspace_name;
-    private String saas_admin_email;
-    private String token;       // api_key, api_token
-    private String webhook; // webhook은 workspace당 한개로!
+    @Column(name = "id")
+    private Integer configId;         // config_id == org_saas_space_id?
+    @Column(name = "workspace_name")
+    private String spaceName;
+    @Column(name = "saas_admin_email")
+    private String adminEmail;
+    @Column(name = "token")
+    private String apiToken;       // api_key, api_token
+    @Column(name = "webhook")
+    private String webhookUrl; // webhook은 workspace당 한개로!
     private String validation = "False";
     private String alias = "[default]";
-    private Timestamp register_date;
+    @Column (name = "register_date")
+    private Timestamp registerDate;
 }
