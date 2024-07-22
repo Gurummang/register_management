@@ -22,6 +22,6 @@ public class OrgSaas {
     private String spaceId;    // workspace_id
     private Integer config;     // ref:> workspace_config.id
     private Integer status = 0; // default
-    @Column (name = "sercurityScore")
-    private Integer security_score = 0; // default
+    @Column (name = "security_score")
+    private Integer securityScore = 0; // default
 }
