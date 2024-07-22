@@ -78,9 +78,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
             return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
         } catch (IOException | InterruptedException e) {
-            workspace.setSpaceName("NULL");
-            orgSaas.setSpaceId("NULL");
-            workspace.setValidation(false);
+
             //workspace_config
             workspace.setAlias(orgSaasRequest.getAlias());
             workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
@@ -88,10 +86,18 @@ public class OrgSaasServiceImple implements OrgSaasService {
             workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
             workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
             Workspace registeredWorkspace = workspaceRepository.save(workspace);
+
             // org_saas
             orgSaas.setOrgId(orgSaasRequest.getOrgId());
             orgSaas.setSaasId(orgSaasRequest.getSaasId());
             orgSaas.setConfig(registeredWorkspace.getId());
+
+            // space_id & workspace_name 미봉책
+            workspace.setSpaceName("NULL_"+registeredWorkspace.getId());
+            System.out.println(registeredWorkspace.getId());
+            orgSaas.setSpaceId("NULL_"+registeredWorkspace.getId());
+            System.out.println(registeredWorkspace.getId());
+            workspace.setValidation(false);
             orgSaasRepository.save(orgSaas);
 
             return new OrgSaasResponse( 201, "API token Invalid", registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
@@ -141,9 +147,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
                 return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (IOException | InterruptedException e) {
-                workspace.setSpaceName("NULL");
-                orgSaas.setSpaceId("NULL");
-                workspace.setValidation(false);
 
                 // workspace_config
                 if (orgSaasRequest.getAlias() != null) {
@@ -164,6 +167,14 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
                 // org_saas
                 orgSaas.setConfig(registeredWorkspace.getId());
+
+                // space_id & workspace_name 미봉책
+                workspace.setSpaceName("NULL_"+registeredWorkspace.getId());
+                System.out.println(registeredWorkspace.getId());
+                orgSaas.setSpaceId("NULL_"+registeredWorkspace.getId());
+                System.out.println(registeredWorkspace.getId());
+                workspace.setValidation(false);
+
                 orgSaasRepository.save(orgSaas);
 
                 return new OrgSaasResponse( 201, "API token Invalid", registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
