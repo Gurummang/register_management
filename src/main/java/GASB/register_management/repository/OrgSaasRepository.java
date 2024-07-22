@@ -10,9 +10,8 @@ import java.util.List;
 
 @Repository
 public interface OrgSaasRepository extends JpaRepository<OrgSaas, Integer> {
-    List<OrgSaas> findByConfig(Long configId);
+    List<OrgSaas> findByConfig(int config);
 
-    @Query("SELECT os, w FROM OrgSaas os JOIN Workspace w ON os.config = w.id WHERE os.org_id = :orgId")
-    List<Object[]> findByOrgId(@Param("orgId") Integer orgId);
+    List<Object[]> findByOrgId(Integer orgId);
 }
 

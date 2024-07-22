@@ -1,5 +1,6 @@
 package GASB.register_management.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,6 +8,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrgSaasResponse {
 
     private boolean ok;
@@ -16,7 +18,7 @@ public class OrgSaasResponse {
     // Workspace_config
     private Integer configId;
     private String alias;
-    private String adminEmail
+    private String adminEmail;
     private String apiToken;
     private String validation;
     private String webhookUrl;
