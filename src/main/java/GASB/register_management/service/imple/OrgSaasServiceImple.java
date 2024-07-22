@@ -43,10 +43,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
         if(saasOptional.isPresent()) {
             Saas saas = saasOptional.get();
 
-            return new OrgSaasResponse(true, 200, null,
+            return new OrgSaasResponse( 200, null,
                     "https://gurm.com/"+saas.getSaas_name() + "-" + UUID.randomUUID().toString());
         }else {
-            return new OrgSaasResponse(false, 199, "Not found for ID", null);
+            return new OrgSaasResponse( 199, "Not found for ID", null);
         }
     }
 
@@ -73,10 +73,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
             // org_saas
             orgSaas.setOrgId(orgSaasRequest.getOrgId());
             orgSaas.setSaasId(orgSaasRequest.getSaasId());
-            orgSaas.setConfig(registeredWorkspace.getConfigId());
+            orgSaas.setConfig(registeredWorkspace.getId());
             orgSaasRepository.save(orgSaas);
 
-            return new OrgSaasResponse(true, 200, null, registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
+            return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
         } catch (IOException | InterruptedException e) {
             workspace.setSpaceName("NULL");
             orgSaas.setSpaceId("NULL");
@@ -91,17 +91,17 @@ public class OrgSaasServiceImple implements OrgSaasService {
             // org_saas
             orgSaas.setOrgId(orgSaasRequest.getOrgId());
             orgSaas.setSaasId(orgSaasRequest.getSaasId());
-            orgSaas.setConfig(registeredWorkspace.getConfigId());
+            orgSaas.setConfig(registeredWorkspace.getId());
             orgSaasRepository.save(orgSaas);
 
-            return new OrgSaasResponse(true, 201, "API token Invalid", registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
+            return new OrgSaasResponse( 201, "API token Invalid", registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
         }
     }
 
     @Override
     public OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest) {
-        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getConfigId()));
-        List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(orgSaasRequest.getConfigId());
+        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getId()));
+        List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(orgSaasRequest.getId());
 
         if (optionalWorkspace.isPresent()) {
             Workspace workspace = optionalWorkspace.get();
@@ -136,10 +136,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 Workspace registeredWorkspace = workspaceRepository.save(workspace);
 
                 // org_saas
-                orgSaas.setConfig(registeredWorkspace.getConfigId());
+                orgSaas.setConfig(registeredWorkspace.getId());
                 orgSaasRepository.save(orgSaas);
 
-                return new OrgSaasResponse(true, 200, null, registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
+                return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (IOException | InterruptedException e) {
                 workspace.setSpaceName("NULL");
                 orgSaas.setSpaceId("NULL");
@@ -163,13 +163,13 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 Workspace registeredWorkspace = workspaceRepository.save(workspace);
 
                 // org_saas
-                orgSaas.setConfig(registeredWorkspace.getConfigId());
+                orgSaas.setConfig(registeredWorkspace.getId());
                 orgSaasRepository.save(orgSaas);
 
-                return new OrgSaasResponse(true, 201, "API token Invalid", registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
+                return new OrgSaasResponse( 201, "API token Invalid", registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             }
         } else {
-            return new OrgSaasResponse(false, 199, "Not found for ID", null);
+            return new OrgSaasResponse( 199, "Not found for ID", null);
         }
     }
 
@@ -177,18 +177,18 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
     @Override
     public OrgSaasResponse deleteOrgSaas(OrgSaasRequest orgSaasRequest) {
-        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getConfigId()));
+        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getId()));
 
         if(optionalWorkspace.isPresent()) {
             Workspace workspace = optionalWorkspace.get();
 
-            List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(orgSaasRequest.getConfigId());
+            List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(orgSaasRequest.getId());
             orgSaasRepository.deleteAll(orgSaasList);
             workspaceRepository.delete(workspace);
 
-            return new OrgSaasResponse(true, 200, null, null);
+            return new OrgSaasResponse( 200, null, null);
         } else {
-            return new OrgSaasResponse(false, 199, "Not found for ID", null);
+            return new OrgSaasResponse( 199, "Not found for ID", null);
         }
     }
 
@@ -204,11 +204,11 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 .collect(Collectors.toList());
 
         // 3. config 값을 사용하여 workspace_config 테이블에서 데이터 조회
-        List<Workspace> workspaceList = workspaceRepository.findByConfigIdIn(configIds);
+        List<Workspace> workspaceList = workspaceRepository.findByIdIn(configIds);
 
         // 4. configId를 기준으로 Workspace 객체를 맵으로 변환
         Map<Integer, Workspace> workspaceMap = workspaceList.stream()
-                .collect(Collectors.toMap(Workspace::getConfigId, workspace -> workspace));
+                .collect(Collectors.toMap(Workspace::getId, workspace -> workspace));
 
         // 5. 결과 리스트 생성
         return orgSaasList.stream().map(orgSaas -> {
@@ -219,10 +219,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             String saasName = saasOptional.map(Saas::getSaas_name).orElse("Unknown");
 
             return new OrgSaasResponse(
-                    true,
-                    200,
-                    null,
-                    workspace != null ? workspace.getConfigId() : null,
+                    workspace != null ? workspace.getId() : null,
                     saasName,
                     workspace != null ? workspace.getAlias() : null,
                     orgSaas.getStatus(),

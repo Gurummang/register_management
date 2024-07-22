@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface WorkspaceRepository extends JpaRepository<Workspace, Long> {
-    List<Workspace> findByConfigIdIn(List<Integer> configIds);
+
+    List<Workspace> findByIdIn(List<Integer> configIds);
 }

@@ -12,11 +12,10 @@ import java.sql.Timestamp;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "ok",
         "errorCode",
         "errorMessage",
-        "configId",
-        "saasName",
+        "id",
+        "name",
         "alias",
         "status",
         "adminEmail",
@@ -27,12 +26,11 @@ import java.sql.Timestamp;
 })
 public class OrgSaasResponse {
 
-    private boolean ok;
     private Integer errorCode;
     private String errorMessage;
 
     // Workspace_config
-    private Integer configId;
+    private Integer id;
     private String alias;
     private String adminEmail;
     private String apiToken;
@@ -44,34 +42,30 @@ public class OrgSaasResponse {
     private Integer orgSaasId;
     private Integer orgId;
     private String saasId;
-    private String saasName;
+    private String name;
     private Integer status;
     private String securityScore;
 
     // POST(regi, modify, delete)
-    public OrgSaasResponse(Boolean ok, Integer errorCode, String errorMessage, Integer configId, Timestamp registerDate) {
-        this.ok = ok;
+    public OrgSaasResponse(Integer errorCode, String errorMessage, Integer id, Timestamp registerDate) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
-        this.configId = configId;
+        this.id = id;
         this.registerDate = registerDate;
     }
     // GET(mkUrl)
-    public OrgSaasResponse(Boolean ok, Integer errorCode, String errorMessage, String webhookUrl) {
-        this.ok = ok;
+    public OrgSaasResponse(Integer errorCode, String errorMessage, String webhookUrl) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
         this.webhookUrl = webhookUrl;
     }
     // GET(list)
-    public OrgSaasResponse(Boolean ok, Integer errorCode, String errorMessage,
-                           Integer configId, String saasName, String alias, Integer status,
-                           String adminEmail, String apiToken, Boolean validation, String webhookUrl, Timestamp registerDate) {
-        this.ok = ok;
-        this.errorCode = errorCode;
-        this.errorMessage = errorMessage;
-        this.configId = configId;
-        this.saasName = saasName;
+    public OrgSaasResponse(Integer id, String name, String alias, Integer status,
+                           String adminEmail, String apiToken, Boolean validation,
+                           String webhookUrl, Timestamp registerDate) {
+
+        this.id = id;
+        this.name = name;
         this.alias = alias;
         this.status = status;
         this.adminEmail = adminEmail;

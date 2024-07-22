@@ -14,8 +14,7 @@ public class Workspace {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer configId;         // config_id == org_saas_space_id?
+    private Integer id;         // config_id == org_saas_space_id?
     @Column(name = "workspace_name")
     private String spaceName;
     @Column(name = "saas_admin_email")
