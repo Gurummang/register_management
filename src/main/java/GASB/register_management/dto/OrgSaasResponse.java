@@ -36,7 +36,7 @@ public class OrgSaasResponse {
     private String alias;
     private String adminEmail;
     private String apiToken;
-    private String validation;
+    private Boolean validation;
     private String webhookUrl;
     private Timestamp registerDate;
 
@@ -66,7 +66,7 @@ public class OrgSaasResponse {
     // GET(list)
     public OrgSaasResponse(Boolean ok, Integer errorCode, String errorMessage,
                            Integer configId, String saasName, String alias, Integer status,
-                           String adminEmail, String apiToken, String validation, String webhookUrl, Timestamp registerDate) {
+                           String adminEmail, String apiToken, Boolean validation, String webhookUrl, Timestamp registerDate) {
         this.ok = ok;
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;

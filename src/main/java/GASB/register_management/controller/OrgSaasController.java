@@ -38,7 +38,6 @@ public class OrgSaasController {
 
     @GetMapping("/{orgId}")
     public List<OrgSaasResponse> getOrgSaasList(@PathVariable Integer orgId) {
-        System.out.println(orgId);
         return orgSaasService.getOrgSaasList(orgId);
     }
 }

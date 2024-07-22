@@ -62,7 +62,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             String spaceId = slackInfo.get(1);
             workspace.setSpaceName(spaceName);
             orgSaas.setSpaceId(spaceId);
-            workspace.setValidation("Valid");
+            workspace.setValidation(true);
             // workspace_config
             workspace.setAlias(orgSaasRequest.getAlias());
             workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
@@ -80,7 +80,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
         } catch (IOException | InterruptedException e) {
             workspace.setSpaceName("NULL");
             orgSaas.setSpaceId("NULL");
-            workspace.setValidation("Invalid");
+            workspace.setValidation(false);
             //workspace_config
             workspace.setAlias(orgSaasRequest.getAlias());
             workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
@@ -108,20 +108,33 @@ public class OrgSaasServiceImple implements OrgSaasService {
             OrgSaas orgSaas = orgSaasList.get(0);
 
             try {
-                List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
                 // token validation
-                String spaceName = slackInfo.get(0);
-                String spaceId = slackInfo.get(1);
-                workspace.setSpaceName(spaceName);
-                orgSaas.setSpaceId(spaceId);
-                workspace.setValidation("Valid");
+                if (orgSaasRequest.getApiToken() != null) {
+                    List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
+                    String spaceName = slackInfo.get(0);
+                    String spaceId = slackInfo.get(1);
+                    workspace.setSpaceName(spaceName);
+                    orgSaas.setSpaceId(spaceId);
+                    workspace.setValidation(true);
+                }
+
                 // workspace_config
-                workspace.setAlias(orgSaasRequest.getAlias());
-                workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-                workspace.setApiToken(orgSaasRequest.getApiToken());
-                workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+                if (orgSaasRequest.getAlias() != null) {
+                    workspace.setAlias(orgSaasRequest.getAlias());
+                }
+                if (orgSaasRequest.getAdminEmail() != null) {
+                    workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+                }
+                if (orgSaasRequest.getApiToken() != null) {
+                    workspace.setApiToken(orgSaasRequest.getApiToken());
+                }
+                if (orgSaasRequest.getWebhookUrl() != null) {
+                    workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+                }
+
                 workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
                 Workspace registeredWorkspace = workspaceRepository.save(workspace);
+
                 // org_saas
                 orgSaas.setConfig(registeredWorkspace.getConfigId());
                 orgSaasRepository.save(orgSaas);
@@ -130,14 +143,25 @@ public class OrgSaasServiceImple implements OrgSaasService {
             } catch (IOException | InterruptedException e) {
                 workspace.setSpaceName("NULL");
                 orgSaas.setSpaceId("NULL");
-                workspace.setValidation("Invalid");
+                workspace.setValidation(false);
+
                 // workspace_config
-                workspace.setAlias(orgSaasRequest.getAlias());
-                workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-                workspace.setApiToken(orgSaasRequest.getApiToken());
-                workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+                if (orgSaasRequest.getAlias() != null) {
+                    workspace.setAlias(orgSaasRequest.getAlias());
+                }
+                if (orgSaasRequest.getAdminEmail() != null) {
+                    workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+                }
+                if (orgSaasRequest.getApiToken() != null) {
+                    workspace.setApiToken(orgSaasRequest.getApiToken());
+                }
+                if (orgSaasRequest.getWebhookUrl() != null) {
+                    workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+                }
+
                 workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
                 Workspace registeredWorkspace = workspaceRepository.save(workspace);
+
                 // org_saas
                 orgSaas.setConfig(registeredWorkspace.getConfigId());
                 orgSaasRepository.save(orgSaas);
@@ -148,6 +172,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             return new OrgSaasResponse(true, 199, "Not found for ID", null);
         }
     }
+
 
 
     @Override

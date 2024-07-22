@@ -24,7 +24,7 @@ public class Workspace {
     private String apiToken;       // api_key, api_token
     @Column(name = "webhook")
     private String webhookUrl; // webhook은 workspace당 한개로!
-    private String validation = "False";
+    private Boolean validation = false;
     private String alias = "[default]";
     @Column (name = "register_date")
     private Timestamp registerDate;
