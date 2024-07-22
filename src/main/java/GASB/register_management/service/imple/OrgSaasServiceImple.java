@@ -43,10 +43,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
         if(saasOptional.isPresent()) {
             Saas saas = saasOptional.get();
 
-            return new OrgSaasResponse(true, 200, null,
+            return new OrgSaasResponse( 200, null,
                     "https://gurm.com/"+saas.getSaas_name() + "-" + UUID.randomUUID().toString());
         }else {
-            return new OrgSaasResponse(false, 199, "Not found for ID", null);
+            return new OrgSaasResponse( 199, "Not found for ID", null);
         }
     }
 
@@ -76,7 +76,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             orgSaas.setConfig(registeredWorkspace.getConfigId());
             orgSaasRepository.save(orgSaas);
 
-            return new OrgSaasResponse(true, 200, null, registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
+            return new OrgSaasResponse( 200, null, registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
         } catch (IOException | InterruptedException e) {
             workspace.setSpaceName("NULL");
             orgSaas.setSpaceId("NULL");
@@ -94,7 +94,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             orgSaas.setConfig(registeredWorkspace.getConfigId());
             orgSaasRepository.save(orgSaas);
 
-            return new OrgSaasResponse(true, 201, "API token Invalid", registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
+            return new OrgSaasResponse( 201, "API token Invalid", registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
         }
     }
 
@@ -139,7 +139,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 orgSaas.setConfig(registeredWorkspace.getConfigId());
                 orgSaasRepository.save(orgSaas);
 
-                return new OrgSaasResponse(true, 200, null, registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
+                return new OrgSaasResponse( 200, null, registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
             } catch (IOException | InterruptedException e) {
                 workspace.setSpaceName("NULL");
                 orgSaas.setSpaceId("NULL");
@@ -166,10 +166,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 orgSaas.setConfig(registeredWorkspace.getConfigId());
                 orgSaasRepository.save(orgSaas);
 
-                return new OrgSaasResponse(true, 201, "API token Invalid", registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
+                return new OrgSaasResponse( 201, "API token Invalid", registeredWorkspace.getConfigId(), registeredWorkspace.getRegisterDate());
             }
         } else {
-            return new OrgSaasResponse(false, 199, "Not found for ID", null);
+            return new OrgSaasResponse( 199, "Not found for ID", null);
         }
     }
 
@@ -186,9 +186,9 @@ public class OrgSaasServiceImple implements OrgSaasService {
             orgSaasRepository.deleteAll(orgSaasList);
             workspaceRepository.delete(workspace);
 
-            return new OrgSaasResponse(true, 200, null, null);
+            return new OrgSaasResponse( 200, null, null);
         } else {
-            return new OrgSaasResponse(false, 199, "Not found for ID", null);
+            return new OrgSaasResponse( 199, "Not found for ID", null);
         }
     }
 
@@ -219,9 +219,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
             String saasName = saasOptional.map(Saas::getSaas_name).orElse("Unknown");
 
             return new OrgSaasResponse(
-                    true,
-                    200,
-                    null,
                     workspace != null ? workspace.getConfigId() : null,
                     saasName,
                     workspace != null ? workspace.getAlias() : null,
