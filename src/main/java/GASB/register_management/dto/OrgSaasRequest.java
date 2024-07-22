@@ -10,7 +10,7 @@ import lombok.Setter;
 public class OrgSaasRequest {
 
     // Workspace_config
-    private Integer configId;
+    private Integer id;
     private String alias;
     private String adminEmail;
     private String apiToken;
