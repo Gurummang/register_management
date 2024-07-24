@@ -19,6 +19,10 @@ public class OrgSaasController {
     @Autowired
     private OrgSaasService orgSaasService;
 
+    @GetMapping("/{apiToken}/validToken")
+    public OrgSaasResponse validToken(@PathVariable String apiToken) {
+        return orgSaasService.validToken(apiToken);
+    }
     @GetMapping("/{saasId}/mkUrl")
     public OrgSaasResponse mkUrl(@PathVariable Integer saasId) {
         return orgSaasService.getUrl(saasId);
