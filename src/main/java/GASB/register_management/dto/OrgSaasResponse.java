@@ -59,6 +59,14 @@ public class OrgSaasResponse {
         this.errorMessage = errorMessage;
         this.webhookUrl = webhookUrl;
     }
+    // GET(validToken)
+    public OrgSaasResponse(Integer errorCode, String errorMessage, Boolean validation, String apiToken, String name) {
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+        this.validation = validation;
+        this.apiToken = apiToken;
+        this.name = name;
+    }
     // GET(list)
     public OrgSaasResponse(Integer id, String name, String alias, Integer status,
                            String adminEmail, String apiToken, Boolean validation,
