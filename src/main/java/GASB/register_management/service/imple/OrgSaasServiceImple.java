@@ -90,7 +90,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
             return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
         } catch (IOException | InterruptedException e) {
-            return new OrgSaasResponse( 199, "API token Invalid"+e.getMessage(),null, null);
+            return new OrgSaasResponse( 199, "API token Invalid\n"+e.getMessage(),null, null);
         }
     }
 
@@ -137,7 +137,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (IOException | InterruptedException e) {
 
-                return new OrgSaasResponse( 199, "API token Invalid"+e.getMessage(), null, null);
+                return new OrgSaasResponse( 199, "API token Invalid\n"+e.getMessage(), null, null);
             }
         } else {
             return new OrgSaasResponse( 199, "Not found for ID", null);
