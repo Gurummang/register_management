@@ -245,7 +245,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
                     orgSaas.getStatus(),
                     workspace != null ? workspace.getAdminEmail() : null,
                     workspace != null ? workspace.getApiToken() : null,
-                    workspace != null ? workspace.getValidation() : null,
                     workspace != null ? workspace.getWebhookUrl() : null,
                     workspace != null ? workspace.getRegisterDate() : null
             );

@@ -69,7 +69,7 @@ public class OrgSaasResponse {
     }
     // GET(list)
     public OrgSaasResponse(Integer id, String name, String alias, Integer status,
-                           String adminEmail, String apiToken, Boolean validation,
+                           String adminEmail, String apiToken,
                            String webhookUrl, Timestamp registerDate) {
 
         this.id = id;
@@ -78,7 +78,6 @@ public class OrgSaasResponse {
         this.status = status;
         this.adminEmail = adminEmail;
         this.apiToken = apiToken;
-        this.validation = validation;
         this.webhookUrl = webhookUrl;
         this.registerDate = registerDate;
     }
