@@ -90,28 +90,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
             return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
         } catch (IOException | InterruptedException e) {
-
-//            //workspace_config
-//            workspace.setAlias(orgSaasRequest.getAlias());
-//            workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-//            workspace.setApiToken(orgSaasRequest.getApiToken());
-//            workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
-//            workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
-//            Workspace registeredWorkspace = workspaceRepository.save(workspace);
-//
-//            // org_saas
-//            orgSaas.setOrgId(orgSaasRequest.getOrgId());
-//            orgSaas.setSaasId(orgSaasRequest.getSaasId());
-//            orgSaas.setConfig(registeredWorkspace.getId());
-//
-//            // space_id & workspace_name 미봉책
-//            workspace.setSpaceName("NULL_"+registeredWorkspace.getId());
-//            orgSaas.setSpaceId("NULL_"+registeredWorkspace.getId());
-//            workspace.setValidation(false);
-//            orgSaas.setStatus(-1);
-//            orgSaasRepository.save(orgSaas);
-
-            return new OrgSaasResponse( 199, "API token Invalid",null, null);
+            return new OrgSaasResponse( 199, "API token Invalid\n"+e.getMessage(),null, null);
         }
     }
 
@@ -158,35 +137,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (IOException | InterruptedException e) {
 
-//                // workspace_config
-//                if (orgSaasRequest.getAlias() != null) {
-//                    workspace.setAlias(orgSaasRequest.getAlias());
-//                }
-//                if (orgSaasRequest.getAdminEmail() != null) {
-//                    workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-//                }
-//                if (orgSaasRequest.getApiToken() != null) {
-//                    workspace.setApiToken(orgSaasRequest.getApiToken());
-//                }
-//                if (orgSaasRequest.getWebhookUrl() != null) {
-//                    workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
-//                }
-//
-//                workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
-//                Workspace registeredWorkspace = workspaceRepository.save(workspace);
-//
-//                // org_saas
-//                orgSaas.setConfig(registeredWorkspace.getId());
-//
-//                // space_id & workspace_name 미봉책
-//                workspace.setSpaceName("NULL_"+registeredWorkspace.getId());
-//                orgSaas.setSpaceId("NULL_"+registeredWorkspace.getId());
-//                workspace.setValidation(false);
-//                orgSaas.setStatus(-1);
-//
-//                orgSaasRepository.save(orgSaas);
-
-                return new OrgSaasResponse( 199, "API token Invalid", null, null);
+                return new OrgSaasResponse( 199, "API token Invalid\n"+e.getMessage(), null, null);
             }
         } else {
             return new OrgSaasResponse( 199, "Not found for ID", null);
