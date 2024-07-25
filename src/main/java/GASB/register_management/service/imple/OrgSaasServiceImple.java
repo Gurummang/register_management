@@ -2,7 +2,6 @@ package GASB.register_management.service.imple;
 
 import GASB.register_management.dto.OrgSaasRequest;
 import GASB.register_management.dto.OrgSaasResponse;
-import GASB.register_management.entity.Org;
 import GASB.register_management.entity.Saas;
 import GASB.register_management.repository.SaasRepository;
 import GASB.register_management.service.OrgSaasService;
@@ -57,7 +56,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             Saas saas = saasOptional.get();
 
             return new OrgSaasResponse( 200, null,
-                    "https://gurm.com/"+saas.getSaas_name() + "-" + UUID.randomUUID().toString());
+                    "https://gurm.com/"+saas.getSaas_name() + "-" + UUID.randomUUID());
         }else {
             return new OrgSaasResponse( 199, "Not found for ID", null);
         }
@@ -99,7 +98,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
         Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getId()));
         List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(orgSaasRequest.getId());
 
-        if (optionalWorkspace.isPresent()) {
+        if (optionalWorkspace.isPresent() && !orgSaasList.isEmpty()) {
             Workspace workspace = optionalWorkspace.get();
             OrgSaas orgSaas = orgSaasList.get(0);
 
@@ -134,15 +133,15 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 orgSaas.setConfig(registeredWorkspace.getId());
                 orgSaasRepository.save(orgSaas);
 
-                return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
+                return new OrgSaasResponse(200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (IOException | InterruptedException e) {
-
-                return new OrgSaasResponse( 199, "API token Invalid\n"+e.getMessage(), null, null);
+                return new OrgSaasResponse(199, "API token Invalid\n" + e.getMessage(), null, null);
             }
         } else {
-            return new OrgSaasResponse( 199, "Not found for ID", null);
+            return new OrgSaasResponse(199, "Not found for ID or no associated OrgSaas found", null);
         }
     }
+
 
 
 
