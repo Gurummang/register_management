@@ -22,10 +22,10 @@ public class OrgServiceImple implements OrgService {
     @Override
     public OrgResponse registerOrg(OrgRequest orgRequest) {
         Org org = new Org();
-        org.setOrg_name(orgRequest.getOrg_name());
-        Org saveOrg = orgRepository.save(org);
+        org.setOrgName(orgRequest.getOrgName());
+        Org regiOrg = orgRepository.save(org);
         
-        return new OrgResponse("success", "Register Success: " + saveOrg.getOrg_name(), saveOrg.getId());
+        return new OrgResponse(200, null, regiOrg.getId(), null);
     }
     
     @Override
@@ -34,13 +34,13 @@ public class OrgServiceImple implements OrgService {
         
         if(optionalOrg.isPresent()) {
             Org org = optionalOrg.get();
-            org.setOrg_name(orgRequest.getOrg_name());
+            org.setOrgName(orgRequest.getOrgName());
             Org updatedOrg = orgRepository.save(org);
             
-            return new OrgResponse ("success", "Modify Success: " + updatedOrg.getOrg_name(), updatedOrg.getId());
+            return new OrgResponse(200, null, updatedOrg.getId(), updatedOrg.getOrgName());
         }
         else {
-            return new OrgResponse ("failure", "Org not found for ID: " + orgRequest.getId(), null);
+            return new OrgResponse(199, "Not fount for Id" + orgRequest.getId(), null, null);
         }
     }
 
@@ -50,16 +50,16 @@ public class OrgServiceImple implements OrgService {
 
         if (optionalOrg.isPresent()) {
             orgRepository.deleteById(id);
-            return new OrgResponse("success", "Delete Success for ID: " + id, id);
+            return new OrgResponse(200, null, optionalOrg.get().getId(), null);
         } else {
-            return new OrgResponse("failure", "Org not found for ID: " + id, null);
+            return new OrgResponse(199, "Not fount for Id" + id, null, null);
         }
     }
 
     @Override
     public List<OrgResponse> getOrgList() {
         return orgRepository.findAll().stream()
-                .map(org -> new OrgResponse(org.getId(), org.getOrg_name()))
+                .map(org -> new OrgResponse(null, null, org.getId(), org.getOrgName()))
                 .collect(Collectors.toList());
     }
 }

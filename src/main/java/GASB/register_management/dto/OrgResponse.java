@@ -10,21 +10,15 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrgResponse {
 
-    private String status;
-    private String message;
+    private Integer errorCode;
+    private String errorMessage;
     private Integer id;
-    @JsonProperty("orgName")
-    private String org_name;
+    private String orgName;
 
-    // POST
-    public OrgResponse(String status, String message, Integer id) {
-        this.status = status;
-        this.message = message;
+    public OrgResponse(Integer errorCode, String errorMessage, Integer id, String orgName) {
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
         this.id = id;
-    }
-    // GET
-    public OrgResponse(Integer id, String org_name) {
-        this.id = id;
-        this.org_name = org_name;
+        this.orgName = orgName;
     }
 }
