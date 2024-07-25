@@ -58,9 +58,9 @@ public class OrgSaasServiceImple implements OrgSaasService {
         if(saasOptional.isPresent()) {
             Saas saas = saasOptional.get();
 
-            System.out.println(saas.getSaas_name());
+            System.out.println(saas.getSaasName());
             return new OrgSaasResponse( 200, null,
-                    "https://back.grummang.com/webhook/"+saas.getSaas_name()+ "/" + UUID.randomUUID());
+                    "https://back.grummang.com/webhook/"+saas.getSaasName()+ "/" + UUID.randomUUID());
         }else {
             return new OrgSaasResponse( 199, "Not found for ID", null);
         }
@@ -190,7 +190,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             Workspace workspace = workspaceMap.get(orgSaas.getConfig());
 
             Optional<Saas> saasOptional = saasRepository.findById(orgSaas.getSaasId());
-            String saasName = saasOptional.map(Saas::getSaas_name).orElse("Unknown");
+            String saasName = saasOptional.map(Saas::getSaasName).orElse("Unknown");
 
             return new OrgSaasResponse(
                     workspace != null ? workspace.getId() : null,

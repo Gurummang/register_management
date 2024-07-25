@@ -9,8 +9,6 @@ import lombok.Setter;
 @Setter
 public class SaasRequest {
 
-//    private String action;  // POST 구분용
     private Integer id;     // saas 테이블의 id
-    @JsonProperty("saasName")
-    private String saas_name;
+    private String saasName;
 }
