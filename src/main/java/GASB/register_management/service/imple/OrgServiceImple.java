@@ -40,7 +40,7 @@ public class OrgServiceImple implements OrgService {
             return new OrgResponse(200, null, updatedOrg.getId(), updatedOrg.getOrgName());
         }
         else {
-            return new OrgResponse(199, "Not fount for Id" + orgRequest.getId(), null, null);
+            return new OrgResponse(199, "Not fount for Id", null, null);
         }
     }
 
@@ -52,7 +52,7 @@ public class OrgServiceImple implements OrgService {
             orgRepository.deleteById(id);
             return new OrgResponse(200, null, optionalOrg.get().getId(), null);
         } else {
-            return new OrgResponse(199, "Not fount for Id" + id, null, null);
+            return new OrgResponse(199, "Not fount for Id", null, null);
         }
     }
 
