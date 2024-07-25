@@ -19,9 +19,9 @@ public class OrgSaasController {
     @Autowired
     private OrgSaasService orgSaasService;
 
-    @GetMapping("/{apiToken}/validToken")
-    public OrgSaasResponse validToken(@PathVariable String apiToken) {
-        return orgSaasService.validToken(apiToken);
+    @GetMapping("/{apiToken}/slackValid")
+    public OrgSaasResponse slackValid(@PathVariable String apiToken) {
+        return orgSaasService.slackValid(apiToken);
     }
     @GetMapping("/{saasId}/mkUrl")
     public OrgSaasResponse mkUrl(@PathVariable Integer saasId) {

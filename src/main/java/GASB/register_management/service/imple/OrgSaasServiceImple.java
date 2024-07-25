@@ -37,7 +37,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
 
     @Override
-    public OrgSaasResponse validToken(String token) {
+    public OrgSaasResponse slackValid(String token) {
         try{
             slackTeamInfo.getTeamInfo(token);
 
