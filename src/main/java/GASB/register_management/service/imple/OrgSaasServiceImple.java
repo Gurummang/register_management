@@ -38,11 +38,9 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
     @Override
     public OrgSaasResponse slackValid(String token) {
-        try{
+        try {
             slackTeamInfo.getTeamInfo(token);
-
             return new OrgSaasResponse(200, null, true, null, null);
-
         } catch (IOException | InterruptedException e) {
             return new OrgSaasResponse(199, "API token invalid", false, null, null);
         }

@@ -19,10 +19,13 @@ public class OrgSaasController {
     @Autowired
     private OrgSaasService orgSaasService;
 
-    @GetMapping("/{apiToken}/slackValid")
-    public OrgSaasResponse slackValid(@PathVariable String apiToken) {
-        return orgSaasService.slackValid(apiToken);
+    @GetMapping("/slackValid")
+    public OrgSaasResponse slackValid(@RequestHeader("Authorization") String authHeader) {
+        // Authorization 헤더에서 토큰 추출
+        String token = authHeader.replace("Bearer ", "");
+        return orgSaasService.slackValid(token);
     }
+
     @GetMapping("/{saasId}/mkUrl")
     public OrgSaasResponse mkUrl(@PathVariable Integer saasId) {
         return orgSaasService.getUrl(saasId);
