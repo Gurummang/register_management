@@ -37,12 +37,17 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
 
     @Override
-    public OrgSaasResponse slackValid(String token) {
+    public OrgSaasResponse slackValid(OrgSaasRequest orgSaasRequest) {
+        Workspace workspace = new Workspace();
+
+        String token = orgSaasRequest.getApiToken();
+
         try {
             slackTeamInfo.getTeamInfo(token);
+
             return new OrgSaasResponse(200, null, true, null, null);
         } catch (IOException | InterruptedException e) {
-            return new OrgSaasResponse(199, "API token invalid", false, null, null);
+            return new OrgSaasResponse(199, e.getMessage(), false, null, null);
         }
     }
 
