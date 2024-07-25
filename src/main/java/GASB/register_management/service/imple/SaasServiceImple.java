@@ -22,10 +22,15 @@ public class SaasServiceImple implements SaasService {
     @Override
     public SaasResponse registerSaas(SaasRequest saasRequest) {
         Saas saas = new Saas();
-        saas.setSaas_name(saasRequest.getSaas_name());
-        Saas saveSaas = saasRepository.save(saas);
 
-        return new SaasResponse("success", "Register Success: " + saveSaas.getSaas_name(), saveSaas.getId());
+        try {
+            saas.setSaasName(saasRequest.getSaasName());
+            Saas regiSaas = saasRepository.save(saas);
+
+            return new SaasResponse(200, null, regiSaas.getId(), null);
+        } catch (Exception e) {
+            return new SaasResponse(199, e.getMessage(), null, null);
+        }
     }
 
     @Override
@@ -33,11 +38,12 @@ public class SaasServiceImple implements SaasService {
         Optional<Saas> optionalSaas = saasRepository.findById(saasRequest.getId());
         if (optionalSaas.isPresent()) {
             Saas saas = optionalSaas.get();
-            saas.setSaas_name(saasRequest.getSaas_name());
+            saas.setSaasName(saasRequest.getSaasName());
             Saas updatedSaas = saasRepository.save(saas);
-            return new SaasResponse("success", "Modify Success: " + updatedSaas.getSaas_name(), updatedSaas.getId());
+
+            return new SaasResponse(200, null, updatedSaas.getId(), updatedSaas.getSaasName());
         } else {
-            return new SaasResponse("failure", "SaaS not found for ID: " + saasRequest.getId(), null);
+            return new SaasResponse(199, "Not found for ID", null, null);
         }
     }
 
@@ -46,16 +52,17 @@ public class SaasServiceImple implements SaasService {
         Optional<Saas> optionalSaas = saasRepository.findById(id);
         if (optionalSaas.isPresent()) {
             saasRepository.deleteById(id);
-            return new SaasResponse("success", "Delete Success for ID: " + id, id);
+
+            return new SaasResponse(200, null, id, null);
         } else {
-            return new SaasResponse("failure", "SaaS not found for ID: " + id, null);
+            return new SaasResponse(199, "Not found for ID", null, null);
         }
     }
 
     @Override
     public List<SaasResponse> getSaasList() {
         return saasRepository.findAll().stream()
-                .map(saas -> new SaasResponse(saas.getId(), saas.getSaas_name()))
+                .map(saas -> new SaasResponse(null, null, saas.getId(), saas.getSaasName()))
                 .collect(Collectors.toList());
     }
 }

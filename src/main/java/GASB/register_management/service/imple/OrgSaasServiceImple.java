@@ -10,6 +10,7 @@ import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
 
+import GASB.register_management.util.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,8 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private SaasRepository saasRepository;
     @Autowired
     private SlackTeamInfo slackTeamInfo;
+    @Autowired
+    private StartScan startScan;
 
 
     @Override
@@ -58,9 +61,9 @@ public class OrgSaasServiceImple implements OrgSaasService {
         if(saasOptional.isPresent()) {
             Saas saas = saasOptional.get();
 
-            System.out.println(saas.getSaas_name());
+            System.out.println(saas.getSaasName());
             return new OrgSaasResponse( 200, null,
-                    "https://back.grummang.com/webhook/"+saas.getSaas_name()+ "/" + UUID.randomUUID());
+                    "https://back.grummang.com/webhook/"+saas.getSaasName()+ "/" + UUID.randomUUID());
         }else {
             return new OrgSaasResponse( 199, "Not found for ID", null);
         }
@@ -91,7 +94,16 @@ public class OrgSaasServiceImple implements OrgSaasService {
             orgSaas.setConfig(registeredWorkspace.getId());
             orgSaasRepository.save(orgSaas);
 
-            return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
+            //saasId -> saasName
+            String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
+            try{
+                String tt =  startScan.postToScan(orgSaas.getSpaceId(), registeredWorkspace.getAdminEmail(), saasName).toString();
+
+                return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
+            } catch (Exception e) {
+                return new OrgSaasResponse(199, e.getMessage(), false, null, null);
+            }
+
         } catch (IOException | InterruptedException e) {
             return new OrgSaasResponse( 199, "API token Invalid\n"+e.getMessage(),null, null);
         }
@@ -137,7 +149,16 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 orgSaas.setConfig(registeredWorkspace.getId());
                 orgSaasRepository.save(orgSaas);
 
-                return new OrgSaasResponse(200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
+                //saasId -> saasName
+                String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
+                try{
+                    startScan.postToScan(orgSaas.getSpaceId(), registeredWorkspace.getAdminEmail(), saasName);
+
+                    return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
+                } catch (Exception e) {
+                    return new OrgSaasResponse(199, e.getMessage(), false, null, null);
+                }
+
             } catch (IOException | InterruptedException e) {
                 return new OrgSaasResponse(199, "API token Invalid\n" + e.getMessage(), null, null);
             }
@@ -190,7 +211,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             Workspace workspace = workspaceMap.get(orgSaas.getConfig());
 
             Optional<Saas> saasOptional = saasRepository.findById(orgSaas.getSaasId());
-            String saasName = saasOptional.map(Saas::getSaas_name).orElse("Unknown");
+            String saasName = saasOptional.map(Saas::getSaasName).orElse("Unknown");
 
             return new OrgSaasResponse(
                     workspace != null ? workspace.getId() : null,

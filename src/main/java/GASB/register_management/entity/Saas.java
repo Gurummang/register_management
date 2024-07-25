@@ -13,5 +13,6 @@ public class Saas {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String saas_name;
+    @Column(name = "saas_name")
+    private String saasName;
 }

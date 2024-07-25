@@ -13,5 +13,6 @@ public class Org {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String org_name;
+    @Column(name = "org_name")
+    private String orgName;
 }
