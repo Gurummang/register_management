@@ -9,15 +9,14 @@ import lombok.Setter;
 @Setter
 public class OrgSaasRequest {
 
+    // OrgSaas
+    private Integer orgId;
+    private Integer saasId;
+
     // Workspace_config
     private Integer id;
     private String alias;
     private String adminEmail;
     private String apiToken;
     private String webhookUrl;
-
-    // OrgSaas
-    private Integer orgId;
-    private Integer saasId;
-    private String saasName;
 }
