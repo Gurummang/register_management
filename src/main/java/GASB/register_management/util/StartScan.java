@@ -17,15 +17,15 @@ public class StartScan {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public JsonNode postToScan(Integer id, String adminEmail, String saasName) throws IOException, InterruptedException {
+    public JsonNode postToScan(String spaceId, String adminEmail, String saasName) throws IOException, InterruptedException {
         String url = "https://back.grummang.com/api/v1/connect/"+saasName+"/all";
 
         // HttpClient 생성
         HttpClient client = HttpClient.newHttpClient();
 
         // 요청 본문 준비
-        Map<String, Object> requestBodyMap = new HashMap<>();
-        requestBodyMap.put("id", id);
+        Map<String, String> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("spaceId", spaceId);
         requestBodyMap.put("email", adminEmail);
         String requestBody = objectMapper.writeValueAsString(requestBodyMap);
 
