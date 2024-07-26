@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.relational.core.sql.In;
 
 import java.sql.Timestamp;
 
@@ -46,8 +47,14 @@ public class OrgSaasResponse {
     // token(email) valid
     private Boolean validation;
 
-    // GET(mkUrl) & POST(valid)
-    public OrgSaasResponse(Integer errorCode, String errorMessage, Boolean validation, String webhookUrl) {
+    // POST(valid)
+    public OrgSaasResponse(Integer errorCode, String errorMessage, Boolean validation) {
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+        this.validation = validation;
+    }
+    // GET(mkUrl)
+    public OrgSaasResponse(Integer errorCode, String errorMessage, String webhookUrl) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
         this.webhookUrl = webhookUrl;

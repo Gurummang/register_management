@@ -99,12 +99,12 @@ public class OrgSaasServiceImple implements OrgSaasService {
             //saasId -> saasName
             String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
             String adminEmail = adminRepository.findById(orgSaasRequest.getOrgId()).get().getEmail();
-            System.out.println(saasName);
-            System.out.println(adminEmail);
+//            System.out.println(saasName);
+//            System.out.println(adminEmail);
 
             try{
-//                startScan.postToScan(regiWorkspace.getId(), adminEmail, saasName);
-
+                startScan.postToScan(registeredWorkspace.getId(), adminEmail, saasName);
+//                System.out.println(registeredWorkspace.getId() + " " + adminEmail + " " + saasName);
                 return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (Exception e) {
                 return new OrgSaasResponse(198, e.getMessage(), null, null);
@@ -117,61 +117,61 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
     @Override
     public OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest) {
-        return null;
-//        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getId()));
-//        List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(orgSaasRequest.getId());
-//
-//        if (optionalWorkspace.isPresent() && !orgSaasList.isEmpty()) {
-//            Workspace workspace = optionalWorkspace.get();
-//            OrgSaas orgSaas = orgSaasList.get(0);
-//
-//            try {
-//                // token validation
-//                List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
-//
-//                // org_saas
-//                orgSaas.setSpaceId(slackInfo.get(1));
-//                OrgSaas modiOrgSaas = orgSaasRepository.save(orgSaas);
-//
-//                // workspace_config
-//                workspace.setOrgSaasId(modiOrgSaas.getId());
-//                workspace.setSpaceName(slackInfo.get(0));
-//                workspace.setAlias(orgSaasRequest.getAlias());
-//                workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-//                workspace.setApiToken(orgSaasRequest.getApiToken());
-//                workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
-//                workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
-//                Workspace modiWorkspace = workspaceRepository.save(workspace);
-//
-//                Integer orgId = orgSaas.getOrgId();
-//                Integer saasId = orgSaas.getSaasId();
-//
-//                //saasId -> saasName
-//                String saasName = saasRepository.findById(saasId).get().getSaasName();
-//                String adminEmail = adminRepository.findById(orgId).get().getEmail();
-//
-//                try{
-//                    startScan.postToScan(orgSaas.getSpaceId(), adminEmail, saasName);
-//
-//                    return new OrgSaasResponse( 200, null, modiWorkspace.getId(), modiWorkspace.getRegisterDate());
-//                } catch (Exception e) {
-//                    return new OrgSaasResponse(199, e.getMessage(), null, null);
-//                }
-//
-//            } catch (IOException | InterruptedException e) {
-//                return new OrgSaasResponse(199, "API token Invalid\n" + e.getMessage(), null, null);
-//            }
-//        } else {
-//            return new OrgSaasResponse(199, "Not found for ID or no associated OrgSaas found", null, null);
-//        }
+        Optional<OrgSaas> optionalOrgSaas = orgSaasRepository.findById(orgSaasRequest.getId());
+        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getId()));
+
+        if(optionalOrgSaas.isPresent() && optionalWorkspace.isPresent()) {
+            OrgSaas orgSaas = optionalOrgSaas.get();
+            Workspace workspace = optionalWorkspace.get();
+
+            try{
+                List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
+
+                // org_saas
+                orgSaas.setSpaceId(slackInfo.get(1));
+                OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
+
+                // workspace_config
+                workspace.setSpaceName(slackInfo.get(0));
+                workspace.setAlias(orgSaasRequest.getAlias());
+                workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+                workspace.setApiToken(orgSaasRequest.getApiToken());
+                workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+                workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
+                Workspace registeredWorkspace = workspaceRepository.save(workspace);
+
+                //saasId -> saasName
+//                System.out.println("HIHI");
+                Integer orgId = orgSaasRepository.findById(orgSaasRequest.getId()).get().getOrgId();
+                Integer saasId = orgSaasRepository.findById(orgSaasRequest.getId()).get().getSaasId();
+//                System.out.println(orgId + " " + saasId);
+
+                String adminEmail = adminRepository.findById(orgId).get().getEmail();
+                String saasName = saasRepository.findById(saasId).get().getSaasName();
+//                System.out.println(saasName);
+//                System.out.println(adminEmail);
+
+                try{
+                    startScan.postToScan(registeredWorkspace.getId(), adminEmail, saasName);
+//                    System.out.println(registeredWorkspace.getId() + " " + adminEmail + " " + saasName);
+                    return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
+                } catch (Exception e) {
+                    return new OrgSaasResponse(198, e.getMessage(), null, null);
+                }
+
+            } catch (IOException | InterruptedException e) {
+                return new OrgSaasResponse( 199, e.getMessage(),null, null);
+            }
+        } else {
+            return new OrgSaasResponse( 199, "Not found for ID", "");
+        }
     }
 
     @Override
     public OrgSaasResponse deleteOrgSaas(OrgSaasRequest orgSaasRequest) {
         Optional<OrgSaas> optionalOrgSaas = orgSaasRepository.findById(orgSaasRequest.getId());
-        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getId()));
 
-        if (optionalWorkspace.isPresent() && optionalOrgSaas.isPresent()) {
+        if (optionalOrgSaas.isPresent()) {
             OrgSaas orgSaas = optionalOrgSaas.get();
 
             // orgSaas의 튜플을 삭제하면
