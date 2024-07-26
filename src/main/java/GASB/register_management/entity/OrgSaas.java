@@ -12,15 +12,13 @@ public class OrgSaas {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer orgSaasId;
+    private Integer id;
     @Column(name = "org_id")
     private Integer orgId;
     @Column (name = "saas_id")
     private Integer saasId;
     @Column (name = "space_id")
     private String spaceId;    // workspace_id
-    private Integer config;     // ref:> workspace_config.id
     private Integer status = 0; // default
     @Column (name = "security_score")
     private Integer securityScore = 0; // default

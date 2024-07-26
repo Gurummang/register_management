@@ -2,7 +2,7 @@ package GASB.register_management.service;
 
 import GASB.register_management.dto.OrgSaasRequest;
 import GASB.register_management.dto.OrgSaasResponse;
-import GASB.register_management.entity.OrgSaas;
+//import GASB.register_management.entity.OrgSaas;
 
 import java.util.List;
 

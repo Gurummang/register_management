@@ -5,53 +5,53 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.relational.core.sql.In;
 
 import java.sql.Timestamp;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-        "errorCode",
-        "errorMessage",
-        "id",
-        "name",
-        "alias",
-        "status",
-        "adminEmail",
-        "apiToken",
-        "validation",
-        "webhookUrl",
-        "registerDate"
-})
+//@JsonPropertyOrder({
+//        "errorCode",
+//        "errorMessage",
+//        "id",
+//        "name",
+//        "alias",
+//        "status",
+//        "adminEmail",
+//        "apiToken",
+//        "validation",
+//        "webhookUrl",
+//        "registerDate"
+//})
 public class OrgSaasResponse {
 
+    // about Error
     private Integer errorCode;
     private String errorMessage;
 
-    // Workspace_config
-    private Integer id;
-    private String alias;
-    private String adminEmail;
-    private String apiToken;
-    private Boolean validation;
-    private String webhookUrl;
-    private Timestamp registerDate;
-
     // OrgSaas
-    private Integer orgSaasId;
-    private Integer orgId;
-    private String saasId;
-    private String name;
+    private String name;    // saasName
     private Integer status;
     private String securityScore;
 
-    // POST(regi, modify, delete)
-    public OrgSaasResponse(Integer errorCode, String errorMessage, Integer id, Timestamp registerDate) {
+    // Workspace_config
+    private Integer id;     // configId
+    private String alias;
+    private String adminEmail;
+    private String apiToken;
+    private String webhookUrl;
+    private Timestamp registerDate;
+
+    // token(email) valid
+    private Boolean validation;
+
+    // POST(valid)
+    public OrgSaasResponse(Integer errorCode, String errorMessage, Boolean validation) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
-        this.id = id;
-        this.registerDate = registerDate;
+        this.validation = validation;
     }
     // GET(mkUrl)
     public OrgSaasResponse(Integer errorCode, String errorMessage, String webhookUrl) {
@@ -59,13 +59,12 @@ public class OrgSaasResponse {
         this.errorMessage = errorMessage;
         this.webhookUrl = webhookUrl;
     }
-    // GET(validToken)
-    public OrgSaasResponse(Integer errorCode, String errorMessage, Boolean validation, String apiToken, String name) {
+    // POST(regi, modify, delete)
+    public OrgSaasResponse(Integer errorCode, String errorMessage, Integer id, Timestamp registerDate) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
-        this.validation = validation;
-        this.apiToken = apiToken;
-        this.name = name;
+        this.id = id;
+        this.registerDate = registerDate;
     }
     // GET(list)
     public OrgSaasResponse(Integer id, String name, String alias, Integer status,
