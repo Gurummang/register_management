@@ -13,10 +13,7 @@ import java.sql.Timestamp;
 public class Workspace {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "org_saas_id")
-    private String orgSaasId;
     @Column(name = "workspace_name")
     private String spaceName;
     @Column(name = "saas_admin_email")
