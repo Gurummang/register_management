@@ -103,7 +103,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //            System.out.println(adminEmail);
 
             try{
-                startScan.postToScan(registeredWorkspace.getId(), adminEmail, saasName);
+                startScan.postToScan(regiOrgSaas.getSpaceId(), adminEmail, saasName);
 //                System.out.println(registeredWorkspace.getId() + " " + adminEmail + " " + saasName);
                 return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (Exception e) {
@@ -152,7 +152,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //                System.out.println(adminEmail);
 
                 try{
-                    startScan.postToScan(registeredWorkspace.getId(), adminEmail, saasName);
+                    startScan.postToScan(regiOrgSaas.getSpaceId(), adminEmail, saasName);
 //                    System.out.println(registeredWorkspace.getId() + " " + adminEmail + " " + saasName);
                     return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
                 } catch (Exception e) {
