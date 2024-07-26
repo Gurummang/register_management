@@ -106,11 +106,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
             //saasId -> saasName
             String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
             String adminEmail = adminRepository.findById(orgSaasRequest.getOrgId()).get().getEmail();
-            System.out.println(saasName);
-            System.out.println(adminEmail);
+//            System.out.println(saasName);
+//            System.out.println(adminEmail);
             try{
-//                String tt = String.valueOf(startScan.postToScan(orgSaas.getSpaceId(), adminEmail, saasName));
-//                System.out.println(tt);
+                startScan.postToScan(orgSaas.getSpaceId(), adminEmail, saasName);
 
                 return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (Exception e) {
@@ -163,21 +162,15 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 orgSaas.setConfig(registeredWorkspace.getId());
                 orgSaasRepository.save(orgSaas);
 
-                System.out.println("-- 1 --");
                 Integer orgId = orgSaas.getOrgId();
                 Integer saasId = orgSaas.getSaasId();
-                System.out.println("-- 2 --\n" + orgId + " " + saasId);
 
                 //saasId -> saasName
-
-                System.out.println("-- 3 --");
                 String saasName = saasRepository.findById(saasId).get().getSaasName();
                 String adminEmail = adminRepository.findById(orgId).get().getEmail();
-                System.out.println("-- 4 --\n" + saasName + " " + adminEmail);
-
 
                 try{
-//                    startScan.postToScan(orgSaas.getSpaceId(), registeredWorkspace.getAdminEmail(), saasName);
+                    startScan.postToScan(orgSaas.getSpaceId(), registeredWorkspace.getAdminEmail(), saasName);
 
                     return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
                 } catch (Exception e) {
@@ -203,14 +196,8 @@ public class OrgSaasServiceImple implements OrgSaasService {
             Workspace workspace = optionalWorkspace.get();
 
             List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(orgSaasRequest.getId());
-            // channel
-
-            // activities
-            // monitor_users
-
-            // type_scam
-            // file_uploads
-            orgSaasRepository.deleteAll(orgSaasList);
+//            CASCADE로 처리
+//            orgSaasRepository.deleteAll(orgSaasList);
             workspaceRepository.delete(workspace);
 
             return new OrgSaasResponse( 200, null, null);
