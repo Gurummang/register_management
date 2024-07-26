@@ -2,7 +2,9 @@ package GASB.register_management.service.imple;
 
 import GASB.register_management.dto.OrgSaasRequest;
 import GASB.register_management.dto.OrgSaasResponse;
+import GASB.register_management.entity.Admin;
 import GASB.register_management.entity.Saas;
+import GASB.register_management.repository.AdminRepository;
 import GASB.register_management.repository.SaasRepository;
 import GASB.register_management.service.OrgSaasService;
 import GASB.register_management.entity.OrgSaas;
@@ -37,6 +39,12 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private SlackTeamInfo slackTeamInfo;
     @Autowired
     private StartScan startScan;
+    @Autowired
+    private AdminRepository adminRepository;
+
+    public OrgSaasServiceImple(AdminRepository adminRepository) {
+        this.adminRepository = adminRepository;
+    }
 
 
     @Override
@@ -73,6 +81,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
     public OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest) {
         OrgSaas orgSaas = new OrgSaas();
         Workspace workspace = new Workspace();
+        Admin admin = new Admin();
 
         try {
             List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
@@ -96,12 +105,16 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
             //saasId -> saasName
             String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
+            String adminEmail = adminRepository.findById(orgSaasRequest.getOrgId()).get().getEmail();
+            System.out.println(saasName);
+            System.out.println(adminEmail);
             try{
-                String tt =  startScan.postToScan(orgSaas.getSpaceId(), registeredWorkspace.getAdminEmail(), saasName).toString();
+//                String tt = String.valueOf(startScan.postToScan(orgSaas.getSpaceId(), adminEmail, saasName));
+//                System.out.println(tt);
 
                 return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (Exception e) {
-                return new OrgSaasResponse(199, e.getMessage(), false, null, null);
+                return new OrgSaasResponse(198, e.getMessage(), null, null);
             }
 
         } catch (IOException | InterruptedException e) {
@@ -113,6 +126,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
     public OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest) {
         Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getId()));
         List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(orgSaasRequest.getId());
+        Admin admin = new Admin();
 
         if (optionalWorkspace.isPresent() && !orgSaasList.isEmpty()) {
             Workspace workspace = optionalWorkspace.get();
@@ -149,14 +163,25 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 orgSaas.setConfig(registeredWorkspace.getId());
                 orgSaasRepository.save(orgSaas);
 
+                System.out.println("-- 1 --");
+                Integer orgId = orgSaas.getOrgId();
+                Integer saasId = orgSaas.getSaasId();
+                System.out.println("-- 2 --\n" + orgId + " " + saasId);
+
                 //saasId -> saasName
-                String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
+
+                System.out.println("-- 3 --");
+                String saasName = saasRepository.findById(saasId).get().getSaasName();
+                String adminEmail = adminRepository.findById(orgId).get().getEmail();
+                System.out.println("-- 4 --\n" + saasName + " " + adminEmail);
+
+
                 try{
-                    startScan.postToScan(orgSaas.getSpaceId(), registeredWorkspace.getAdminEmail(), saasName);
+//                    startScan.postToScan(orgSaas.getSpaceId(), registeredWorkspace.getAdminEmail(), saasName);
 
                     return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
                 } catch (Exception e) {
-                    return new OrgSaasResponse(199, e.getMessage(), false, null, null);
+                    return new OrgSaasResponse(199, e.getMessage(), null, null);
                 }
 
             } catch (IOException | InterruptedException e) {
@@ -178,6 +203,13 @@ public class OrgSaasServiceImple implements OrgSaasService {
             Workspace workspace = optionalWorkspace.get();
 
             List<OrgSaas> orgSaasList = orgSaasRepository.findByConfig(orgSaasRequest.getId());
+            // channel
+
+            // activities
+            // monitor_users
+
+            // type_scam
+            // file_uploads
             orgSaasRepository.deleteAll(orgSaasList);
             workspaceRepository.delete(workspace);
 
