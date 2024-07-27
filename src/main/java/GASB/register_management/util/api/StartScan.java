@@ -1,4 +1,4 @@
-package GASB.register_management.util;
+package GASB.register_management.util.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,16 +17,15 @@ public class StartScan {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public JsonNode postToScan(String spaceId, String adminEmail, String saasName) throws IOException, InterruptedException {
+    public JsonNode postToScan(Integer configId, String saasName) throws IOException, InterruptedException {
         String url = "https://back.grummang.com/api/v1/connect/"+saasName+"/all";
 
         // HttpClient 생성
         HttpClient client = HttpClient.newHttpClient();
 
         // 요청 본문 준비
-        Map<String, String> requestBodyMap = new HashMap<>();
-        requestBodyMap.put("spaceId", spaceId);
-        requestBodyMap.put("email", adminEmail);
+        Map<String, Object> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("workspace_config_id", configId);
         String requestBody = objectMapper.writeValueAsString(requestBodyMap);
 
         // 요청 준비
@@ -35,6 +34,7 @@ public class StartScan {
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
+
 
         // 요청 보내기 및 응답 받기
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -46,6 +46,7 @@ public class StartScan {
             // JSON 응답을 JsonNode로 변환
             return objectMapper.readTree(responseBody);
         } else {
+            System.out.println("Error: " + response.statusCode() + " " + response.body());
             throw new IOException("Fail" + response.statusCode());
         }
     }
