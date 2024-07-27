@@ -103,8 +103,14 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //            System.out.println(adminEmail);
 
             try{
-                startScan.postToScan(regiOrgSaas.getSpaceId(), adminEmail, saasName);
-//                System.out.println(registeredWorkspace.getId() + " " + adminEmail + " " + saasName);
+
+                System.out.println(" -- 1 -- ");
+                System.out.println("spaceId: " + regiOrgSaas.getSpaceId());
+                System.out.println("adminEmail: " + adminEmail);
+                System.out.println("saasName: " + saasName + "\n");
+                System.out.println(" -- 2 -- ");
+                System.out.println(startScan.postToScan(regiOrgSaas.getSpaceId(), adminEmail, saasName));
+
                 return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (Exception e) {
                 return new OrgSaasResponse(198, e.getMessage(), null, null);
@@ -152,8 +158,8 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //                System.out.println(adminEmail);
 
                 try{
-                    startScan.postToScan(regiOrgSaas.getSpaceId(), adminEmail, saasName);
-//                    System.out.println(registeredWorkspace.getId() + " " + adminEmail + " " + saasName);
+                    String tt = String.valueOf(startScan.postToScan(regiOrgSaas.getSpaceId(), adminEmail, saasName));
+                    System.out.println(tt);
                     return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
                 } catch (Exception e) {
                     return new OrgSaasResponse(198, e.getMessage(), null, null);
