@@ -1,4 +1,4 @@
-package GASB.register_management.util;
+package GASB.register_management.util.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

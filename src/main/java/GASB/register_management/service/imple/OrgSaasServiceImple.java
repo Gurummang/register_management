@@ -2,7 +2,6 @@ package GASB.register_management.service.imple;
 
 import GASB.register_management.dto.OrgSaasRequest;
 import GASB.register_management.dto.OrgSaasResponse;
-import GASB.register_management.entity.Admin;
 import GASB.register_management.entity.Saas;
 import GASB.register_management.repository.AdminRepository;
 import GASB.register_management.repository.SaasRepository;
@@ -12,7 +11,7 @@ import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
 
-import GASB.register_management.util.StartScan;
+import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
