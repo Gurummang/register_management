@@ -97,18 +97,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
             //saasId -> saasName
             String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
-            String adminEmail = adminRepository.findById(orgSaasRequest.getOrgId()).get().getEmail();
-//            System.out.println(saasName);
-//            System.out.println(adminEmail);
+
 
             try{
-
-                System.out.println(" -- 1 -- ");
-                System.out.println("spaceId: " + regiOrgSaas.getSpaceId());
-                System.out.println("adminEmail: " + adminEmail);
-                System.out.println("saasName: " + saasName + "\n");
-                System.out.println(" -- 2 -- ");
-                System.out.println(startScan.postToScan(regiOrgSaas.getSpaceId(), adminEmail, saasName));
+                startScan.postToScan(registeredWorkspace.getId(), saasName);
 
                 return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (Exception e) {
@@ -146,19 +138,11 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 Workspace registeredWorkspace = workspaceRepository.save(workspace);
 
                 //saasId -> saasName
-//                System.out.println("HIHI");
-                Integer orgId = orgSaasRepository.findById(orgSaasRequest.getId()).get().getOrgId();
                 Integer saasId = orgSaasRepository.findById(orgSaasRequest.getId()).get().getSaasId();
-//                System.out.println(orgId + " " + saasId);
-
-                String adminEmail = adminRepository.findById(orgId).get().getEmail();
                 String saasName = saasRepository.findById(saasId).get().getSaasName();
-//                System.out.println(saasName);
-//                System.out.println(adminEmail);
 
                 try{
-                    String tt = String.valueOf(startScan.postToScan(regiOrgSaas.getSpaceId(), adminEmail, saasName));
-                    System.out.println(tt);
+                    startScan.postToScan(registeredWorkspace.getId(), saasName);
                     return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
                 } catch (Exception e) {
                     return new OrgSaasResponse(198, e.getMessage(), null, null);
