@@ -115,7 +115,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
     @Override
     public OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest) {
         Optional<OrgSaas> optionalOrgSaas = orgSaasRepository.findById(orgSaasRequest.getId());
-        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getId()));
+        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaasRequest.getId());
 
         if(optionalOrgSaas.isPresent() && optionalWorkspace.isPresent()) {
             OrgSaas orgSaas = optionalOrgSaas.get();
