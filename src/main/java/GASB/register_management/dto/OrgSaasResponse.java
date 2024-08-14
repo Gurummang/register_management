@@ -47,6 +47,13 @@ public class OrgSaasResponse {
     // token(email) valid
     private Boolean validation;
 
+    // for Google
+    private String redirectUrl;
+
+    public OrgSaasResponse(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
+    }
+
     // POST(valid)
     public OrgSaasResponse(Integer errorCode, String errorMessage, Boolean validation) {
         this.errorCode = errorCode;
