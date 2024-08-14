@@ -28,18 +28,20 @@ import java.util.stream.Collectors;
 @Service
 public class OrgSaasServiceImple implements OrgSaasService {
 
+    private final OrgSaasRepository orgSaasRepository;
+    private final WorkspaceRepository workspaceRepository;
+    private final SaasRepository saasRepository;
+    private final SlackTeamInfo slackTeamInfo;
+    private final StartScan startScan;
+
     @Autowired
-    private OrgSaasRepository orgSaasRepository;
-    @Autowired
-    private WorkspaceRepository workspaceRepository;
-    @Autowired
-    private SaasRepository saasRepository;
-    @Autowired
-    private SlackTeamInfo slackTeamInfo;
-    @Autowired
-    private StartScan startScan;
-    @Autowired
-    private AdminRepository adminRepository;
+    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan) {
+        this.orgSaasRepository = orgSaasRepository;
+        this.workspaceRepository = workspaceRepository;
+        this.saasRepository = saasRepository;
+        this.slackTeamInfo = slackTeamInfo;
+        this.startScan = startScan;
+    }
 
 
     @Override
@@ -115,7 +117,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
     @Override
     public OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest) {
         Optional<OrgSaas> optionalOrgSaas = orgSaasRepository.findById(orgSaasRequest.getId());
-        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(Long.valueOf(orgSaasRequest.getId()));
+        Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaasRequest.getId());
 
         if(optionalOrgSaas.isPresent() && optionalWorkspace.isPresent()) {
             OrgSaas orgSaas = optionalOrgSaas.get();
