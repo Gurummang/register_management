@@ -36,24 +36,26 @@ public class GoogleUtil {
     }
 
     // 1.
-    public Drive getDriveService(int workspaceId) throws Exception {
+    public Drive getDriveService() throws Exception {
         try {
             System.out.println("Call: getDriveService");
 
-            String accessToken  = getCredentials(workspaceId).getAccessToken();
+            String accessToken  = getCredentials().getAccessToken();
             // build()로 토큰 db에 저장
             Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod())
                     .setAccessToken(accessToken);
-            return new Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, getCredentials(workspaceId))
-            .setApplicationName(APPLICATION_NAME)
-            .build();
+            // 필요 없음
+//            return new Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, getCredentials(workspaceId))
+//            .setApplicationName(APPLICATION_NAME)
+//            .build();
+            return null;
         } catch (Exception e) {
             log.error("An error occurred while connecting to the Drive service: {}", e.getMessage(), e);
             throw e;
         }
     }
     // 1. 인증 코드 리스너 && 인증 요청 메서드
-    protected Credential getCredentials(int workspaceId) throws Exception {
+    protected Credential getCredentials() throws Exception {
         System.out.println("Call: getCredentials");
 
         // NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
