@@ -1,6 +1,5 @@
 package GASB.register_management.controller;
 
-import GASB.register_management.dto.GoogleRequest;
 import GASB.register_management.dto.OrgSaasRequest;
 import GASB.register_management.dto.OrgSaasResponse;
 import GASB.register_management.service.OrgSaasService;
@@ -61,8 +60,8 @@ public class OrgSaasController {
         System.out.println("test");
     }
     @PostMapping("/register/gd")
-    public Drive registerGoogle(@RequestBody GoogleRequest googleRequest) throws Exception {
+    public Drive registerGoogle(int id) throws Exception {
         System.out.println("Call: registerGoogle");
-        return googleUtil.getDriveService(googleRequest.getWorkspaceId());
+        return googleUtil.getDriveService(id);
     }
 }
