@@ -1,6 +1,12 @@
 package GASB.register_management.util;
 
+import GASB.register_management.dto.OrgSaasRequest;
+import GASB.register_management.dto.OrgSaasResponse;
+import GASB.register_management.entity.Org;
+import GASB.register_management.entity.OrgSaas;
 import GASB.register_management.entity.Workspace;
+import GASB.register_management.repository.OrgSaasRepository;
+import GASB.register_management.repository.SaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
@@ -18,6 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -28,81 +38,96 @@ public class GoogleUtil {
 
     private final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow;
     private final WorkspaceRepository workspaceRepository;
+    private final OrgSaasRepository orgSaasRepository;
+    private final SaasRepository saasRepository;
 
     @Autowired
-    public GoogleUtil(GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow, WorkspaceRepository workspaceRepository) {
+    public GoogleUtil(GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow, WorkspaceRepository workspaceRepository, OrgSaasRepository orgSaasRepository, SaasRepository saasRepository) {
         this.googleAuthorizationCodeFlow = googleAuthorizationCodeFlow;
         this.workspaceRepository = workspaceRepository;
+        this.orgSaasRepository = orgSaasRepository;
+        this.saasRepository = saasRepository;
     }
 
-    // 1.
-    public Drive getDriveService() throws Exception {
-        try {
-            System.out.println("Call: getDriveService");
+    public OrgSaasResponse starter(OrgSaasRequest orgSaasRequest) {
+        System.out.println("2. Call: starter");
 
+        OrgSaas orgSaas = new OrgSaas();
+        Workspace workspace = new Workspace();
+
+        try {
+            // 1. 토큰을 반환받음
+            String accessToken = getDriveService();
+            System.out.println(accessToken);
+
+            // 2. 토큰을 받았으면 유저 정보를 저장
+            try {
+                orgSaas.setOrgId(orgSaasRequest.getOrgId());
+                orgSaas.setSaasId(orgSaasRequest.getSaasId());
+                orgSaas.setSpaceId("Test-" + UUID.randomUUID());
+                OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
+                System.out.println("저장된 Id: " + regiOrgSaas.getId());
+
+                workspace.setId(regiOrgSaas.getId());
+                workspace.setSpaceName("Test-" + UUID.randomUUID());
+                workspace.setAlias(orgSaasRequest.getAlias());
+                workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+                workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+                workspace.setApiToken(accessToken);  // 액세스 토큰을 워크스페이스에 저장
+                workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
+                Workspace regiWorkspace = workspaceRepository.save(workspace);
+                System.out.println("저장된 ID: " + regiWorkspace.getId());
+
+//            String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
+
+                return new OrgSaasResponse(200, null, regiWorkspace.getId(), regiWorkspace.getRegisterDate());
+
+            } catch (Exception e) {
+                return new OrgSaasResponse(199, e.getMessage(), null, null);
+            }
+        } catch (Exception e) {
+            return new OrgSaasResponse(199, "Can Not receive Token", null, null);
+        }
+    }
+
+    // 수정된 getDriveService 메서드
+    private String getDriveService() throws Exception {
+        try {
+            System.out.println("3. Call: getDriveService");
+
+            // getCredentials()을 호출하여 토큰을 반환받음
             String accessToken  = getCredentials().getAccessToken();
-            // build()로 토큰 db에 저장
+
+            System.out.println("Resp(Token): " + accessToken);
             Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod())
                     .setAccessToken(accessToken);
-            // 필요 없음
-//            return new Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, getCredentials(workspaceId))
-//            .setApplicationName(APPLICATION_NAME)
-//            .build();
-            return null;
+
+            System.out.println("Resp(Credential): " + credential);
+
+            // 토큰을 반환
+            return accessToken;
+
         } catch (Exception e) {
             log.error("An error occurred while connecting to the Drive service: {}", e.getMessage(), e);
             throw e;
         }
     }
-    // 1. 인증 코드 리스너 && 인증 요청 메서드
+
+    // 인증 코드 리스너 && 인증 요청 메서드
     protected Credential getCredentials() throws Exception {
         System.out.println("Call: getCredentials");
 
-        // NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        // 인증 코드 리스너
-        // Login URL's Redirection URL == "~/login/oauth2/code/google:8888"
-        // 즉 URL과 port를 사전에 협의하고 이를 열어놓고 대기하는 역할
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8088).setCallbackPath("/login/oauth2/code/google").build();
-        System.out.println(receiver);
-        System.out.println(googleAuthorizationCodeFlow);
+        // 인증 코드 리스너 생성
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder()
+                .setPort(8088)
+                .setCallbackPath("/login/oauth2/code/google")
+                .build();
 
-        // 인증 요청
+        System.out.println("Receiver:" + receiver);
+        System.out.println("Flow: " + googleAuthorizationCodeFlow);
+
+        // 인증 요청 및 Credential 반환
+        System.out.print("여기인가?");
         return new AuthorizationCodeInstalledApp(googleAuthorizationCodeFlow, receiver).authorize("user");
-    }
-    //
-
-//    // workspace.id로 해당 객체의 token을 가져옴
-//    private String selectToken(int workspaceId){
-//        try {
-//            Workspace workspace = workspaceRepository.findById(workspaceId).orElse(null);
-//            // id에 해당하는 객체가 없을 경우
-//            if(workspace == null) {
-//                throw new IllegalStateException("Invalid workspace id: " + workspaceId);
-//            }
-//            // 토큰 반환
-//            return workspace.getApiToken();
-//        } catch (Exception e) {
-//            log.error("An error occurred while selecting the token: {}", e.getMessage(), e);
-//            return null;
-//        }
-//    }
-//
-//    private TokenResponse refreshToken(GoogleAuthorizationCodeFlow flow, String refreshToken) throws IOException {
-//        return flow.newTokenRequest(refreshToken).setGrantType("refresh_token").execute();
-//    }
-//
-//    private Credential refreshAccessToken(Credential credential, int workspaceId) throws IOException {
-//        TokenResponse response = refreshToken(googleAuthorizationCodeFlow, credential.getRefreshToken());
-//        log.info("Access token refreshed successfully.");
-//        credential.setAccessToken(response.getAccessToken());
-//        credential.setExpiresInSeconds(response.getExpiresInSeconds());
-//        // 수정: 새로운 토큰을 DB에 저장
-//        // updateToken대신에 jpa로 했읍니다.
-//        workspaceRepository.findById(workspaceId).get().setApiToken(response.getAccessToken());
-//        return credential;
-//    }
-
-    public void getTokenExpiredTime(Credential credential) {
-        log.info("Token Expired Time: {}", credential.getExpiresInSeconds());
     }
 }
