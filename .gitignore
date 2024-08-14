@@ -39,3 +39,4 @@ out/
 ### 이건 안돼요~ ###
 application.properties
 credentials.json
+/tokens/
