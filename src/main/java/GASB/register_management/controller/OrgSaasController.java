@@ -1,29 +1,35 @@
 package GASB.register_management.controller;
 
+import GASB.register_management.dto.GoogleRequest;
 import GASB.register_management.dto.OrgSaasRequest;
 import GASB.register_management.dto.OrgSaasResponse;
 import GASB.register_management.service.OrgSaasService;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import GASB.register_management.util.GoogleUtil;
+import com.google.api.services.drive.Drive;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
 
-@CrossOrigin(origins = {"http://localhost:5173","http://127.0.0.1:5173"})
+@CrossOrigin(origins = {"http://localhost:5173","http://127.0.0.1:5173", "http://localhost:8080"})
 @RestController
 @RequestMapping("/api/v1/org-saas")
 public class OrgSaasController {
 
-    @Autowired
-    private OrgSaasService orgSaasService;
+    private final OrgSaasService orgSaasService;
+    private final GoogleUtil googleUtil;
+
+    public OrgSaasController(OrgSaasService orgSaasService, GoogleUtil googleUtil) {
+        this.orgSaasService = orgSaasService;
+        this.googleUtil = googleUtil;
+    }
 
     @PostMapping("/slackValid")
     public OrgSaasResponse slackValid (@RequestBody OrgSaasRequest orgSaasRequest) {
         return orgSaasService.slackValid(orgSaasRequest);
     }
-
 
     @GetMapping("/{saasId}/mkUrl")
     public OrgSaasResponse mkUrl(@PathVariable Integer saasId) {
@@ -48,5 +54,15 @@ public class OrgSaasController {
     @GetMapping("/{orgId}")
     public List<OrgSaasResponse> getOrgSaasList(@PathVariable Integer orgId) {
         return orgSaasService.getOrgSaasList(orgId);
+    }
+
+    @PostMapping("/test")
+    public void test() {
+        System.out.println("test");
+    }
+    @PostMapping("/register/gd")
+    public Drive registerGoogle(@RequestBody GoogleRequest googleRequest) throws Exception {
+        System.out.println("Call: registerGoogle");
+        return googleUtil.getDriveService(googleRequest.getWorkspaceId());
     }
 }
