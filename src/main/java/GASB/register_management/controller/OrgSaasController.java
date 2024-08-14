@@ -6,6 +6,7 @@ import GASB.register_management.service.OrgSaasService;
 
 import GASB.register_management.util.GoogleUtil;
 import com.google.api.services.drive.Drive;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,9 +37,14 @@ public class OrgSaasController {
     }
 
     @PostMapping("/register")
-    public OrgSaasResponse register(@RequestBody OrgSaasRequest orgSaasRequest) {
+    public OrgSaasResponse register(@RequestBody OrgSaasRequest orgSaasRequest) throws Exception {
+        if(orgSaasRequest.getSaasId() == 6) {
+            System.out.println("1. 시작");
+            return googleUtil.starter(orgSaasRequest);
+        }
         return orgSaasService.registerOrgSaas(orgSaasRequest);
     }
+
 
     @PostMapping("/modify")
     public OrgSaasResponse modify(@RequestBody OrgSaasRequest orgSaasRequest) {
@@ -55,13 +61,9 @@ public class OrgSaasController {
         return orgSaasService.getOrgSaasList(orgId);
     }
 
-    @PostMapping("/test")
-    public void test() {
-        System.out.println("test");
-    }
-    @PostMapping("/register/gd")
-    public Drive registerGoogle() throws Exception {
-        System.out.println("Call: registerGoogle");
-        return googleUtil.getDriveService();
-    }
+//    @PostMapping("/register/gd")
+//    public Drive registerGoogle() throws Exception {
+//        System.out.println("Call: registerGoogle");
+//        return googleUtil.getDriveService();
+//    }
 }
