@@ -5,6 +5,7 @@ import GASB.register_management.dto.OrgSaasResponse;
 import GASB.register_management.service.OrgSaasService;
 import GASB.register_management.util.GoogleUtil;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -14,11 +15,10 @@ import java.util.List;
 public class OrgSaasController {
 
     private final OrgSaasService orgSaasService;
-    private final GoogleUtil googleUtil;
 
+    @Autowired
     public OrgSaasController(OrgSaasService orgSaasService, GoogleUtil googleUtil) {
         this.orgSaasService = orgSaasService;
-        this.googleUtil = googleUtil;
     }
 
     @PostMapping("/slackValid")
@@ -32,13 +32,9 @@ public class OrgSaasController {
     }
 
     @PostMapping("/register")
-    public OrgSaasResponse register(@RequestBody OrgSaasRequest orgSaasRequest) throws Exception {
-        if(orgSaasRequest.getSaasId() == 6) {
-            return googleUtil.starter(orgSaasRequest);
-        }
+    public OrgSaasResponse register(@RequestBody OrgSaasRequest orgSaasRequest){
         return orgSaasService.registerOrgSaas(orgSaasRequest);
     }
-
 
     @PostMapping("/modify")
     public OrgSaasResponse modify(@RequestBody OrgSaasRequest orgSaasRequest) {
