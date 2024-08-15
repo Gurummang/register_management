@@ -1,41 +1,22 @@
 package GASB.register_management.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.relational.core.sql.In;
 
 import java.sql.Timestamp;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-//@JsonPropertyOrder({
-//        "errorCode",
-//        "errorMessage",
-//        "id",
-//        "name",
-//        "alias",
-//        "status",
-//        "adminEmail",
-//        "apiToken",
-//        "validation",
-//        "webhookUrl",
-//        "registerDate"
-//})
 public class OrgSaasResponse {
-
     // about Error
     private Integer errorCode;
     private String errorMessage;
-
     // OrgSaas
     private String name;    // saasName
     private Integer status;
     private String securityScore;
-
     // Workspace_config
     private Integer id;     // configId
     private String alias;
@@ -43,16 +24,9 @@ public class OrgSaasResponse {
     private String apiToken;
     private String webhookUrl;
     private Timestamp registerDate;
-
     // token(email) valid
     private Boolean validation;
 
-    // for Google
-    private String redirectUrl;
-
-    public OrgSaasResponse(String redirectUrl) {
-        this.redirectUrl = redirectUrl;
-    }
 
     // POST(valid)
     public OrgSaasResponse(Integer errorCode, String errorMessage, Boolean validation) {
