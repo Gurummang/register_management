@@ -49,30 +49,26 @@ public class GoogleUtil {
     }
 
     public OrgSaasResponse starter(OrgSaasRequest orgSaasRequest) throws Exception {
-        OrgSaas orgSaas = new OrgSaas();
-        Workspace workspace = new Workspace();
 
         try {
             // 리스너 호출 && Credential 객체 반환
             Credential credential = getCredentials();
             String accessToken = credential.getAccessToken();
-            System.out.println("AccessToken: " + accessToken);
 
             try {
                 Drive drive = getDriveService(credential);
-                System.out.println("Drive: " + drive);
-
                 // 팀 드라이브 정보 얻기
                 List<String[]> sharedDrives = getAllSharedDriveIdsAndNames(drive);
                 for (String[] driveInfo : sharedDrives) {
-                    System.out.println("Drive ID: " + driveInfo[0] + ", Drive Name: " + driveInfo[1]);
-
+                    // 공유 드라이브별로 객체 생성
+                    OrgSaas orgSaas = new OrgSaas();
+                    Workspace workspace = new Workspace();
+                    // orgSaas에 저장
                     orgSaas.setOrgId(orgSaasRequest.getOrgId());
                     orgSaas.setSaasId(orgSaasRequest.getSaasId());
                     orgSaas.setSpaceId(driveInfo[0]);
                     OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
-                    System.out.println("저장된 Id: " + regiOrgSaas.getId());
-
+                    // workspace에 저장
                     workspace.setId(regiOrgSaas.getId());
                     workspace.setSpaceName(driveInfo[1]);
                     workspace.setAlias(orgSaasRequest.getAlias());
@@ -81,14 +77,7 @@ public class GoogleUtil {
                     workspace.setApiToken(accessToken);  // 액세스 토큰을 워크스페이스에 저장
                     workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
                     Workspace regiWorkspace = workspaceRepository.save(workspace);
-                    System.out.println("저장된 ID: " + regiWorkspace.getId());
                 }
-
-                // My Drive 정보 얻기
-//                String[] myDriveInfo = getMyDriveIdAndName(drive);
-//                System.out.println("My Drive ID (Storage Quota Limit): " + myDriveInfo[0]);
-//                System.out.println("My Drive Name (User Name): " + myDriveInfo[1]);
-
             } catch (Exception e) {
                 log.error(e.getMessage());
                 throw e;
@@ -129,14 +118,6 @@ public class GoogleUtil {
         return sharedDrivesInfo;
     }
 
-//    // My Drive (기본 드라이브)의 ID와 이름을 가져오는 메서드
-//    private String[] getMyDriveIdAndName(Drive drive) throws IOException {
-//        About about = drive.about().get().setFields("user, storageQuota").execute();  // My Drive 정보 가져오기
-//        String driveId = about.getStorageQuota().getLimit().toString();  // My Drive ID는 일반적으로 표시되지 않으므로 용량 제한을 ID처럼 사용
-//        String driveName = about.getUser().getDisplayName();  // My Drive의 소유자 이름
-//        return new String[]{driveId, driveName};
-//    }
-
     // 인증 코드 리스너 && 인증 요청 메서드
     protected Credential getCredentials() throws Exception {
         // 인증 코드 리스너 생성
@@ -144,10 +125,6 @@ public class GoogleUtil {
                 .setPort(8088)
                 .setCallbackPath("/login/oauth2/code/google")
                 .build();
-
-        System.out.println("Receiver:" + receiver);
-        System.out.println("Flow: " + googleAuthorizationCodeFlow);
-
         // 인증 요청 및 Credential 반환
         return new AuthorizationCodeInstalledApp(googleAuthorizationCodeFlow, receiver).authorize("user");
     }
