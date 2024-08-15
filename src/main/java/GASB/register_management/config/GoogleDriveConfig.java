@@ -3,32 +3,49 @@ package GASB.register_management.config;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.drive.DriveScopes;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 public class GoogleDriveConfig {
 
-//    private static final String TOKENS_DIRECTORY_PATH = "tokens";
-    private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE, DriveScopes.DRIVE_METADATA);
+    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    private String clientSecret;
+
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    private String redirectUri;
+
+    @Value("${spring.security.oauth2.client.registration.google.scope}")
+    private String scope;
 
     @Bean
     public GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow() throws Exception {
-        InputStream in = getClass().getResourceAsStream("/credentials.json");
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(GsonFactory.getDefaultInstance(), new InputStreamReader(in));
+        String jsonCredentials = String.format(
+                "{\"installed\":{\"client_id\":\"%s\",\"project_id\":\"\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_secret\":\"%s\",\"redirect_uris\":[\"%s\"]}}",
+                clientId, clientSecret, redirectUri
+        );
+
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+                JSON_FACTORY, new StringReader(jsonCredentials)
+        );
+
+        List<String> scopes = Arrays.asList(scope.split(" "));
 
         return new GoogleAuthorizationCodeFlow.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), clientSecrets, SCOPES)
-//                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, clientSecrets, scopes)
                 .setAccessType("offline")
                 .build();
     }
-
 }
