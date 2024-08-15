@@ -49,48 +49,43 @@ public class GoogleUtil {
     }
 
     public OrgSaasResponse starter(OrgSaasRequest orgSaasRequest) throws Exception {
-
+        Credential credential;
         try {
             // 리스너 호출 && Credential 객체 반환
-            Credential credential = getCredentials();
-            String accessToken = credential.getAccessToken();
+            credential = getCredentials();
+        } catch (Exception e) {
+            log.error("Error while getting credentials: {}", e.getMessage());
+            throw new RuntimeException("Failed to obtain Google credentials", e);
+        }
 
-            try {
-                Drive drive = getDriveService(credential);
-                // 팀 드라이브 정보 얻기
-                List<String[]> sharedDrives = getAllSharedDriveIdsAndNames(drive);
-                for (String[] driveInfo : sharedDrives) {
-                    // 공유 드라이브별로 객체 생성
-                    OrgSaas orgSaas = new OrgSaas();
-                    Workspace workspace = new Workspace();
-                    // orgSaas에 저장
-                    orgSaas.setOrgId(orgSaasRequest.getOrgId());
-                    orgSaas.setSaasId(orgSaasRequest.getSaasId());
-                    orgSaas.setSpaceId(driveInfo[0]);
-                    OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
-                    // workspace에 저장
-                    workspace.setId(regiOrgSaas.getId());
-                    workspace.setSpaceName(driveInfo[1]);
-                    workspace.setAlias(orgSaasRequest.getAlias());
-                    workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-                    workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
-                    workspace.setApiToken(accessToken);  // 액세스 토큰을 워크스페이스에 저장
-                    workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
-                    Workspace regiWorkspace = workspaceRepository.save(workspace);
-                }
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                throw e;
+        String accessToken = credential.getAccessToken();
+        try {
+            Drive drive = getDriveService(credential);
+            List<String[]> sharedDrives = getAllSharedDriveIdsAndNames(drive);
+            for (String[] driveInfo : sharedDrives) {
+                OrgSaas orgSaas = new OrgSaas();
+                Workspace workspace = new Workspace();
+                orgSaas.setOrgId(orgSaasRequest.getOrgId());
+                orgSaas.setSaasId(orgSaasRequest.getSaasId());
+                orgSaas.setSpaceId(driveInfo[0]);
+                OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
+                workspace.setId(regiOrgSaas.getId());
+                workspace.setSpaceName(driveInfo[1]);
+                workspace.setAlias(orgSaasRequest.getAlias());
+                workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+                workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+                workspace.setApiToken(accessToken);
+                workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
+                Workspace regiWorkspace = workspaceRepository.save(workspace);
             }
         } catch (Exception e) {
-            log.error("Error while getting credential: {}", e.getMessage());
-            throw e;
+            log.error("Error while processing Drive data: {}", e.getMessage());
+            throw new RuntimeException("Failed to process Drive data", e);
         }
 
         return null;
     }
 
-    // 구글 Drive 서비스 객체 생성
     private Drive getDriveService(Credential credential) throws Exception {
         try {
             return new Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
@@ -98,34 +93,33 @@ public class GoogleUtil {
                     .build();
         } catch (Exception e) {
             log.error("An error occurred while creating the Drive service: {}", e.getMessage());
-            throw e;
+            throw new RuntimeException("Failed to create Drive service", e);
         }
     }
 
     private List<String[]> getAllSharedDriveIdsAndNames(Drive drive) throws IOException {
         List<String[]> sharedDrivesInfo = new ArrayList<>();
-        DriveList driveList = drive.drives().list().execute();  // 모든 팀 드라이브 가져오기
+        DriveList driveList = drive.drives().list().execute();
 
-        // 팀 드라이브가 존재하는 경우
         if (driveList.getDrives() != null && !driveList.getDrives().isEmpty()) {
             for (com.google.api.services.drive.model.Drive sharedDrive : driveList.getDrives()) {
-                // 각 팀 드라이브의 ID와 이름을 배열로 저장
                 String[] driveInfo = new String[]{sharedDrive.getId(), sharedDrive.getName()};
-                sharedDrivesInfo.add(driveInfo);  // 리스트에 추가
+                sharedDrivesInfo.add(driveInfo);
             }
         }
-        // 팀 드라이브 목록을 반환
         return sharedDrivesInfo;
     }
 
-    // 인증 코드 리스너 && 인증 요청 메서드
     protected Credential getCredentials() throws Exception {
-        // 인증 코드 리스너 생성
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder()
-                .setPort(8088)
-                .setCallbackPath("/login/oauth2/code/google")
-                .build();
-        // 인증 요청 및 Credential 반환
-        return new AuthorizationCodeInstalledApp(googleAuthorizationCodeFlow, receiver).authorize("user");
+        try {
+            LocalServerReceiver receiver = new LocalServerReceiver.Builder()
+                    .setPort(8088)
+                    .setCallbackPath("/login/oauth2/code/google")
+                    .build();
+            return new AuthorizationCodeInstalledApp(googleAuthorizationCodeFlow, receiver).authorize("user");
+        } catch (Exception e) {
+            log.error("Error during Google OAuth2 authorization: {}", e.getMessage());
+            throw new RuntimeException("Failed to obtain Google credentials", e);
+        }
     }
 }
