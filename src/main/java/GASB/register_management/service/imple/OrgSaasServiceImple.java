@@ -3,7 +3,6 @@ package GASB.register_management.service.imple;
 import GASB.register_management.dto.OrgSaasRequest;
 import GASB.register_management.dto.OrgSaasResponse;
 import GASB.register_management.entity.Saas;
-import GASB.register_management.repository.AdminRepository;
 import GASB.register_management.repository.SaasRepository;
 import GASB.register_management.service.OrgSaasService;
 import GASB.register_management.entity.OrgSaas;
@@ -17,9 +16,7 @@ import GASB.register_management.util.validation.SlackTeamInfo;
 import com.google.api.client.auth.oauth2.Credential;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-//import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.DriveList;
 
 import java.io.IOException;
 import java.sql.Timestamp;
