@@ -15,4 +15,5 @@ public interface OrgSaasService {
     OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest);
     OrgSaasResponse deleteOrgSaas(OrgSaasRequest orgSaasRequest);
     List<OrgSaasResponse> getOrgSaasList(Integer orgId);
+    void updateOrgSaasGD(List<String[]> drives, String accessToken);
 }

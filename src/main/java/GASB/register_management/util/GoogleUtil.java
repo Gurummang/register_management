@@ -1,5 +1,8 @@
 package GASB.register_management.util;
 
+import GASB.register_management.dto.OrgSaasRequest;
+import GASB.register_management.service.OrgSaasService;
+import GASB.register_management.service.imple.OrgSaasServiceImple;
 import com.google.api.client.auth.oauth2.Credential;
 //import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 //import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -28,10 +31,12 @@ public class GoogleUtil {
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
     private final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow;
+    private final OrgSaasService orgSaasService;
 
     @Autowired
-    public GoogleUtil(GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow) {
+    public GoogleUtil(GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow, OrgSaasService orgSaasService) {
         this.googleAuthorizationCodeFlow = googleAuthorizationCodeFlow;
+        this.orgSaasService = orgSaasService;
     }
 
     public void func(String code) {
@@ -45,9 +50,10 @@ public class GoogleUtil {
 
                 try {
                     List<String[]> drives = getAllSharedDriveIdsAndNames(drive);
-                    for(String[] driveInfo : drives) {
-                        System.out.println("{\n\tDrive ID: " + driveInfo[0] + "\n\tDrive Name: " + driveInfo[1] + "\n\tDrive AccessToken: " + credential.getAccessToken() + "\n}");
-                    }
+                    orgSaasService.updateOrgSaasGD(drives, credential.getAccessToken());
+                    //  orgSaasRequest를 생성, id를 200으로 지정하고 driveId, driveName, token만 담는다
+                    // registerOrgSaas(orgSaasRequest)로 보낸다
+
                 } catch (Exception e) {
                     // return dto
                 }

@@ -76,9 +76,25 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
     @Override
     public OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest) {
-        System.out.println("2. 등록 Serive");
         OrgSaas orgSaas = new OrgSaas();
         Workspace workspace = new Workspace();
+
+        if(orgSaasRequest.getSaasId() == 6) {
+            orgSaas.setOrgId(orgSaasRequest.getOrgId());    // workspace_config.id
+            orgSaas.setSaasId(orgSaasRequest.getSaasId());
+            orgSaas.setSpaceId("TEMP");
+            OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
+
+            // workspace_config
+            workspace.setId(regiOrgSaas.getId());
+            workspace.setSpaceName("TEMP");
+            workspace.setAlias(orgSaasRequest.getAlias());
+            workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+            workspace.setApiToken("TEMP");
+            workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
+            workspaceRepository.save(workspace);
+            return new OrgSaasResponse(200, "Waiting Google Drive", null, null);
+        }
 
         try {
             List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
@@ -214,5 +230,83 @@ public class OrgSaasServiceImple implements OrgSaasService {
             );
         }).collect(Collectors.toList());
     }
+
+    public void updateOrgSaasGD(List<String[]> drives, String accessToken) {
+        // spaceId가 "TEMP"인 튜플을 찾음
+        List<OrgSaas> tempOrgSaasList = orgSaasRepository.findBySpaceId("TEMP");
+
+        if (tempOrgSaasList.isEmpty()) {
+            System.out.println("No entries found with spaceId 'TEMP'");
+            return;
+        }
+
+        // 드라이브 리스트 순회
+        for (int i = 0; i < drives.size(); i++) {
+            String[] driveInfo = drives.get(i);  // [0]: 드라이브 ID, [1]: 드라이브 이름
+
+            // DELETE 상태인 드라이브 처리
+            if ("DELETE".equals(driveInfo[0])) {
+                // spaceId가 TEMP인 튜플 모두 삭제
+                for (OrgSaas orgSaas : tempOrgSaasList) {
+                    orgSaasRepository.delete(orgSaas);
+
+                    Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaas.getId());
+                    optionalWorkspace.ifPresent(workspaceRepository::delete);  // 워크스페이스도 삭제
+                }
+
+                System.out.println("Deleted all entries with spaceId 'TEMP' due to DELETE status.");
+                return;  // DELETE 처리가 완료되었으므로 함수 종료
+            }
+
+            OrgSaas orgSaas;
+            Workspace workspace;
+
+            if (i < tempOrgSaasList.size()) {
+                // 기존 TEMP 튜플 업데이트
+                orgSaas = tempOrgSaasList.get(i);
+            } else {
+                // TEMP 튜플을 복제
+                OrgSaas originalOrgSaas = tempOrgSaasList.get(0);  // 첫 번째 TEMP 튜플을 기준으로 복사
+                orgSaas = new OrgSaas();
+                orgSaas.setOrgId(originalOrgSaas.getOrgId());
+                orgSaas.setSaasId(originalOrgSaas.getSaasId());
+                orgSaas.setSpaceId("TEMP");  // 나중에 업데이트될 것이므로 우선 TEMP로 설정
+                orgSaas = orgSaasRepository.save(orgSaas);  // 복제된 튜플 저장
+
+                // Workspace도 복제
+                Optional<Workspace> originalWorkspaceOpt = workspaceRepository.findById(originalOrgSaas.getId());
+                if (originalWorkspaceOpt.isPresent()) {
+                    Workspace originalWorkspace = originalWorkspaceOpt.get();
+                    workspace = new Workspace();
+                    workspace.setId(orgSaas.getId());
+                    workspace.setAlias(originalWorkspace.getAlias());
+                    workspace.setAdminEmail(originalWorkspace.getAdminEmail());
+                    workspace.setApiToken(originalWorkspace.getApiToken());
+                    workspace.setWebhookUrl(originalWorkspace.getWebhookUrl());
+                    workspace.setRegisterDate(originalWorkspace.getRegisterDate());
+                    workspace = workspaceRepository.save(workspace);  // 복제된 워크스페이스 저장
+                } else {
+                    System.out.println("Workspace for TEMP OrgSaas not found.");
+                    continue;
+                }
+            }
+
+            // org_saas 정보 업데이트
+            orgSaas.setSpaceId(driveInfo[0]);  // 드라이브 ID로 업데이트
+            orgSaasRepository.save(orgSaas);
+
+            // workspace_config 정보 업데이트
+            Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaas.getId());
+            if (optionalWorkspace.isPresent()) {
+                workspace = optionalWorkspace.get();
+                workspace.setSpaceName(driveInfo[1]);  // 드라이브 이름으로 업데이트
+                workspace.setApiToken(accessToken);    // 토큰 업데이트
+                workspaceRepository.save(workspace);
+            }
+
+            System.out.println("Updated OrgSaas and Workspace for Drive ID: " + driveInfo[0]);
+        }
+    }
+
 
 }
