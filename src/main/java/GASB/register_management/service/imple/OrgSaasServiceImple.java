@@ -75,16 +75,24 @@ public class OrgSaasServiceImple implements OrgSaasService {
     }
 
     @Override
-    public OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest) {
+    public OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest, Credential credential_value) {
+        System.out.println("2. 등록 Serive");
         OrgSaas orgSaas = new OrgSaas();
         Workspace workspace = new Workspace();
 
         if(orgSaasRequest.getSaasId() == 6) {
+            System.out.println("3. saasId == 6, 구글 드라이브 연동 시도");
             try {
-                Credential credential = googleUtil.getCredentials();
-                String accessToken = credential.getAccessToken();
 
+                System.out.println("4. googleUtil.getCredentials() 호출");
+                Credential credential = credential_value;
+//                Credential credential1 = googleUtil.getCredentials(credential);
+                System.out.println("8. credential 반환: " + credential);
+                String accessToken = credential.getAccessToken();
+                System.out.println("9. accessToken 반환 " + accessToken);
+                System.out.println("9-1 refreshToken "+ credential.getRefreshToken());
                 try {
+                    System.out.println("10. getDriveService 호출");
                     Drive drive = googleUtil.getDriveService(credential);
                     List<String[]> drives = googleUtil.getAllSharedDriveIdsAndNames(drive);
                     Workspace regiWorkspace = new Workspace();

@@ -17,7 +17,6 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
 
 @Service
 @Slf4j
@@ -27,7 +26,6 @@ public class GoogleUtil {
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
     private final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow;
-    private static final int AUTH_TIMEOUT = 2; // 타임아웃 시간 (분)
 
     @Autowired
     public GoogleUtil(GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow) {
@@ -59,28 +57,19 @@ public class GoogleUtil {
         return sharedDrivesInfo;
     }
 
-    public Credential getCredentials() throws Exception {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder()
-                .setPort(8088)
-                .setCallbackPath("/login/oauth2/code/google")
-                .build();
-
-        Callable<Credential> task = () -> new AuthorizationCodeInstalledApp(googleAuthorizationCodeFlow, receiver).authorize("user");
-
-        Future<Credential> future = executorService.submit(task);
+    public Credential getCredentials(Credential credential) throws Exception {
         try {
-            // 주어진 시간(1분) 안에 인증을 완료해야 함
-            return future.get(AUTH_TIMEOUT, TimeUnit.MINUTES);
-        } catch (TimeoutException e) {
-            future.cancel(true); // 인증 작업 취소
-            log.error("Authentication request timed out after {} minutes", AUTH_TIMEOUT);
-            throw new RuntimeException("Authentication timed out.");
-        } catch (ExecutionException | InterruptedException e) {
-            log.error("An error occurred during authentication: {}", e.getMessage());
-            throw new RuntimeException("Authentication failed.", e);
-        } finally {
-            executorService.shutdown(); // Executor 서비스 종료
+//            System.out.println("5. 리시버 호출, 수신 대기");
+//            LocalServerReceiver receiver = new LocalServerReceiver.Builder()
+//                    .setPort(8088)
+//                    .setCallbackPath("/login/oauth2/code/google")
+//                    .build();
+//            System.out.println("6. GoogleAuthorization~() 호출");
+//            return new AuthorizationCodeInstalledApp(googleAuthorizationCodeFlow, receiver).authorize("user");
+            return credential;
+        } catch (Exception e) {
+            log.error("Error during Google OAuth2 authorization: {}", e.getMessage());
+            throw new RuntimeException("Failed to obtain Google credentials", e);
         }
     }
 }
