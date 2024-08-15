@@ -75,87 +75,42 @@ public class OrgSaasServiceImple implements OrgSaasService {
     }
 
     @Override
-    public OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest, Credential credential_value) {
+    public OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest) {
         System.out.println("2. 등록 Serive");
         OrgSaas orgSaas = new OrgSaas();
         Workspace workspace = new Workspace();
 
-        if(orgSaasRequest.getSaasId() == 6) {
-            System.out.println("3. saasId == 6, 구글 드라이브 연동 시도");
-            try {
+        try {
+            List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
 
-                System.out.println("4. googleUtil.getCredentials() 호출");
-                Credential credential = credential_value;
-//                Credential credential1 = googleUtil.getCredentials(credential);
-                System.out.println("8. credential 반환: " + credential);
-                String accessToken = credential.getAccessToken();
-                System.out.println("9. accessToken 반환 " + accessToken);
-                System.out.println("9-1 refreshToken "+ credential.getRefreshToken());
-                try {
-                    System.out.println("10. getDriveService 호출");
-                    Drive drive = googleUtil.getDriveService(credential);
-                    List<String[]> drives = googleUtil.getAllSharedDriveIdsAndNames(drive);
-                    Workspace regiWorkspace = new Workspace();
-                    for (String[] driveInfo : drives) {
-                        OrgSaas orgSaas2 = new OrgSaas();
-                        Workspace workspace2 = new Workspace();
+            // org_saas
+            orgSaas.setOrgId(orgSaasRequest.getOrgId());    // workspace_config.id
+            orgSaas.setSaasId(orgSaasRequest.getSaasId());
+            orgSaas.setSpaceId(slackInfo.get(1));
+            OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
 
-                        orgSaas2.setOrgId(orgSaasRequest.getOrgId());
-                        orgSaas2.setSaasId(orgSaasRequest.getSaasId());
-                        orgSaas2.setSpaceId(driveInfo[0]);
-                        OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas2);
+            // workspace_config
+            workspace.setId(regiOrgSaas.getId());
+            workspace.setSpaceName(slackInfo.get(0));
+            workspace.setAlias(orgSaasRequest.getAlias());
+            workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+            workspace.setApiToken(orgSaasRequest.getApiToken());
+            workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+            workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
+            Workspace registeredWorkspace = workspaceRepository.save(workspace);
 
-                        workspace2.setId(regiOrgSaas.getId());
-                        workspace2.setSpaceName(driveInfo[1]);
-                        workspace2.setAlias(orgSaasRequest.getAlias());
-                        workspace2.setAdminEmail(orgSaasRequest.getAdminEmail());
-                        workspace2.setWebhookUrl(orgSaasRequest.getWebhookUrl());
-                        workspace2.setApiToken(accessToken);
-                        workspace2.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
-                        regiWorkspace = workspaceRepository.save(workspace2);
-                    }
+            //saasId -> saasName
+            String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
 
-                    return new OrgSaasResponse( 200, null, regiWorkspace.getId(), regiWorkspace.getRegisterDate());
-                } catch (Exception e) {
-                    return new OrgSaasResponse(199, "Can Not Returned Google Drives", null, null);
-                }
+            try{
+                startScan.postToScan(registeredWorkspace.getId(), saasName);
+
+                return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (Exception e) {
-                return new OrgSaasResponse(199, "Can Not Returned Google Credentials", null, null);
+                return new OrgSaasResponse(198, e.getMessage(), null, null);
             }
-        } else {
-            try {
-                List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
-
-                // org_saas
-                orgSaas.setOrgId(orgSaasRequest.getOrgId());    // workspace_config.id
-                orgSaas.setSaasId(orgSaasRequest.getSaasId());
-                orgSaas.setSpaceId(slackInfo.get(1));
-                OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
-
-                // workspace_config
-                workspace.setId(regiOrgSaas.getId());
-                workspace.setSpaceName(slackInfo.get(0));
-                workspace.setAlias(orgSaasRequest.getAlias());
-                workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-                workspace.setApiToken(orgSaasRequest.getApiToken());
-                workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
-                workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
-                Workspace registeredWorkspace = workspaceRepository.save(workspace);
-
-                //saasId -> saasName
-                String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
-
-                try{
-                    startScan.postToScan(registeredWorkspace.getId(), saasName);
-
-                    return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
-                } catch (Exception e) {
-                    return new OrgSaasResponse(198, e.getMessage(), null, null);
-                }
-
-            } catch (IOException | InterruptedException e) {
-                return new OrgSaasResponse( 199, e.getMessage(),null, null);
-            }
+        } catch (IOException | InterruptedException e) {
+            return new OrgSaasResponse( 199, e.getMessage(),null, null);
         }
     }
 

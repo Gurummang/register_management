@@ -1,9 +1,11 @@
 package GASB.register_management.util;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+//import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+//import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.auth.oauth2.TokenResponseException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
@@ -32,6 +34,31 @@ public class GoogleUtil {
         this.googleAuthorizationCodeFlow = googleAuthorizationCodeFlow;
     }
 
+    public void func(String code) {
+        try {
+            // 1. 코드로 토큰 반환 및 크리덴셜 객체 생성
+            Credential credential = getCredential(code);
+
+            try {
+                // 2. credential로 공유 드라이브 객체 생성
+                Drive drive = getDriveService(credential);
+
+                try {
+                    List<String[]> drives = getAllSharedDriveIdsAndNames(drive);
+                    for(String[] driveInfo : drives) {
+                        System.out.println("{\n\tDrive ID: " + driveInfo[0] + "\n\tDrive Name: " + driveInfo[1] + "\n\tDrive AccessToken: " + credential.getAccessToken() + "\n}");
+                    }
+                } catch (Exception e) {
+                    // return dto
+                }
+            } catch (Exception e) {
+                // return dto;
+            }
+        }
+        catch (Exception e) {
+            // return dto
+        }
+    }
 
     public Drive getDriveService(Credential credential) throws Exception {
         try {
@@ -57,19 +84,27 @@ public class GoogleUtil {
         return sharedDrivesInfo;
     }
 
-    public Credential getCredentials(Credential credential) throws Exception {
+    public Credential getCredential(String code) throws Exception {
         try {
-//            System.out.println("5. 리시버 호출, 수신 대기");
-//            LocalServerReceiver receiver = new LocalServerReceiver.Builder()
-//                    .setPort(8088)
-//                    .setCallbackPath("/login/oauth2/code/google")
-//                    .build();
-//            System.out.println("6. GoogleAuthorization~() 호출");
-//            return new AuthorizationCodeInstalledApp(googleAuthorizationCodeFlow, receiver).authorize("user");
-            return credential;
-        } catch (Exception e) {
-            log.error("Error during Google OAuth2 authorization: {}", e.getMessage());
-            throw new RuntimeException("Failed to obtain Google credentials", e);
+            // 코드로 token 요청 객체 빌드
+            // .newTokenRequest 메서드로 구글 인증 서버에 요청
+            // googleAuthor~ 리팩토링하면 좋을듯
+            GoogleTokenResponse tokenResponse = googleAuthorizationCodeFlow.newTokenRequest(code)
+                    .setRedirectUri("http://localhost:8080/api/v1/org-saas/token")
+                    .execute();
+
+            System.out.println(tokenResponse);
+
+            // 얻어온 토큰으로 Credential 빌드
+            // 빌드는 구글 라이브러리의 메서드로
+            // 인자는 토큰 반환 객체
+            return googleAuthorizationCodeFlow.createAndStoreCredential(tokenResponse, "user");
+        } catch (TokenResponseException e) {
+            log.error("Error obtaining token response: {}", e.getMessage());
+            throw new RuntimeException("Failed to obtain token response", e);
+        } catch (IOException e) {
+            log.error("IO Exception during token exchange: {}", e.getMessage());
+            throw new RuntimeException("Failed to obtain token", e);
         }
     }
 }
