@@ -11,5 +11,7 @@ public interface OrgSaasRepository extends JpaRepository<OrgSaas, Integer> {
 //    List<OrgSaas> findByConfig(int config);
 
     List<OrgSaas> findByOrgId(Integer orgId);
+
+    List<OrgSaas> findBySpaceId(String temp);
 }
 

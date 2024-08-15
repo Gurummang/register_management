@@ -9,14 +9,10 @@ import GASB.register_management.entity.OrgSaas;
 import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
-
-import GASB.register_management.util.GoogleUtil;
 import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
-import com.google.api.client.auth.oauth2.Credential;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.google.api.services.drive.Drive;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -35,16 +31,14 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private final SaasRepository saasRepository;
     private final SlackTeamInfo slackTeamInfo;
     private final StartScan startScan;
-    private final GoogleUtil googleUtil;
 
     @Autowired
-    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan, GoogleUtil googleUtil) {
+    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan) {
         this.orgSaasRepository = orgSaasRepository;
         this.workspaceRepository = workspaceRepository;
         this.saasRepository = saasRepository;
         this.slackTeamInfo = slackTeamInfo;
         this.startScan = startScan;
-        this.googleUtil = googleUtil;
     }
 
     @Override
@@ -80,74 +74,53 @@ public class OrgSaasServiceImple implements OrgSaasService {
         Workspace workspace = new Workspace();
 
         if(orgSaasRequest.getSaasId() == 6) {
-            try {
-                Credential credential = googleUtil.getCredentials();
-                String accessToken = credential.getAccessToken();
+            orgSaas.setOrgId(orgSaasRequest.getOrgId());    // workspace_config.id
+            orgSaas.setSaasId(orgSaasRequest.getSaasId());
+            orgSaas.setSpaceId("TEMP");
+            OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
 
-                try {
-                    Drive drive = googleUtil.getDriveService(credential);
-                    List<String[]> drives = googleUtil.getAllSharedDriveIdsAndNames(drive);
-                    Workspace regiWorkspace = new Workspace();
-                    for (String[] driveInfo : drives) {
-                        OrgSaas orgSaas2 = new OrgSaas();
-                        Workspace workspace2 = new Workspace();
+            // workspace_config
+            workspace.setId(regiOrgSaas.getId());
+            workspace.setSpaceName("TEMP");
+            workspace.setAlias(orgSaasRequest.getAlias());
+            workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+            workspace.setApiToken("TEMP");
+            workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
+            Workspace regiWorksapce = workspaceRepository.save(workspace);
+            return new OrgSaasResponse(200, "Waiting Google Drive", regiWorksapce.getId(), regiWorksapce.getRegisterDate());
+        }
 
-                        orgSaas2.setOrgId(orgSaasRequest.getOrgId());
-                        orgSaas2.setSaasId(orgSaasRequest.getSaasId());
-                        orgSaas2.setSpaceId(driveInfo[0]);
-                        OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas2);
+        try {
+            List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
 
-                        workspace2.setId(regiOrgSaas.getId());
-                        workspace2.setSpaceName(driveInfo[1]);
-                        workspace2.setAlias(orgSaasRequest.getAlias());
-                        workspace2.setAdminEmail(orgSaasRequest.getAdminEmail());
-                        workspace2.setWebhookUrl(orgSaasRequest.getWebhookUrl());
-                        workspace2.setApiToken(accessToken);
-                        workspace2.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
-                        regiWorkspace = workspaceRepository.save(workspace2);
-                    }
+            // org_saas
+            orgSaas.setOrgId(orgSaasRequest.getOrgId());    // workspace_config.id
+            orgSaas.setSaasId(orgSaasRequest.getSaasId());
+            orgSaas.setSpaceId(slackInfo.get(1));
+            OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
 
-                    return new OrgSaasResponse( 200, null, regiWorkspace.getId(), regiWorkspace.getRegisterDate());
-                } catch (Exception e) {
-                    return new OrgSaasResponse(199, "Can Not Returned Google Drives", null, null);
-                }
+            // workspace_config
+            workspace.setId(regiOrgSaas.getId());
+            workspace.setSpaceName(slackInfo.get(0));
+            workspace.setAlias(orgSaasRequest.getAlias());
+            workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+            workspace.setApiToken(orgSaasRequest.getApiToken());
+            workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+            workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
+            Workspace registeredWorkspace = workspaceRepository.save(workspace);
+
+            //saasId -> saasName
+            String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
+
+            try{
+                startScan.postToScan(registeredWorkspace.getId(), saasName);
+
+                return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (Exception e) {
-                return new OrgSaasResponse(199, "Can Not Returned Google Credentials", null, null);
+                return new OrgSaasResponse(198, e.getMessage(), null, null);
             }
-        } else {
-            try {
-                List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
-
-                // org_saas
-                orgSaas.setOrgId(orgSaasRequest.getOrgId());    // workspace_config.id
-                orgSaas.setSaasId(orgSaasRequest.getSaasId());
-                orgSaas.setSpaceId(slackInfo.get(1));
-                OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
-
-                // workspace_config
-                workspace.setId(regiOrgSaas.getId());
-                workspace.setSpaceName(slackInfo.get(0));
-                workspace.setAlias(orgSaasRequest.getAlias());
-                workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-                workspace.setApiToken(orgSaasRequest.getApiToken());
-                workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
-                workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
-                Workspace registeredWorkspace = workspaceRepository.save(workspace);
-
-                //saasId -> saasName
-                String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
-
-                try{
-                    startScan.postToScan(registeredWorkspace.getId(), saasName);
-
-                    return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
-                } catch (Exception e) {
-                    return new OrgSaasResponse(198, e.getMessage(), null, null);
-                }
-
-            } catch (IOException | InterruptedException e) {
-                return new OrgSaasResponse( 199, e.getMessage(),null, null);
-            }
+        } catch (IOException | InterruptedException e) {
+            return new OrgSaasResponse( 199, e.getMessage(),null, null);
         }
     }
 
@@ -165,7 +138,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
                 // org_saas
                 orgSaas.setSpaceId(slackInfo.get(1));
-                OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
+                orgSaasRepository.save(orgSaas);
 
                 // workspace_config
                 workspace.setSpaceName(slackInfo.get(0));
@@ -251,5 +224,83 @@ public class OrgSaasServiceImple implements OrgSaasService {
             );
         }).collect(Collectors.toList());
     }
+
+    public void updateOrgSaasGD(List<String[]> drives, String accessToken) {
+        // spaceId가 "TEMP"인 튜플을 찾음
+        List<OrgSaas> tempOrgSaasList = orgSaasRepository.findBySpaceId("TEMP");
+
+        if (tempOrgSaasList.isEmpty()) {
+            System.out.println("No entries found with spaceId 'TEMP'");
+            return;
+        }
+
+        // 드라이브 리스트 순회
+        for (int i = 0; i < drives.size(); i++) {
+            String[] driveInfo = drives.get(i);  // [0]: 드라이브 ID, [1]: 드라이브 이름
+
+            // DELETE 상태인 드라이브 처리
+            if ("DELETE".equals(driveInfo[0])) {
+                // spaceId가 TEMP인 튜플 모두 삭제
+                for (OrgSaas orgSaas : tempOrgSaasList) {
+                    orgSaasRepository.delete(orgSaas);
+
+                    Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaas.getId());
+                    optionalWorkspace.ifPresent(workspaceRepository::delete);  // 워크스페이스도 삭제
+                }
+
+                System.out.println("Deleted all entries with spaceId 'TEMP' due to DELETE status.");
+                return;  // DELETE 처리가 완료되었으므로 함수 종료
+            }
+
+            OrgSaas orgSaas;
+            Workspace workspace;
+
+            if (i < tempOrgSaasList.size()) {
+                // 기존 TEMP 튜플 업데이트
+                orgSaas = tempOrgSaasList.get(i);
+            } else {
+                // TEMP 튜플을 복제
+                OrgSaas originalOrgSaas = tempOrgSaasList.get(0);  // 첫 번째 TEMP 튜플을 기준으로 복사
+                orgSaas = new OrgSaas();
+                orgSaas.setOrgId(originalOrgSaas.getOrgId());
+                orgSaas.setSaasId(originalOrgSaas.getSaasId());
+                orgSaas.setSpaceId("TEMP");  // 나중에 업데이트될 것이므로 우선 TEMP로 설정
+                orgSaas = orgSaasRepository.save(orgSaas);  // 복제된 튜플 저장
+
+                // Workspace도 복제
+                Optional<Workspace> originalWorkspaceOpt = workspaceRepository.findById(originalOrgSaas.getId());
+                if (originalWorkspaceOpt.isPresent()) {
+                    Workspace originalWorkspace = originalWorkspaceOpt.get();
+                    workspace = new Workspace();
+                    workspace.setId(orgSaas.getId());
+                    workspace.setAlias(originalWorkspace.getAlias());
+                    workspace.setAdminEmail(originalWorkspace.getAdminEmail());
+                    workspace.setApiToken(originalWorkspace.getApiToken());
+                    workspace.setWebhookUrl(originalWorkspace.getWebhookUrl());
+                    workspace.setRegisterDate(originalWorkspace.getRegisterDate());
+                    workspace = workspaceRepository.save(workspace);  // 복제된 워크스페이스 저장
+                } else {
+                    System.out.println("Workspace for TEMP OrgSaas not found.");
+                    continue;
+                }
+            }
+
+            // org_saas 정보 업데이트
+            orgSaas.setSpaceId(driveInfo[0]);  // 드라이브 ID로 업데이트
+            orgSaasRepository.save(orgSaas);
+
+            // workspace_config 정보 업데이트
+            Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaas.getId());
+            if (optionalWorkspace.isPresent()) {
+                workspace = optionalWorkspace.get();
+                workspace.setSpaceName(driveInfo[1]);  // 드라이브 이름으로 업데이트
+                workspace.setApiToken(accessToken);    // 토큰 업데이트
+                workspaceRepository.save(workspace);
+            }
+
+            System.out.println("Updated OrgSaas and Workspace for Drive ID: " + driveInfo[0]);
+        }
+    }
+
 
 }

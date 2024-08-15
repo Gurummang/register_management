@@ -1,9 +1,14 @@
 package GASB.register_management.util;
 
+import GASB.register_management.dto.OrgSaasRequest;
+import GASB.register_management.service.OrgSaasService;
+import GASB.register_management.service.imple.OrgSaasServiceImple;
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+//import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+//import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.auth.oauth2.TokenResponseException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
@@ -17,7 +22,6 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
 
 @Service
 @Slf4j
@@ -27,11 +31,46 @@ public class GoogleUtil {
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
     private final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow;
-    private static final int AUTH_TIMEOUT = 2; // 타임아웃 시간 (분)
+    private final OrgSaasService orgSaasService;
 
     @Autowired
-    public GoogleUtil(GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow) {
+    public GoogleUtil(GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow, OrgSaasService orgSaasService) {
         this.googleAuthorizationCodeFlow = googleAuthorizationCodeFlow;
+        this.orgSaasService = orgSaasService;
+    }
+
+    public void func(String code) {
+        try {
+            // 1. 코드로 토큰 반환 및 크리덴셜 객체 생성
+            Credential credential = getCredential(code);
+
+            System.out.println("Accesss Token: " + credential.getAccessToken());
+            System.out.println("Refresh Token: " + credential.getRefreshToken());
+
+            try {
+                // 2. credential로 공유 드라이브 객체 생성
+                Drive drive = getDriveService(credential);
+
+                List<String[]> drives = getAllSharedDriveIdsAndNames(drive);
+
+                // 드라이브 목록이 비어있거나 조건에 맞지 않는 경우 DELETE 삽입
+                if (drives.isEmpty()) {
+                    drives.add(new String[]{"DELETE"});
+                }
+
+                orgSaasService.updateOrgSaasGD(drives, credential.getAccessToken());
+            } catch (Exception e) {
+                // 예외 발생 시, 드라이브 목록에 DELETE 상태 추가
+                List<String[]> drives = new ArrayList<>();
+                drives.add(new String[]{"DELETE"});  // DELETE 상태 추가
+                orgSaasService.updateOrgSaasGD(drives, null);
+            }
+        } catch (Exception e) {
+            // 예외 발생 시, 드라이브 목록에 DELETE 상태 추가
+            List<String[]> drives = new ArrayList<>();
+            drives.add(new String[]{"DELETE"});  // DELETE 상태 추가
+            orgSaasService.updateOrgSaasGD(drives, null);
+        }
     }
 
 
@@ -59,28 +98,27 @@ public class GoogleUtil {
         return sharedDrivesInfo;
     }
 
-    public Credential getCredentials() throws Exception {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder()
-                .setPort(8088)
-                .setCallbackPath("/login/oauth2/code/google")
-                .build();
-
-        Callable<Credential> task = () -> new AuthorizationCodeInstalledApp(googleAuthorizationCodeFlow, receiver).authorize("user");
-
-        Future<Credential> future = executorService.submit(task);
+    public Credential getCredential(String code) throws Exception {
         try {
-            // 주어진 시간(1분) 안에 인증을 완료해야 함
-            return future.get(AUTH_TIMEOUT, TimeUnit.MINUTES);
-        } catch (TimeoutException e) {
-            future.cancel(true); // 인증 작업 취소
-            log.error("Authentication request timed out after {} minutes", AUTH_TIMEOUT);
-            throw new RuntimeException("Authentication timed out.");
-        } catch (ExecutionException | InterruptedException e) {
-            log.error("An error occurred during authentication: {}", e.getMessage());
-            throw new RuntimeException("Authentication failed.", e);
-        } finally {
-            executorService.shutdown(); // Executor 서비스 종료
+            // 코드로 token 요청 객체 빌드
+            // .newTokenRequest 메서드로 구글 인증 서버에 요청
+            // googleAuthor~ 리팩토링하면 좋을듯
+            GoogleTokenResponse tokenResponse = googleAuthorizationCodeFlow.newTokenRequest(code)
+                    .setRedirectUri("https://back.grummang.com/api/v1/org-saas/token")
+                    .execute();
+
+            System.out.println(tokenResponse);
+
+            // 얻어온 토큰으로 Credential 빌드
+            // 빌드는 구글 라이브러리의 메서드로
+            // 인자는 토큰 반환 객체
+            return googleAuthorizationCodeFlow.createAndStoreCredential(tokenResponse, "user");
+        } catch (TokenResponseException e) {
+            log.error("Error obtaining token response: {}", e.getMessage());
+            throw new RuntimeException("Failed to obtain token response", e);
+        } catch (IOException e) {
+            log.error("IO Exception during token exchange: {}", e.getMessage());
+            throw new RuntimeException("Failed to obtain token", e);
         }
     }
 }
