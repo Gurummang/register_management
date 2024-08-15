@@ -104,7 +104,7 @@ public class GoogleUtil {
             // .newTokenRequest 메서드로 구글 인증 서버에 요청
             // googleAuthor~ 리팩토링하면 좋을듯
             GoogleTokenResponse tokenResponse = googleAuthorizationCodeFlow.newTokenRequest(code)
-                    .setRedirectUri("http://localhost:8080/api/v1/org-saas/token")
+                    .setRedirectUri("https://back.grummang.com/api/v1/org-saas/token")
                     .execute();
 
             System.out.println(tokenResponse);
