@@ -11,10 +11,15 @@ import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
 
+import GASB.register_management.util.GoogleUtil;
 import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
+import com.google.api.client.auth.oauth2.Credential;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+//import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.DriveList;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -33,14 +38,16 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private final SaasRepository saasRepository;
     private final SlackTeamInfo slackTeamInfo;
     private final StartScan startScan;
+    private final GoogleUtil googleUtil;
 
     @Autowired
-    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan) {
+    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan, GoogleUtil googleUtil) {
         this.orgSaasRepository = orgSaasRepository;
         this.workspaceRepository = workspaceRepository;
         this.saasRepository = saasRepository;
         this.slackTeamInfo = slackTeamInfo;
         this.startScan = startScan;
+        this.googleUtil = googleUtil;
     }
 
 
@@ -77,6 +84,41 @@ public class OrgSaasServiceImple implements OrgSaasService {
     public OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest) {
         OrgSaas orgSaas = new OrgSaas();
         Workspace workspace = new Workspace();
+
+        if(orgSaasRequest.getSaasId() == 6) {
+            try {
+                Credential credential = googleUtil.getCredentials();
+                String accessToken = credential.getAccessToken();
+                try {
+                    Drive drive = googleUtil.getDriveService(credential);
+                    List<String[]> drives = googleUtil.getAllSharedDriveIdsAndNames(drive);
+
+                    for (String[] driveInfo : drives) {
+                        OrgSaas orgSaas2 = new OrgSaas();
+                        Workspace workspace2 = new Workspace();
+
+                        orgSaas2.setOrgId(orgSaasRequest.getOrgId());
+                        orgSaas2.setSaasId(orgSaasRequest.getSaasId());
+                        orgSaas2.setSpaceId(driveInfo[0]);
+                        OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas2);
+
+                        workspace2.setId(regiOrgSaas.getId());
+                        workspace2.setSpaceName(driveInfo[1]);
+                        workspace2.setAlias(orgSaasRequest.getAlias());
+                        workspace2.setAdminEmail(orgSaasRequest.getAdminEmail());
+                        workspace2.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+                        workspace2.setApiToken(accessToken);
+                        workspace2.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
+                        Workspace regiWorkspace = workspaceRepository.save(workspace2);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         try {
             List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
