@@ -31,12 +31,14 @@ on:
     branches: [ "main" ]
 
 env:
-  AWS_REGION: ap-northeast-2                   # AWS region
-  ECR_REPOSITORY: grummang-repo           # Amazon ECR repository name
-  ECS_SERVICE: SaaSConfService                  # Amazon ECS service name
-  ECS_CLUSTER: GrummangCluster                 # Amazon ECS cluster name
-  ECS_TASK_DEFINITION: ./config/SaaSConfigTask.json # Path to ECS task definition
-  CONTAINER_NAME: SaaSConfContainer           # Container name in task definition
+  AWS_REGION: ap-northeast-2                   # set this to your preferred AWS region, e.g. us-west-1
+  ECR_REPOSITORY: grummang-repo           # set this to your Amazon ECR repository name
+  ECS_SERVICE: SaaSConfService                  # set this to your Amazon ECS service name
+  ECS_CLUSTER: GrummangCluster                 # set this to your Amazon ECS cluster name
+  ECS_TASK_DEFINITION: ./config/SaaSConfigTask.json # set this to the path to your Amazon ECS task definition
+  # file, e.g. .aws/task-definition.json
+  CONTAINER_NAME: SaaSConfContainer           # set this to the name of the container in the
+  # containerDefinitions section of your task definition
 
 permissions:
   contents: read
@@ -68,21 +70,19 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build a Docker container and push it to ECR
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
           
           # Prepare application.properties
           mkdir -p src/main/resources
-          echo "spring.application.name=${{ secrets.SPRINGAPPLICATIONNAME }}" > src/main/resources/application.properties
-          echo "spring.datasource.url=${{ secrets.SPRINGDATASOURCEURL }}" >> src/main/resources/application.properties
-          echo "spring.datasource.username=${{ secrets.SPRINGDATASOURCEUSERNAME }}" >> src/main/resources/application.properties
-          echo "spring.datasource.password=${{ secrets.SPRINGDATASOURCEPASSWORD }}" >> src/main/resources/application.properties
-          echo "spring.jpa.hibernate.ddl-auto=${{ secrets.SPRINGJPAHIBERNATEDDLAUTO }}" >> src/main/resources/application.properties
-          echo "spring.jpa.show-sql=${{ secrets.SPRINGJPASHOWSQL }}" >> src/main/resources/application.properties
           
-          # Docker build and push
+          echo "${{ secrets.REGIPROPERTIES }}" > ./src/main/resources/application.properties
+          
+          # 도커 빌드
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUTG
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
@@ -99,14 +99,3 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
-
-      # Optional: Use Google API credentials if needed
-      - name: Set up Google API credentials
-        run: |
-          echo "AUTH_PROVIDER_X509_CERT_URI=${{ secrets.AUTH_PROVIDER_X509_CERT_URI }}" >> $GITHUB_ENV
-          echo "AUTH_URI=${{ secrets.AUTH_URI }}" >> $GITHUB_ENV
-          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
-          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
-          echo "PROJECT_ID=${{ secrets.PROJECT_ID }}" >> $GITHUB_ENV
-          echo "REDIRECT_URIS=${{ secrets.REDIRECT_URIS }}" >> $GITHUB_ENV
-          echo "TOKEN_URI=${{ secrets.TOKEN_URI }}" >> $GITHUB_ENV
