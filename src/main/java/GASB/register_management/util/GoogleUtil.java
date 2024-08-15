@@ -48,23 +48,28 @@ public class GoogleUtil {
                 // 2. credential로 공유 드라이브 객체 생성
                 Drive drive = getDriveService(credential);
 
-                try {
-                    List<String[]> drives = getAllSharedDriveIdsAndNames(drive);
-                    orgSaasService.updateOrgSaasGD(drives, credential.getAccessToken());
-                    //  orgSaasRequest를 생성, id를 200으로 지정하고 driveId, driveName, token만 담는다
-                    // registerOrgSaas(orgSaasRequest)로 보낸다
+                List<String[]> drives = getAllSharedDriveIdsAndNames(drive);
 
-                } catch (Exception e) {
-                    // return dto
+                // 드라이브 목록이 비어있거나 조건에 맞지 않는 경우 DELETE 삽입
+                if (drives.isEmpty()) {
+                    drives.add(new String[]{"DELETE"});
                 }
+
+                orgSaasService.updateOrgSaasGD(drives, credential.getAccessToken());
             } catch (Exception e) {
-                // return dto;
+                // 예외 발생 시, 드라이브 목록에 DELETE 상태 추가
+                List<String[]> drives = new ArrayList<>();
+                drives.add(new String[]{"DELETE"});  // DELETE 상태 추가
+                orgSaasService.updateOrgSaasGD(drives, null);
             }
-        }
-        catch (Exception e) {
-            // return dto
+        } catch (Exception e) {
+            // 예외 발생 시, 드라이브 목록에 DELETE 상태 추가
+            List<String[]> drives = new ArrayList<>();
+            drives.add(new String[]{"DELETE"});  // DELETE 상태 추가
+            orgSaasService.updateOrgSaasGD(drives, null);
         }
     }
+
 
     public Drive getDriveService(Credential credential) throws Exception {
         try {

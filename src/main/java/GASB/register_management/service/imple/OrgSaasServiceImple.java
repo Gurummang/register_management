@@ -10,13 +10,13 @@ import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
 
-import GASB.register_management.util.GoogleUtil;
+
 import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
-import com.google.api.client.auth.oauth2.Credential;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.google.api.services.drive.Drive;
+
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -35,16 +35,14 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private final SaasRepository saasRepository;
     private final SlackTeamInfo slackTeamInfo;
     private final StartScan startScan;
-    private final GoogleUtil googleUtil;
 
     @Autowired
-    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan, GoogleUtil googleUtil) {
+    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan) {
         this.orgSaasRepository = orgSaasRepository;
         this.workspaceRepository = workspaceRepository;
         this.saasRepository = saasRepository;
         this.slackTeamInfo = slackTeamInfo;
         this.startScan = startScan;
-        this.googleUtil = googleUtil;
     }
 
     @Override
