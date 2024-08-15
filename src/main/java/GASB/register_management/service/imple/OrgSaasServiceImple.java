@@ -9,14 +9,10 @@ import GASB.register_management.entity.OrgSaas;
 import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
-
-
 import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -90,8 +86,8 @@ public class OrgSaasServiceImple implements OrgSaasService {
             workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
             workspace.setApiToken("TEMP");
             workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
-            workspaceRepository.save(workspace);
-            return new OrgSaasResponse(200, "Waiting Google Drive", null, null);
+            Workspace regiWorksapce = workspaceRepository.save(workspace);
+            return new OrgSaasResponse(200, "Waiting Google Drive", regiWorksapce.getId(), regiWorksapce.getRegisterDate());
         }
 
         try {
@@ -142,7 +138,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
                 // org_saas
                 orgSaas.setSpaceId(slackInfo.get(1));
-                OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
+                orgSaasRepository.save(orgSaas);
 
                 // workspace_config
                 workspace.setSpaceName(slackInfo.get(0));

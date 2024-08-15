@@ -44,6 +44,9 @@ public class GoogleUtil {
             // 1. 코드로 토큰 반환 및 크리덴셜 객체 생성
             Credential credential = getCredential(code);
 
+            System.out.println("Accesss Token: " + credential.getAccessToken());
+            System.out.println("Refresh Token: " + credential.getRefreshToken());
+
             try {
                 // 2. credential로 공유 드라이브 객체 생성
                 Drive drive = getDriveService(credential);
