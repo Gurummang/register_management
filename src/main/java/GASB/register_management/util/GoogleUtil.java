@@ -49,8 +49,6 @@ public class GoogleUtil {
     }
 
     public OrgSaasResponse starter(OrgSaasRequest orgSaasRequest) throws Exception {
-        OrgSaas orgSaas = new OrgSaas();
-        Workspace workspace = new Workspace();
 
         try {
             // 리스너 호출 && Credential 객체 반환
@@ -65,6 +63,9 @@ public class GoogleUtil {
                 // 팀 드라이브 정보 얻기
                 List<String[]> sharedDrives = getAllSharedDriveIdsAndNames(drive);
                 for (String[] driveInfo : sharedDrives) {
+                    OrgSaas orgSaas = new OrgSaas();
+                    Workspace workspace = new Workspace();
+
                     System.out.println("Drive ID: " + driveInfo[0] + ", Drive Name: " + driveInfo[1]);
 
                     orgSaas.setOrgId(orgSaasRequest.getOrgId());
