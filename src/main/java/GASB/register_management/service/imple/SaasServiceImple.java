@@ -16,8 +16,13 @@ import java.util.stream.Collectors;
 @Service
 public class SaasServiceImple implements SaasService {
 
+    private final SaasRepository saasRepository;
+
     @Autowired
-    private SaasRepository saasRepository;
+    public SaasServiceImple(SaasRepository saasRepository) {
+        this.saasRepository = saasRepository;
+    }
+
 
     @Override
     public SaasResponse registerSaas(SaasRequest saasRequest) {
