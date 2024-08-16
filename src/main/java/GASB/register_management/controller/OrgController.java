@@ -3,7 +3,6 @@ package GASB.register_management.controller;
 import GASB.register_management.dto.OrgRequest;
 import GASB.register_management.dto.OrgResponse;
 import GASB.register_management.service.OrgService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +12,13 @@ import java.util.List;
 @RequestMapping("/api/v1/orgs")
 public class OrgController {
 
+    private final OrgService orgService;
+
     @Autowired
-    private OrgService orgService;
+    public OrgController(OrgService orgService) {
+        this.orgService = orgService;
+    }
+
 
     @PostMapping("/register")
     public OrgResponse registerOrg(@RequestBody OrgRequest orgRequest) {
