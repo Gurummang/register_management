@@ -13,8 +13,12 @@ import java.util.List;
 @RequestMapping("/api/v1/saas")
 public class SaasController {
 
+    private final SaasService saasService;
+
     @Autowired
-    private SaasService saasService;
+    public SaasController(SaasService saasService) {
+        this.saasService = saasService;
+    }
 
     @PostMapping("/register")
     public SaasResponse registerSaas(@RequestBody SaasRequest saasRequest) {

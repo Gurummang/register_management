@@ -18,8 +18,12 @@ import java.util.stream.Collectors;
 @Service
 public class AdminServiceImple implements AdminService {
 
+    private final AdminRepository adminRepository;
+
     @Autowired
-    private AdminRepository adminRepository;
+    public AdminServiceImple(AdminRepository adminRepository) {
+        this.adminRepository = adminRepository;
+    }
 
     @Override
     public AdminResponse registerAdmin(AdminRequest adminRequest) {

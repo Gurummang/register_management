@@ -16,8 +16,12 @@ import java.util.stream.Collectors;
 @Service
 public class OrgServiceImple implements OrgService {
 
+    private final OrgRepository orgRepository;
+
     @Autowired
-    private OrgRepository orgRepository;
+    public OrgServiceImple(OrgRepository orgRepository) {
+        this.orgRepository = orgRepository;
+    }
 
     @Override
     public OrgResponse registerOrg(OrgRequest orgRequest) {

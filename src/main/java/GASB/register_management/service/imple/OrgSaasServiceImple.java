@@ -60,7 +60,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
         if(saasOptional.isPresent()) {
             Saas saas = saasOptional.get();
 
-            System.out.println(saas.getSaasName());
             return new OrgSaasResponse( 200, null,
                     "https://back.grummang.com/webhook/"+saas.getSaasName()+ "/" + UUID.randomUUID());
         }else {
@@ -74,12 +73,11 @@ public class OrgSaasServiceImple implements OrgSaasService {
         Workspace workspace = new Workspace();
 
         if(orgSaasRequest.getSaasId() == 6) {
-            orgSaas.setOrgId(orgSaasRequest.getOrgId());    // workspace_config.id
+            orgSaas.setOrgId(orgSaasRequest.getOrgId());
             orgSaas.setSaasId(orgSaasRequest.getSaasId());
             orgSaas.setSpaceId("TEMP");
             OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
 
-            // workspace_config
             workspace.setId(regiOrgSaas.getId());
             workspace.setSpaceName("TEMP");
             workspace.setAlias(orgSaasRequest.getAlias());
@@ -93,13 +91,11 @@ public class OrgSaasServiceImple implements OrgSaasService {
         try {
             List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
 
-            // org_saas
-            orgSaas.setOrgId(orgSaasRequest.getOrgId());    // workspace_config.id
+            orgSaas.setOrgId(orgSaasRequest.getOrgId());
             orgSaas.setSaasId(orgSaasRequest.getSaasId());
             orgSaas.setSpaceId(slackInfo.get(1));
             OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
 
-            // workspace_config
             workspace.setId(regiOrgSaas.getId());
             workspace.setSpaceName(slackInfo.get(0));
             workspace.setAlias(orgSaasRequest.getAlias());
@@ -109,7 +105,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
             workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
             Workspace registeredWorkspace = workspaceRepository.save(workspace);
 
-            //saasId -> saasName
             String saasName = saasRepository.findById(orgSaasRequest.getSaasId()).get().getSaasName();
 
             try{
@@ -136,11 +131,9 @@ public class OrgSaasServiceImple implements OrgSaasService {
             try{
                 List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
 
-                // org_saas
                 orgSaas.setSpaceId(slackInfo.get(1));
                 orgSaasRepository.save(orgSaas);
 
-                // workspace_config
                 workspace.setSpaceName(slackInfo.get(0));
                 workspace.setAlias(orgSaasRequest.getAlias());
                 workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
@@ -149,7 +142,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
                 Workspace registeredWorkspace = workspaceRepository.save(workspace);
 
-                //saasId -> saasName
                 Integer saasId = orgSaasRepository.findById(orgSaasRequest.getId()).get().getSaasId();
                 String saasName = saasRepository.findById(saasId).get().getSaasName();
 
@@ -176,8 +168,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
         if (optionalOrgSaas.isPresent()) {
             OrgSaas orgSaas = optionalOrgSaas.get();
 
-            // orgSaas의 튜플을 삭제하면
-            // 자식 튜플(config, monitored_users 등)들 모두 CASCADE로 삭제
             orgSaasRepository.delete(orgSaas);
 
             return new OrgSaasResponse( 200, null, null,null);
@@ -188,25 +178,18 @@ public class OrgSaasServiceImple implements OrgSaasService {
 
     @Override
     public List<OrgSaasResponse> getOrgSaasList(Integer orgId) {
-        // 1. orgId로 org_saas 테이블에서 튜플 조회
         List<OrgSaas> orgSaasList = orgSaasRepository.findByOrgId(orgId);
 
-        // 2. 조회된 orgSaas 데이터에서 config 값을 추출
         List<Integer> configIds = orgSaasList.stream()
                 .map(OrgSaas::getId)
                 .distinct()  // 중복 제거
                 .collect(Collectors.toList());
 
-        // 3. config 값을 사용하여 workspace_config 테이블에서 데이터 조회
         List<Workspace> workspaceList = workspaceRepository.findByIdIn(configIds);
-
-        // 4. configId를 기준으로 Workspace 객체를 맵으로 변환
         Map<Integer, Workspace> workspaceMap = workspaceList.stream()
                 .collect(Collectors.toMap(Workspace::getId, workspace -> workspace));
 
-        // 5. 결과 리스트 생성
         return orgSaasList.stream().map(orgSaas -> {
-            // Lookup workspace by configId
             Workspace workspace = workspaceMap.get(orgSaas.getId());
 
             Optional<Saas> saasOptional = saasRepository.findById(orgSaas.getSaasId());
@@ -226,11 +209,9 @@ public class OrgSaasServiceImple implements OrgSaasService {
     }
 
     public void updateOrgSaasGD(List<String[]> drives, String accessToken) {
-        // spaceId가 "TEMP"인 튜플을 찾음
         List<OrgSaas> tempOrgSaasList = orgSaasRepository.findBySpaceId("TEMP");
 
         if (tempOrgSaasList.isEmpty()) {
-            System.out.println("No entries found with spaceId 'TEMP'");
             return;
         }
 
@@ -245,11 +226,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
                     orgSaasRepository.delete(orgSaas);
 
                     Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaas.getId());
-                    optionalWorkspace.ifPresent(workspaceRepository::delete);  // 워크스페이스도 삭제
+                    optionalWorkspace.ifPresent(workspaceRepository::delete);
                 }
 
-                System.out.println("Deleted all entries with spaceId 'TEMP' due to DELETE status.");
-                return;  // DELETE 처리가 완료되었으므로 함수 종료
+                return;
             }
 
             OrgSaas orgSaas;
@@ -267,7 +247,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 orgSaas.setSpaceId("TEMP");  // 나중에 업데이트될 것이므로 우선 TEMP로 설정
                 orgSaas = orgSaasRepository.save(orgSaas);  // 복제된 튜플 저장
 
-                // Workspace도 복제
                 Optional<Workspace> originalWorkspaceOpt = workspaceRepository.findById(originalOrgSaas.getId());
                 if (originalWorkspaceOpt.isPresent()) {
                     Workspace originalWorkspace = originalWorkspaceOpt.get();
@@ -278,27 +257,22 @@ public class OrgSaasServiceImple implements OrgSaasService {
                     workspace.setApiToken(originalWorkspace.getApiToken());
                     workspace.setWebhookUrl(originalWorkspace.getWebhookUrl());
                     workspace.setRegisterDate(originalWorkspace.getRegisterDate());
-                    workspace = workspaceRepository.save(workspace);  // 복제된 워크스페이스 저장
+                    workspaceRepository.save(workspace);
                 } else {
-                    System.out.println("Workspace for TEMP OrgSaas not found.");
                     continue;
                 }
             }
 
-            // org_saas 정보 업데이트
-            orgSaas.setSpaceId(driveInfo[0]);  // 드라이브 ID로 업데이트
+            orgSaas.setSpaceId(driveInfo[0]);
             orgSaasRepository.save(orgSaas);
 
-            // workspace_config 정보 업데이트
             Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaas.getId());
             if (optionalWorkspace.isPresent()) {
                 workspace = optionalWorkspace.get();
-                workspace.setSpaceName(driveInfo[1]);  // 드라이브 이름으로 업데이트
-                workspace.setApiToken(accessToken);    // 토큰 업데이트
+                workspace.setSpaceName(driveInfo[1]);
+                workspace.setApiToken(accessToken);
                 workspaceRepository.save(workspace);
             }
-
-            System.out.println("Updated OrgSaas and Workspace for Drive ID: " + driveInfo[0]);
         }
     }
 
