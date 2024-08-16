@@ -1,5 +1,6 @@
 package GASB.register_management.service.imple;
 
+import GASB.register_management.config.RabbitMQConfig;
 import GASB.register_management.dto.OrgSaasRequest;
 import GASB.register_management.dto.OrgSaasResponse;
 import GASB.register_management.entity.Saas;
@@ -9,9 +10,9 @@ import GASB.register_management.entity.OrgSaas;
 import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
-import GASB.register_management.util.MessageSender;
 import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,16 +33,18 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private final SaasRepository saasRepository;
     private final SlackTeamInfo slackTeamInfo;
     private final StartScan startScan;
-    private final MessageSender messageSender;
+    private final RabbitMQConfig rabbitMQConfig;
+    private final RabbitTemplate rabbitTemplate;
 
     @Autowired
-    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan, MessageSender messageSender) {
+    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan, RabbitMQConfig rabbitMQConfig, RabbitTemplate rabbitTemplate) {
         this.orgSaasRepository = orgSaasRepository;
         this.workspaceRepository = workspaceRepository;
         this.saasRepository = saasRepository;
         this.slackTeamInfo = slackTeamInfo;
         this.startScan = startScan;
-        this.messageSender = messageSender;
+        this.rabbitMQConfig = rabbitMQConfig;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
@@ -278,7 +281,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
             }
 
             Integer id = saveOrgSaas.getId();
-            messageSender.sendGroupingMessage(Long.valueOf(id));
+            rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getRoutingKey(), id);
+            // exchange  = rabbitmq.exchange = grum-exchange
+            // routingKey = rabbitmq.init.routing-key=gd-init-request
+            // id = 토큰&드라이브가 저장된 튜플의 id
         }
     }
 
