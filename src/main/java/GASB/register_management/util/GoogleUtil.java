@@ -36,12 +36,16 @@ public class GoogleUtil {
     }
 
     public void func(String code) {
+        log.info("Call: void func");
         try {
             Credential credential = getCredential(code);
-
+            log.info("Call: Credential called");
+            log.info("Credential: {}", credential);
+            log.info("AccessToken: {}", credential.getAccessToken());
             try {
                 Drive drive = getDriveService(credential);
                 List<String[]> drives = getAllSharedDriveIdsAndNames(drive);
+                log.info("Drives: {}", drives);
 
                 if (drives.isEmpty()) {
                     drives.add(new String[]{"DELETE"});
