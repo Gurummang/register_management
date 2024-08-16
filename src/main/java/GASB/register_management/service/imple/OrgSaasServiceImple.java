@@ -96,6 +96,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             workspace.setApiToken("TEMP");
             workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
             Workspace regiWorksapce = workspaceRepository.save(workspace);
+
             return new OrgSaasResponse(200, "Waiting Google Drive", regiWorksapce.getId(), regiWorksapce.getRegisterDate());
         }
 
@@ -287,11 +288,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 workspaceRepository.save(workspace);
             }
 
-            Integer id = saveOrgSaas.getId();
-            rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getRoutingKey(), id);
-            // exchange  = rabbitmq.exchange = grum-exchange
-            // routingKey = rabbitmq.init.routing-key=gd-init-request
-            // id = 토큰&드라이브가 저장된 튜플의 id
+            rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getRoutingKey(), saveOrgSaas.getId());
         }
     }
 

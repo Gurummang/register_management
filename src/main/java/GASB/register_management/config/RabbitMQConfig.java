@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Map;
+
 @Configuration
 @EnableRabbit
 public class RabbitMQConfig {
@@ -26,8 +28,9 @@ public class RabbitMQConfig {
 
     @Bean
     Queue myQueue() {
-        return new Queue(initQueueName, true);
+        return new Queue(initQueueName, true, false, false);
     }
+
     @Bean
     Binding initQueueBinding(Queue myQueue, DirectExchange exchange) {
         return BindingBuilder.bind(myQueue).to(exchange).with(initRoutingKey);
