@@ -9,6 +9,7 @@ import GASB.register_management.entity.OrgSaas;
 import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
+import GASB.register_management.util.MessageSender;
 import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +32,16 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private final SaasRepository saasRepository;
     private final SlackTeamInfo slackTeamInfo;
     private final StartScan startScan;
+    private final MessageSender messageSender;
 
     @Autowired
-    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan) {
+    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan, MessageSender messageSender) {
         this.orgSaasRepository = orgSaasRepository;
         this.workspaceRepository = workspaceRepository;
         this.saasRepository = saasRepository;
         this.slackTeamInfo = slackTeamInfo;
         this.startScan = startScan;
+        this.messageSender = messageSender;
     }
 
     @Override
@@ -264,7 +267,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             }
 
             orgSaas.setSpaceId(driveInfo[0]);
-            orgSaasRepository.save(orgSaas);
+            OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
 
             Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaas.getId());
             if (optionalWorkspace.isPresent()) {
@@ -273,6 +276,9 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 workspace.setApiToken(accessToken);
                 workspaceRepository.save(workspace);
             }
+
+            Integer id = saveOrgSaas.getId();
+            messageSender.sendGroupingMessage(Long.valueOf(id));
         }
     }
 
