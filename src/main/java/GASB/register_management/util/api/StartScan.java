@@ -46,7 +46,6 @@ public class StartScan {
             // JSON 응답을 JsonNode로 변환
             return objectMapper.readTree(responseBody);
         } else {
-            System.out.println("Error: " + response.statusCode() + " " + response.body());
             throw new IOException("Fail" + response.statusCode());
         }
     }
