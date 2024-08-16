@@ -12,8 +12,10 @@ import GASB.register_management.repository.OrgSaasRepository;
 import GASB.register_management.repository.WorkspaceRepository;
 import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
+import GASB.register_management.util.AESUtil;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -35,6 +37,9 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private final StartScan startScan;
     private final RabbitMQConfig rabbitMQConfig;
     private final RabbitTemplate rabbitTemplate;
+
+    @Value("${aes.key}")
+    private String aesKey;
 
     @Autowired
     public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan, RabbitMQConfig rabbitMQConfig, RabbitTemplate rabbitTemplate) {
@@ -106,7 +111,9 @@ public class OrgSaasServiceImple implements OrgSaasService {
             workspace.setSpaceName(slackInfo.get(0));
             workspace.setAlias(orgSaasRequest.getAlias());
             workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-            workspace.setApiToken(orgSaasRequest.getApiToken());
+            workspace.setApiToken(AESUtil.encrypt(orgSaasRequest.getApiToken(), aesKey));
+
+            System.out.println(AESUtil.decrypt(AESUtil.encrypt(orgSaasRequest.getApiToken(), aesKey), aesKey));
             workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
             workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
             Workspace registeredWorkspace = workspaceRepository.save(workspace);
@@ -143,7 +150,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 workspace.setSpaceName(slackInfo.get(0));
                 workspace.setAlias(orgSaasRequest.getAlias());
                 workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-                workspace.setApiToken(orgSaasRequest.getApiToken());
+                workspace.setApiToken(AESUtil.encrypt(orgSaasRequest.getApiToken(), aesKey));
                 workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
                 workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
                 Workspace registeredWorkspace = workspaceRepository.save(workspace);
@@ -276,7 +283,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             if (optionalWorkspace.isPresent()) {
                 workspace = optionalWorkspace.get();
                 workspace.setSpaceName(driveInfo[1]);
-                workspace.setApiToken(accessToken);
+                workspace.setApiToken(AESUtil.encrypt(accessToken, aesKey));
                 workspaceRepository.save(workspace);
             }
 
