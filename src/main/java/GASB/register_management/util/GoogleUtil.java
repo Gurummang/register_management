@@ -40,6 +40,7 @@ public class GoogleUtil {
         try {
             Credential credential = getCredential(code);
             System.out.println("Test: " + LocalDateTime.now());
+            System.out.println("Plz...");
             try {
                 Drive drive = getDriveService(credential);
                 List<String[]> drives = getAllSharedDriveIdsAndNames(drive);
