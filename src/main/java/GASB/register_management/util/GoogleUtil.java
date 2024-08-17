@@ -51,6 +51,7 @@ public class GoogleUtil {
 
                 orgSaasService.updateOrgSaasGD(drives, credential.getAccessToken());
             } catch (Exception e) {
+                log.error("Receive Drives Failure: {}", e.getMessage());
                 List<String[]> drives = new ArrayList<>();
                 drives.add(new String[]{"DELETE"});
                 orgSaasService.updateOrgSaasGD(drives, null);
