@@ -12,6 +12,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.DriveList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -27,6 +28,9 @@ public class GoogleUtil {
     private static final String APPLICATION_NAME = "grummang-google-drive-func";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    private String redirectUri;
+
     private final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow;
     private final OrgSaasService orgSaasService;
 
@@ -38,8 +42,6 @@ public class GoogleUtil {
 
     public void func(String code) {
         try {
-            System.out.println("Test: " + LocalDateTime.now());
-            System.out.println("Plz...");
             Credential credential = getCredential(code);
             try {
                 Drive drive = getDriveService(credential);
@@ -51,7 +53,6 @@ public class GoogleUtil {
 
                 orgSaasService.updateOrgSaasGD(drives, credential.getAccessToken());
             } catch (Exception e) {
-                log.error("Receive Drives Failure: {}", e.getMessage());
                 List<String[]> drives = new ArrayList<>();
                 drives.add(new String[]{"DELETE"});
                 orgSaasService.updateOrgSaasGD(drives, null);
@@ -89,13 +90,11 @@ public class GoogleUtil {
     }
 
     public Credential getCredential(String code) throws Exception {
-        log.info("Enter getCredential() {}", LocalDateTime.now());
         try {
-            log.info("Send Request to Google {}", LocalDateTime.now());
             GoogleTokenResponse tokenResponse = googleAuthorizationCodeFlow.newTokenRequest(code)
-                    .setRedirectUri("https://back.grummang.com/api/v1/org-saas/token")
+                    .setRedirectUri(redirectUri)
                     .execute();
-            log.info("Received token response: {}", tokenResponse.getAccessToken());
+
             return googleAuthorizationCodeFlow.createAndStoreCredential(tokenResponse, "user");
         } catch (TokenResponseException e) {
             log.error("Error obtaining token response: {}", e.getMessage());

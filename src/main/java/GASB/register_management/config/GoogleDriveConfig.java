@@ -11,8 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 
 @Configuration
 @Slf4j
@@ -29,27 +28,23 @@ public class GoogleDriveConfig {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirectUri;
 
-    @Value("${spring.security.oauth2.client.registration.google.scope}")
-    private String scope;
-
     @Bean
     public GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow() throws Exception {
-        log.info("redirect uri: {}", redirectUri);
+        // 클라이언트 정보 JSON 문자열 생성
         String jsonCredentials = String.format(
-                "{\"installed\":{\"client_id\":\"%s\",\"project_id\":\"\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_secret\":\"%s\",\"redirect_uris\":[\"%s\"]}}",
+                "{\"installed\":{\"client_id\":\"%s\",\"client_secret\":\"%s\",\"redirect_uris\":[\"%s\"]}}",
                 clientId, clientSecret, redirectUri
         );
 
+        // 클라이언트 정보 로드
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
                 JSON_FACTORY, new StringReader(jsonCredentials)
         );
 
-        List<String> scopes = Arrays.asList(scope.split(" "));
-        GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow = new GoogleAuthorizationCodeFlow.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, clientSecrets, scopes)
+        // GoogleAuthorizationCodeFlow 설정
+        return new GoogleAuthorizationCodeFlow.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, clientSecrets, Collections.emptyList())
                 .setAccessType("offline")
                 .build();
-
-        return googleAuthorizationCodeFlow;
     }
 }
