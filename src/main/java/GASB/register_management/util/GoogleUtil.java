@@ -38,9 +38,9 @@ public class GoogleUtil {
 
     public void func(String code) {
         try {
-            Credential credential = getCredential(code);
             System.out.println("Test: " + LocalDateTime.now());
             System.out.println("Plz...");
+            Credential credential = getCredential(code);
             try {
                 Drive drive = getDriveService(credential);
                 List<String[]> drives = getAllSharedDriveIdsAndNames(drive);
