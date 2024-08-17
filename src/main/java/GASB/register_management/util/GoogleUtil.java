@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class GoogleUtil {
     public void func(String code) {
         try {
             Credential credential = getCredential(code);
+            System.out.println("Test: " + LocalDateTime.now());
             try {
                 Drive drive = getDriveService(credential);
                 List<String[]> drives = getAllSharedDriveIdsAndNames(drive);
