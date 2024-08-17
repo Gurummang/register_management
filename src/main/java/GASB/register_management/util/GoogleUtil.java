@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +63,7 @@ public class GoogleUtil {
     }
 
 
-    public Drive getDriveService(Credential credential) throws Exception {
+    private Drive getDriveService(Credential credential){
         try {
             return new Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
                     .setApplicationName(APPLICATION_NAME)
@@ -76,7 +74,7 @@ public class GoogleUtil {
         }
     }
 
-    public List<String[]> getAllSharedDriveIdsAndNames(Drive drive) throws IOException {
+    private List<String[]> getAllSharedDriveIdsAndNames(Drive drive) throws IOException {
         List<String[]> sharedDrivesInfo = new ArrayList<>();
         DriveList driveList = drive.drives().list().execute();
 
@@ -89,7 +87,7 @@ public class GoogleUtil {
         return sharedDrivesInfo;
     }
 
-    public Credential getCredential(String code) throws Exception {
+    private Credential getCredential(String code){
         try {
             GoogleTokenResponse tokenResponse = googleAuthorizationCodeFlow.newTokenRequest(code)
                     .setRedirectUri(redirectUri)
