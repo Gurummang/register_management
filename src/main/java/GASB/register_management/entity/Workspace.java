@@ -18,7 +18,7 @@ public class Workspace {
     private String spaceName;
     @Column(name = "saas_admin_email")
     private String adminEmail;
-    @Column(name = "token")
+    @Column(name = "token", length = 1024)
     private String apiToken;       // api_key, api_token
     @Column(name = "webhook")
     private String webhookUrl; // webhook은 workspace당 한개로!
