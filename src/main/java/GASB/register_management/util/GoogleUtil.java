@@ -88,11 +88,13 @@ public class GoogleUtil {
     }
 
     public Credential getCredential(String code) throws Exception {
+        log.info("Enter getCredential() {}", LocalDateTime.now());
         try {
+            log.info("Send Request to Google {}", LocalDateTime.now());
             GoogleTokenResponse tokenResponse = googleAuthorizationCodeFlow.newTokenRequest(code)
                     .setRedirectUri("https://back.grummang.com/api/v1/org-saas/token")
                     .execute();
-
+            log.info("Received token response: {}", tokenResponse.getAccessToken());
             return googleAuthorizationCodeFlow.createAndStoreCredential(tokenResponse, "user");
         } catch (TokenResponseException e) {
             log.error("Error obtaining token response: {}", e.getMessage());
