@@ -1,6 +1,6 @@
 package GASB.register_management.util;
 
-import GASB.register_management.service.OrgSaasService;
+import GASB.register_management.service.register.OrgSaasService;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponseException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;

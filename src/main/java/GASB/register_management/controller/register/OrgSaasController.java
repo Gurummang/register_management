@@ -1,8 +1,8 @@
-package GASB.register_management.controller;
+package GASB.register_management.controller.register;
 
-import GASB.register_management.dto.OrgSaasRequest;
-import GASB.register_management.dto.OrgSaasResponse;
-import GASB.register_management.service.OrgSaasService;
+import GASB.register_management.dto.register.OrgSaasRequest;
+import GASB.register_management.dto.register.OrgSaasResponse;
+import GASB.register_management.service.register.OrgSaasService;
 import GASB.register_management.util.GoogleUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

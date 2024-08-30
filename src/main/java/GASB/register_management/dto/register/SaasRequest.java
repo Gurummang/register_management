@@ -1,4 +1,4 @@
-package GASB.register_management.dto;
+package GASB.register_management.dto.register;
 
 import lombok.Getter;
 import lombok.Setter;
