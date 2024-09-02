@@ -1,9 +1,11 @@
 package GASB.register_management.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Getter
@@ -32,4 +34,8 @@ public class MonitoredUsers {
 
     @Column(name = "status")
     private Timestamp timestamp;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Activities> activities;
 }

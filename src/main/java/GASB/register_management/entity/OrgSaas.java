@@ -23,8 +23,13 @@ public class OrgSaas {
     @JoinColumn(name = "org_id", nullable = false)
     private Org org;
 
-    @Column (name = "saas_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "saas_id", nullable = false)
+    private Saas saas;
+
+    @Column(name = "saas_id", insertable = false, updatable = false)
     private Integer saasId;
+
 
     @Column (name = "space_id", unique = true)
     private String spaceId;    // workspace_id
