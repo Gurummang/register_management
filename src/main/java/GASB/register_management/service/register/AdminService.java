@@ -1,7 +1,7 @@
-package GASB.register_management.service;
+package GASB.register_management.service.register;
 
-import GASB.register_management.dto.AdminRequest;
-import GASB.register_management.dto.AdminResponse;
+import GASB.register_management.dto.register.AdminRequest;
+import GASB.register_management.dto.register.AdminResponse;
 
 import java.util.List;
 

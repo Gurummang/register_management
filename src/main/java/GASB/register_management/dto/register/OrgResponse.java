@@ -1,4 +1,4 @@
-package GASB.register_management.dto;
+package GASB.register_management.dto.register;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
@@ -7,17 +7,17 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SaasResponse {
+public class OrgResponse {
 
     private Integer errorCode;
     private String errorMessage;
     private Integer id;
-    private String saasName;
+    private String orgName;
 
-    public SaasResponse(Integer errorCode, String errorMessage, Integer id, String saasName) {
+    public OrgResponse(Integer errorCode, String errorMessage, Integer id, String orgName) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
         this.id = id;
-        this.saasName = saasName;
+        this.orgName = orgName;
     }
 }

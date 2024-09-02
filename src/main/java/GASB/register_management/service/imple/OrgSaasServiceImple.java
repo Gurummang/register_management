@@ -1,11 +1,11 @@
 package GASB.register_management.service.imple;
 
 import GASB.register_management.config.RabbitMQConfig;
-import GASB.register_management.dto.OrgSaasRequest;
-import GASB.register_management.dto.OrgSaasResponse;
+import GASB.register_management.dto.register.OrgSaasRequest;
+import GASB.register_management.dto.register.OrgSaasResponse;
 import GASB.register_management.entity.Saas;
 import GASB.register_management.repository.SaasRepository;
-import GASB.register_management.service.OrgSaasService;
+import GASB.register_management.service.register.OrgSaasService;
 import GASB.register_management.entity.OrgSaas;
 import GASB.register_management.entity.Workspace;
 import GASB.register_management.repository.OrgSaasRepository;

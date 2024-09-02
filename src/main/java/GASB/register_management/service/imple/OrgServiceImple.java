@@ -1,10 +1,10 @@
 package GASB.register_management.service.imple;
 
-import GASB.register_management.dto.OrgRequest;
-import GASB.register_management.dto.OrgResponse;
+import GASB.register_management.dto.register.OrgRequest;
+import GASB.register_management.dto.register.OrgResponse;
 import GASB.register_management.entity.Org;
 import GASB.register_management.repository.OrgRepository;
-import GASB.register_management.service.OrgService;
+import GASB.register_management.service.register.OrgService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

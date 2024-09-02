@@ -1,10 +1,10 @@
 package GASB.register_management.service.imple;
 
-import GASB.register_management.dto.AdminRequest;
-import GASB.register_management.dto.AdminResponse;
+import GASB.register_management.dto.register.AdminRequest;
+import GASB.register_management.dto.register.AdminResponse;
 import GASB.register_management.entity.Admin;
 import GASB.register_management.repository.AdminRepository;
-import GASB.register_management.service.AdminService;
+import GASB.register_management.service.register.AdminService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

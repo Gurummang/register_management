@@ -1,4 +1,4 @@
-package GASB.register_management.dto;
+package GASB.register_management.dto.register;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

@@ -11,6 +11,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class SlackTeamInfo {
@@ -44,8 +45,8 @@ public class SlackTeamInfo {
             if (jsonNode.path("ok").asBoolean()) {
                 JsonNode teamNode = jsonNode.path("team");
 
-                String teamName = teamNode.path("name").asText("");
-                String teamId = teamNode.path("id").asText("");
+                String teamName = Optional.ofNullable(teamNode.path("name").asText()).filter(s -> !s.isEmpty()).orElse("");
+                String teamId = Optional.ofNullable(teamNode.path("id").asText()).filter(s -> !s.isEmpty()).orElse("");
 
                 List<String> teamInfo = new ArrayList<>();
                 teamInfo.add(teamName);
@@ -54,7 +55,7 @@ public class SlackTeamInfo {
                 // 특정 값 반환
                 return teamInfo;
             } else {
-                String error = jsonNode.path("error").asText("Unknown error");
+                String error = Optional.ofNullable(jsonNode.path("error").asText()).filter(s -> !s.isEmpty()).orElse("Unknown error");
                 throw new IOException("Error: " + error);
             }
         } else {

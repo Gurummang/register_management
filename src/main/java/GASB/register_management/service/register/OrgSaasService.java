@@ -1,7 +1,7 @@
-package GASB.register_management.service;
+package GASB.register_management.service.register;
 
-import GASB.register_management.dto.OrgSaasRequest;
-import GASB.register_management.dto.OrgSaasResponse;
+import GASB.register_management.dto.register.OrgSaasRequest;
+import GASB.register_management.dto.register.OrgSaasResponse;
 
 import java.util.List;
 
