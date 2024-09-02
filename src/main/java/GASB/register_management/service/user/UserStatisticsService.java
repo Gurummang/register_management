@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public class UserStatisticsService {
 
-    public UserStatisticsDto getStatistics(){
+    public UserStatisticsDto getStatistics(long orgId){
         return UserStatisticsDto.builder()
                 .lastActivities(getLastActivities())
                 .topSensitive(getDlpTop5())
