@@ -1,24 +1,23 @@
-package GASB.register_management.dto;
+package GASB.register_management.dto.register;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OrgResponse {
+public class SaasResponse {
 
     private Integer errorCode;
     private String errorMessage;
     private Integer id;
-    private String orgName;
+    private String saasName;
 
-    public OrgResponse(Integer errorCode, String errorMessage, Integer id, String orgName) {
+    public SaasResponse(Integer errorCode, String errorMessage, Integer id, String saasName) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
         this.id = id;
-        this.orgName = orgName;
+        this.saasName = saasName;
     }
 }

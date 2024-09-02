@@ -1,10 +1,10 @@
 package GASB.register_management.service.imple;
 
-import GASB.register_management.dto.SaasRequest;
-import GASB.register_management.dto.SaasResponse;
+import GASB.register_management.dto.register.SaasRequest;
+import GASB.register_management.dto.register.SaasResponse;
 import GASB.register_management.entity.Saas;
 import GASB.register_management.repository.SaasRepository;
-import GASB.register_management.service.SaasService;
+import GASB.register_management.service.register.SaasService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

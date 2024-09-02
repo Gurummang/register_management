@@ -1,8 +1,8 @@
-package GASB.register_management.controller;
+package GASB.register_management.controller.register;
 
-import GASB.register_management.dto.AdminRequest;
-import GASB.register_management.dto.AdminResponse;
-import GASB.register_management.service.AdminService;
+import GASB.register_management.dto.register.AdminRequest;
+import GASB.register_management.dto.register.AdminResponse;
+import GASB.register_management.service.register.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

@@ -25,4 +25,9 @@ public class Workspace {
     private String alias = "NULL";
     @Column (name = "register_date")
     private Timestamp registerDate;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private OrgSaas orgSaas;
 }
