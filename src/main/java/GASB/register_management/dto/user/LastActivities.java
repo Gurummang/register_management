@@ -9,6 +9,6 @@ import lombok.Setter;
 @Builder
 public class LastActivities {
     private int undormant;
-    private int domanting;
+    private int dormanting;
     private int dormant;
 }
