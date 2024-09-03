@@ -4,7 +4,6 @@ import GASB.register_management.dto.user.UserInfo;
 import GASB.register_management.entity.*;
 import GASB.register_management.repository.ActivitiesRepository;
 import GASB.register_management.repository.MonitoredUsersRepo;
-import GASB.register_management.repository.StoredFileRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
