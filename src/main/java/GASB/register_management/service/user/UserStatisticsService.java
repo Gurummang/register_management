@@ -9,6 +9,8 @@ import GASB.register_management.repository.ActivitiesRepository;
 import GASB.register_management.repository.MonitoredUsersRepo;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,11 +33,43 @@ public class UserStatisticsService {
                 .build();
     }
 
-    public LastActivities getLastActivities(long orgId){
+    public LastActivities getLastActivities(long orgId) {
+        // 모든 사용자를 가져옵니다.
+        List<MonitoredUsers> users = monitoredUsersRepo.getUserListByOrgId(orgId);
+
+        // 휴면 상태를 계산할 변수 초기화
+        int dormantCount = 0;
+        int dormantingCount = 0;
+        int undormantCount = 0;
+
+        // 현재 날짜
+        LocalDateTime currentDate = LocalDateTime.now();
+
+        // 각 사용자에 대해 마지막 활동 시간을 확인하고 휴면 상태를 계산합니다.
+        for (MonitoredUsers user : users) {
+            LocalDateTime lastActiveDate = getLastDate(user.getId());
+
+            if (lastActiveDate == null) {
+                // 마지막 활동 시간이 없으면 휴면 상태로 간주
+                dormantCount++;
+            } else {
+                long monthsSinceLastActive = ChronoUnit.MONTHS.between(lastActiveDate, currentDate);
+
+                if (monthsSinceLastActive >= 12) {
+                    dormantCount++;
+                } else if (monthsSinceLastActive >= 6) {
+                    dormantingCount++;
+                } else {
+                    undormantCount++;
+                }
+            }
+        }
+
+        // 결과를 LastActivities 객체로 반환합니다.
         return LastActivities.builder()
-                .dormant(20)
-                .domanting(50)
-                .undormant(11)
+                .dormant(dormantCount)
+                .dormanting(dormantingCount)
+                .undormant(undormantCount)
                 .build();
     }
 
@@ -71,6 +105,10 @@ public class UserStatisticsService {
 
     private int getMalware(long userId){
         return activitiesRepository.countSuspiciousActivitiesByUserId(userId) + activitiesRepository.countVtMalwareByUserId(userId);
+    }
+
+    private LocalDateTime getLastDate(long userId){
+        return activitiesRepository.findLastActiveTime(userId);
     }
 
 }
