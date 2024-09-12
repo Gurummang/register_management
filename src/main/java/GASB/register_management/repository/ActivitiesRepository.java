@@ -49,7 +49,7 @@ public interface ActivitiesRepository extends JpaRepository<Activities, Long> {
             "LEFT JOIN fu.storedFile sf " +
             "LEFT JOIN sf.dlpReport dr " +
             "WHERE fu.deleted = false " +
-            "AND dr.dlp = true " +
+            "AND dr.infoCnt >= 1 " +
             "AND a.user.id = :userId")
     int countSensitiveActivitiesByUserId(@Param("userId") long userId);
 
