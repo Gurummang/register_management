@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -45,4 +46,7 @@ public class OrgSaas {
 
     @OneToOne(mappedBy = "orgSaas", cascade = CascadeType.ALL)
     private Workspace config;
+
+    @OneToMany(mappedBy = "orgSaaS")
+    private Set<Policy> policies; // Policy와의 OneToMany 관계
 }
