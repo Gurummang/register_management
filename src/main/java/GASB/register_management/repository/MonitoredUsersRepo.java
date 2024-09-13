@@ -40,7 +40,12 @@ public interface MonitoredUsersRepo extends JpaRepository<MonitoredUsers, Long> 
             "LEFT JOIN fu.storedFile sf " +
             "LEFT JOIN sf.dlpReport dr " +
             "WHERE fu.deleted = false " +
-            "AND dr.infoCnt >= 1 " +
+            "AND sf.id IN ( " +
+            "   SELECT DISTINCT d.storedFile.id " +
+            "   FROM DlpReport d " +
+            "   WHERE d.infoCnt >= 1 " +
+            "   AND d.policy.orgSaaS.org.id = :orgId " +
+            ") " +
             "AND os.org.id = :orgId")
     int countDistinctUsersWithSensitiveActivity(@Param("orgId") long orgId);
 
