@@ -40,8 +40,9 @@ public class OrgSaasController {
     }
 
     @GetMapping("/{saasId}/mkUrl")
-    public OrgSaasResponse mkUrl(@PathVariable Integer saasId) {
-        return orgSaasService.getUrl(saasId);
+    public OrgSaasResponse mkUrl(@PathVariable Integer saasId, HttpServletRequest servletRequest) {
+        ValidateDto validateDto =validateJwt(servletRequest);
+        return orgSaasService.getUrl(saasId, validateDto);
     }
 
     @PostMapping("/register")

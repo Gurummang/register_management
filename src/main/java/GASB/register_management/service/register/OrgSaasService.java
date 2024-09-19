@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface OrgSaasService {
-    OrgSaasResponse getUrl(Integer saasId);
     OrgSaasResponse slackValid(OrgSaasRequest orgSaasRequest, ValidateDto validateDto);
+    OrgSaasResponse getUrl(Integer saasId, ValidateDto validateDto);
     OrgSaasResponse registerOrgSaas(OrgSaasRequest orgSaasRequest);
     OrgSaasResponse modifyOrgSaas(OrgSaasRequest orgSaasRequest);
     OrgSaasResponse deleteOrgSaas(OrgSaasRequest orgSaasRequest);
