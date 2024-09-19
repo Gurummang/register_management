@@ -74,13 +74,13 @@ public class OrgSaasServiceImple implements OrgSaasService {
     }
 
     @Override
-    public OrgSaasResponse getUrl(Integer saasId, ValidateDto validateDto) {
-        if (validateDto.getErrorMessage() != null) {
-            return new OrgSaasResponse(198, validateDto.getErrorMessage(), false);
-        }
-        if (validateDto.getExceptionMessage() != null) {
-            return new OrgSaasResponse(198, validateDto.getExceptionMessage(), false);
-        }
+    public OrgSaasResponse getUrl(Integer saasId) {
+//        if (validateDto.getErrorMessage() != null) {
+//            return new OrgSaasResponse(198, validateDto.getErrorMessage(), false);
+//        }
+//        if (validateDto.getExceptionMessage() != null) {
+//            return new OrgSaasResponse(198, validateDto.getExceptionMessage(), false);
+//        }
         Optional<Saas> saasOptional = saasRepository.findById(saasId);
 
         if(saasOptional.isPresent()) {
