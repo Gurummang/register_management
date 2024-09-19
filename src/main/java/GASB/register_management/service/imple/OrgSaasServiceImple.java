@@ -3,6 +3,8 @@ package GASB.register_management.service.imple;
 import GASB.register_management.config.RabbitMQConfig;
 import GASB.register_management.dto.register.OrgSaasRequest;
 import GASB.register_management.dto.register.OrgSaasResponse;
+import GASB.register_management.dto.register.ValidateDto;
+import GASB.register_management.entity.Org;
 import GASB.register_management.entity.Saas;
 import GASB.register_management.repository.SaasRepository;
 import GASB.register_management.service.register.OrgSaasService;
@@ -13,6 +15,7 @@ import GASB.register_management.repository.WorkspaceRepository;
 import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
 import GASB.register_management.util.AESUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,7 +56,13 @@ public class OrgSaasServiceImple implements OrgSaasService {
     }
 
     @Override
-    public OrgSaasResponse slackValid(OrgSaasRequest orgSaasRequest) {
+    public OrgSaasResponse slackValid(OrgSaasRequest orgSaasRequest, ValidateDto validateDto) {
+        if (validateDto.getErrorMessage() != null) {
+            return new OrgSaasResponse(198, validateDto.getErrorMessage(), false);
+        }
+        if (validateDto.getExceptionMessage() != null) {
+            return new OrgSaasResponse(198, validateDto.getExceptionMessage(), false);
+        }
         String token = orgSaasRequest.getApiToken();
         try {
             slackTeamInfo.getTeamInfo(token);
@@ -291,6 +300,4 @@ public class OrgSaasServiceImple implements OrgSaasService {
             rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getRoutingKey(), saveOrgSaas.getId());
         }
     }
-
-
 }
