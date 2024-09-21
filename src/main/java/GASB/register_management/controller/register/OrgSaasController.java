@@ -149,8 +149,12 @@ public class OrgSaasController {
                     .orElseThrow(() -> new NoSuchElementException("Admin not found with email: " + email))
                     .getOrg_id();
             validateDto.setOrgId(orgId);
+        } catch (NoSuchElementException e) {
+            log.error("Admin not found with email: {}", e.getMessage());
+            validateDto.setExceptionMessage("No admin found with the provided email.");
         } catch (Exception e) {
-            validateDto.setExceptionMessage(e.getMessage());
+            log.error("Unexpected error during JWT validation: {}", e.getMessage());
+            validateDto.setExceptionMessage("Unexpected error occurred during JWT validation.");
         }
 
         return validateDto;
