@@ -10,6 +10,7 @@ import GASB.register_management.util.GoogleUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -38,12 +39,25 @@ public class OrgSaasController {
     @ValidateJWT
     public OrgSaasResponse slackValid (@RequestBody OrgSaasRequest orgSaasRequest, HttpServletRequest servletRequest) {
         ValidateDto validateDto = validateJwt(servletRequest);
+        if(validateDto.getErrorMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getErrorMessage(), (Boolean) null);
+        }
+        if(validateDto.getExceptionMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getExceptionMessage(), (Boolean) null);
+        }
         return orgSaasService.slackValid(orgSaasRequest, validateDto);
     }
 
     @GetMapping("/{saasId}/mkUrl")
-    public OrgSaasResponse mkUrl(@PathVariable Integer saasId) {
-//        ValidateDto validateDto =validateJwt(servletRequest);
+    @ValidateJWT
+    public OrgSaasResponse mkUrl(@PathVariable Integer saasId, HttpServletRequest servletRequest) {
+        ValidateDto validateDto = validateJwt(servletRequest);
+        if(validateDto.getErrorMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getErrorMessage(), (Boolean) null);
+        }
+        if(validateDto.getExceptionMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getExceptionMessage(), (Boolean) null);
+        }
         return orgSaasService.getUrl(saasId);
     }
 
@@ -69,12 +83,28 @@ public class OrgSaasController {
     }
 
     @PostMapping("/modify")
-    public OrgSaasResponse modify(@RequestBody OrgSaasRequest orgSaasRequest) {
+    @ValidateJWT
+    public OrgSaasResponse modify(@RequestBody OrgSaasRequest orgSaasRequest, HttpServletRequest servletRequest) {
+        ValidateDto validateDto = validateJwt(servletRequest);
+        if(validateDto.getErrorMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getErrorMessage(), (Boolean) null);
+        }
+        if(validateDto.getExceptionMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getExceptionMessage(), (Boolean) null);
+        }
         return orgSaasService.modifyOrgSaas(orgSaasRequest);
     }
 
     @PostMapping("/delete")
-    public OrgSaasResponse delete(@RequestBody OrgSaasRequest orgSaasRequest) {
+    @ValidateJWT
+    public OrgSaasResponse delete(@RequestBody OrgSaasRequest orgSaasRequest, HttpServletRequest servletRequest) {
+        ValidateDto validateDto = validateJwt(servletRequest);
+        if(validateDto.getErrorMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getErrorMessage(), (Boolean) null);
+        }
+        if(validateDto.getExceptionMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getExceptionMessage(), (Boolean) null);
+        }
         return orgSaasService.deleteOrgSaas(orgSaasRequest);
     }
 
