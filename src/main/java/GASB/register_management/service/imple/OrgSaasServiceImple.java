@@ -17,6 +17,7 @@ import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
 import GASB.register_management.util.AESUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +33,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class OrgSaasServiceImple implements OrgSaasService {
 
     private final OrgSaasRepository orgSaasRepository;
@@ -298,6 +300,13 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 Optional<Org> orgOpt = orgRepository.findById(originalOrgSaas.getOrgId());
                 Optional<Saas> saasOpt = saasRepository.findById(originalOrgSaas.getSaasId());
                 // Org와 Saas가 존재하는 경우 orgSaas 객체에 설정
+                if (orgOpt.isEmpty()) {
+                    log.error("org is empty()");
+                }
+
+                if (saasOpt.isEmpty()) {
+                    log.error("saas is empty()");
+                }
                 Org org = orgOpt.get();
                 Saas saas = saasOpt.get();
                 orgSaas.setOrg(org);
@@ -334,7 +343,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 workspace.setApiToken(AESUtil.encrypt(accessToken, aesKey));
                 workspaceRepository.save(workspace);
             }
-
+            log.info("Send orgSaasId (={}) to gd_init_queue",saveOrgSaas.getOrgId());
             rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getRoutingKey(), saveOrgSaas.getId());
         }
     }
