@@ -205,8 +205,13 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 try{
                     startScan.postToScan(registeredWorkspace.getId(), saasName);
 
+                    orgSaas.setStatus(1);
+                    orgSaasRepository.save(orgSaas);
                     return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
                 } catch (Exception e) {
+
+                    orgSaas.setStatus(99);
+                    orgSaasRepository.save(orgSaas);
                     return new OrgSaasResponse(198, e.getMessage(), null, null);
                 }
 
@@ -214,6 +219,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 return new OrgSaasResponse( 199, e.getMessage(),null, null);
             }
         } else {
+
             return new OrgSaasResponse( 199, "Not found for ID", "");
         }
     }
