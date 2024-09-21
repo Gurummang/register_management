@@ -294,8 +294,15 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 // TEMP 튜플을 복제
                 OrgSaas originalOrgSaas = tempOrgSaasList.get(0);  // 첫 번째 TEMP 튜플을 기준으로 복사
                 orgSaas = new OrgSaas();
-                orgSaas.setOrgId(originalOrgSaas.getOrgId());
-                orgSaas.setSaasId(originalOrgSaas.getSaasId());
+                Optional<Org> orgOpt = orgRepository.findById(originalOrgSaas.getOrgId());
+                Optional<Saas> saasOpt = saasRepository.findById(originalOrgSaas.getSaasId());
+                // Org와 Saas가 존재하는 경우 orgSaas 객체에 설정
+                Org org = orgOpt.get();
+                Saas saas = saasOpt.get();
+                orgSaas.setOrg(org);
+                orgSaas.setSaas(saas);
+//                orgSaas.setOrgId(originalOrgSaas.getOrgId());
+//                orgSaas.setSaasId(originalOrgSaas.getSaasId());
                 orgSaas.setSpaceId("TEMP");  // 나중에 업데이트될 것이므로 우선 TEMP로 설정
                 orgSaas = orgSaasRepository.save(orgSaas);  // 복제된 튜플 저장
 
@@ -303,7 +310,8 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 if (originalWorkspaceOpt.isPresent()) {
                     Workspace originalWorkspace = originalWorkspaceOpt.get();
                     workspace = new Workspace();
-                    workspace.setId(orgSaas.getId());
+//                    workspace.setId(orgSaas.getId());
+                    workspace.setOrgSaas(orgSaas);
                     workspace.setAlias(originalWorkspace.getAlias());
                     workspace.setAdminEmail(originalWorkspace.getAdminEmail());
                     workspace.setApiToken(originalWorkspace.getApiToken());
