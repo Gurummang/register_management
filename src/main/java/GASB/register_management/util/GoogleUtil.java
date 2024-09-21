@@ -52,21 +52,26 @@ public class GoogleUtil {
                 orgSaasService.updateOrgSaasGD(drives, credential.getAccessToken());
             } catch (IOException e) {
                 log.error("Error while retrieving Google Drive data: {}", e.getMessage());
-                handleError();
+                List<String[]> drives = new ArrayList<>();
+                drives.add(new String[]{"DELETE"});
+                orgSaasService.updateOrgSaasGD(drives, null);
+            } catch (NullPointerException e) {
+                log.error("Received null value where not expected: {}", e.getMessage());
+                List<String[]> drives = new ArrayList<>();
+                drives.add(new String[]{"DELETE"});
+                orgSaasService.updateOrgSaasGD(drives, null);
             } catch (Exception e) {
                 log.error("Unexpected error in processing Google Drive data: {}", e.getMessage());
-                handleError();
+                List<String[]> drives = new ArrayList<>();
+                drives.add(new String[]{"DELETE"});
+                orgSaasService.updateOrgSaasGD(drives, null);
             }
         } catch (Exception e) {
             log.error("Unexpected error while obtaining credentials: {}", e.getMessage());
-            handleError();
+            List<String[]> drives = new ArrayList<>();
+            drives.add(new String[]{"DELETE"});
+            orgSaasService.updateOrgSaasGD(drives, null);
         }
-    }
-
-    private void handleError() {
-        List<String[]> drives = new ArrayList<>();
-        drives.add(new String[]{"DELETE"});
-        orgSaasService.updateOrgSaasGD(drives, null);
     }
 
 
