@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -56,8 +57,12 @@ public class UserController {
             long orgId = adminOptional.get().getOrg_id();
             UserTotalDto userTotal = userTotalService.getTotal(orgId);
             return ResponseDto.ofSuccess(userTotal);
+        } catch (IllegalArgumentException e) {
+            return ResponseDto.ofFail("Invalid argument: " + e.getMessage());
+        } catch (NoSuchElementException e) {
+            return ResponseDto.ofFail("No such element: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseDto.ofFail(e.getMessage());
+            return ResponseDto.ofFail("An unexpected error occurred: " + e.getMessage());
         }
     }
 
@@ -83,8 +88,12 @@ public class UserController {
             long orgId = adminOptional.get().getOrg_id();
             UserStatisticsDto userStatistics = userStatisticsService.getStatistics(orgId);
             return ResponseDto.ofSuccess(userStatistics);
-        } catch (Exception e){
-            return ResponseDto.ofFail(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseDto.ofFail("Invalid argument: " + e.getMessage());
+        } catch (NoSuchElementException e) {
+            return ResponseDto.ofFail("No such element: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseDto.ofFail("An unexpected error occurred: " + e.getMessage());
         }
     }
 
@@ -110,8 +119,12 @@ public class UserController {
             long orgId = adminOptional.get().getOrg_id();
             List<UserInfo> userinfo = userInfoService.fetchUserInfoList(orgId);
             return ResponseDto.ofSuccess(userinfo);
-        } catch (Exception e){
-            return ResponseDto.ofFail(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseDto.ofFail("Invalid argument: " + e.getMessage());
+        } catch (NoSuchElementException e) {
+            return ResponseDto.ofFail("No such element: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseDto.ofFail("An unexpected error occurred: " + e.getMessage());
         }
     }
 }
