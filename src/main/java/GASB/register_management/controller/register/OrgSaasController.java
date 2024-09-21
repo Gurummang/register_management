@@ -62,7 +62,7 @@ public class OrgSaasController {
         return orgSaasService.deleteOrgSaas(orgSaasRequest);
     }
 
-    @GetMapping("/{orgId}")
+    @GetMapping("/list")
     @ValidateJWT
     public List<OrgSaasResponse> getOrgSaasList(HttpServletRequest servletRequest) {
         List<OrgSaasResponse> exceptList = new ArrayList<>();
