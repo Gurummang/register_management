@@ -105,11 +105,11 @@ public class OrgSaasServiceImple implements OrgSaasService {
         Optional<Saas> saasOpt = saasRepository.findById(orgSaasRequest.getSaasId());
 
         // Org와 Saas가 존재하지 않으면 에러 처리
-        if (!orgOpt.isPresent()) {
+        if (orgOpt.isEmpty()) {
             return new OrgSaasResponse(404, "Org not found", (Boolean) null);
         }
 
-        if (!saasOpt.isPresent()) {
+        if (saasOpt.isEmpty()) {
             return new OrgSaasResponse(404, "Saas not found", (Boolean) null);
         }
         // Org와 Saas가 존재하는 경우 orgSaas 객체에 설정
@@ -117,12 +117,15 @@ public class OrgSaasServiceImple implements OrgSaasService {
         Saas saas = saasOpt.get();
 
         if(orgSaasRequest.getSaasId() == 6) {
-            orgSaas.setOrgId(orgSaasRequest.getOrgId());
-            orgSaas.setSaasId(orgSaasRequest.getSaasId());
+//            orgSaas.setOrgId(orgSaasRequest.getOrgId());
+//            orgSaas.setSaasId(orgSaasRequest.getSaasId());
+            orgSaas.setOrg(org);
+            orgSaas.setSaas(saas);
             orgSaas.setSpaceId("TEMP");
             OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
 
-            workspace.setId(regiOrgSaas.getId());
+//            workspace.setId(regiOrgSaas.getId());
+            workspace.setOrgSaas(regiOrgSaas);
             workspace.setSpaceName("TEMP");
             workspace.setAlias(orgSaasRequest.getAlias());
             workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
@@ -143,7 +146,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             orgSaas.setSpaceId(slackInfo.get(1));
             OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
 
-            workspace.setId(regiOrgSaas.getId());
+            workspace.setOrgSaas(regiOrgSaas);
             workspace.setSpaceName(slackInfo.get(0));
             workspace.setAlias(orgSaasRequest.getAlias());
             workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
