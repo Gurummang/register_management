@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -61,7 +63,21 @@ public class OrgSaasController {
     }
 
     @GetMapping("/{orgId}")
-    public List<OrgSaasResponse> getOrgSaasList(@PathVariable Integer orgId) {
+    @ValidateJWT
+    public List<OrgSaasResponse> getOrgSaasList(HttpServletRequest servletRequest) {
+        List<OrgSaasResponse> exceptList = new ArrayList<>();
+        ValidateDto validateDto = validateJwt(servletRequest);
+        if(validateDto.getErrorMessage() != null) {
+            OrgSaasResponse errorResponse = new OrgSaasResponse(400, validateDto.getErrorMessage(), (Boolean) null);
+            exceptList.add(errorResponse);
+            return exceptList;
+        }
+        if(validateDto.getExceptionMessage() != null) {
+            OrgSaasResponse errorResponse = new OrgSaasResponse(400, validateDto.getExceptionMessage(), (Boolean) null);
+            exceptList.add(errorResponse);
+            return exceptList;
+        }
+        Integer orgId = Math.toIntExact(validateDto.getOrgId());
         return orgSaasService.getOrgSaasList(orgId);
     }
 
