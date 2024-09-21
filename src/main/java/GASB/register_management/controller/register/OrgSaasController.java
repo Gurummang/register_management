@@ -48,7 +48,16 @@ public class OrgSaasController {
     }
 
     @PostMapping("/register")
-    public OrgSaasResponse register(@RequestBody OrgSaasRequest orgSaasRequest) {
+    @ValidateJWT
+    public OrgSaasResponse register(@RequestBody OrgSaasRequest orgSaasRequest, HttpServletRequest servletRequest) {
+        ValidateDto validateDto = validateJwt(servletRequest);
+        if(validateDto.getErrorMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getErrorMessage(), (Boolean) null);
+        }
+        if(validateDto.getExceptionMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getExceptionMessage(), (Boolean) null);
+        }
+        orgSaasRequest.setOrgId(Math.toIntExact(validateDto.getOrgId()));
         return orgSaasService.registerOrgSaas(orgSaasRequest);
     }
 
