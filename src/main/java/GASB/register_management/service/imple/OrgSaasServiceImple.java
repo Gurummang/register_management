@@ -6,6 +6,7 @@ import GASB.register_management.dto.register.OrgSaasResponse;
 import GASB.register_management.dto.register.ValidateDto;
 import GASB.register_management.entity.Org;
 import GASB.register_management.entity.Saas;
+import GASB.register_management.repository.OrgRepository;
 import GASB.register_management.repository.SaasRepository;
 import GASB.register_management.service.register.OrgSaasService;
 import GASB.register_management.entity.OrgSaas;
@@ -40,12 +41,13 @@ public class OrgSaasServiceImple implements OrgSaasService {
     private final StartScan startScan;
     private final RabbitMQConfig rabbitMQConfig;
     private final RabbitTemplate rabbitTemplate;
+    private final OrgRepository orgRepository;
 
     @Value("${aes.key}")
     private String aesKey;
 
     @Autowired
-    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan, RabbitMQConfig rabbitMQConfig, RabbitTemplate rabbitTemplate) {
+    public OrgSaasServiceImple(OrgSaasRepository orgSaasRepository, WorkspaceRepository workspaceRepository, SaasRepository saasRepository, SlackTeamInfo slackTeamInfo, StartScan startScan, RabbitMQConfig rabbitMQConfig, RabbitTemplate rabbitTemplate, OrgRepository orgRepository) {
         this.orgSaasRepository = orgSaasRepository;
         this.workspaceRepository = workspaceRepository;
         this.saasRepository = saasRepository;
@@ -53,6 +55,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
         this.startScan = startScan;
         this.rabbitMQConfig = rabbitMQConfig;
         this.rabbitTemplate = rabbitTemplate;
+        this.orgRepository = orgRepository;
     }
 
     @Override
@@ -98,6 +101,21 @@ public class OrgSaasServiceImple implements OrgSaasService {
         OrgSaas orgSaas = new OrgSaas();
         Workspace workspace = new Workspace();
 
+        Optional<Org> orgOpt = orgRepository.findById(orgSaasRequest.getOrgId());
+        Optional<Saas> saasOpt = saasRepository.findById(orgSaasRequest.getSaasId());
+
+        // Org와 Saas가 존재하지 않으면 에러 처리
+        if (!orgOpt.isPresent()) {
+            return new OrgSaasResponse(404, "Org not found", (Boolean) null);
+        }
+
+        if (!saasOpt.isPresent()) {
+            return new OrgSaasResponse(404, "Saas not found", (Boolean) null);
+        }
+        // Org와 Saas가 존재하는 경우 orgSaas 객체에 설정
+        Org org = orgOpt.get();
+        Saas saas = saasOpt.get();
+
         if(orgSaasRequest.getSaasId() == 6) {
             orgSaas.setOrgId(orgSaasRequest.getOrgId());
             orgSaas.setSaasId(orgSaasRequest.getSaasId());
@@ -118,8 +136,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
         try {
             List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
 
-            orgSaas.setOrgId(orgSaasRequest.getOrgId());
-            orgSaas.setSaasId(orgSaasRequest.getSaasId());
+//            orgSaas.setOrgId(orgSaasRequest.getOrgId());
+//            orgSaas.setSaasId(orgSaasRequest.getSaasId());
+            orgSaas.setOrg(org);
+            orgSaas.setSaas(saas);
             orgSaas.setSpaceId(slackInfo.get(1));
             OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
 
