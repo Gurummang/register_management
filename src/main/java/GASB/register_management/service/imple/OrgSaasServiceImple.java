@@ -129,6 +129,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             workspace.setSpaceName("TEMP");
             workspace.setAlias(orgSaasRequest.getAlias());
             workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+            workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
             workspace.setApiToken("TEMP");
             workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
             Workspace regiWorksapce = workspaceRepository.save(workspace);
