@@ -154,8 +154,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
             workspace.setAlias(orgSaasRequest.getAlias());
             workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
             workspace.setApiToken(AESUtil.encrypt(orgSaasRequest.getApiToken(), aesKey));
-
-            System.out.println(AESUtil.decrypt(AESUtil.encrypt(orgSaasRequest.getApiToken(), aesKey), aesKey));
             workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
             workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
             Workspace registeredWorkspace = workspaceRepository.save(workspace);
@@ -165,8 +163,12 @@ public class OrgSaasServiceImple implements OrgSaasService {
             try{
                 startScan.postToScan(registeredWorkspace.getId(), saasName);
 
+                orgSaas.setStatus(1);
+                orgSaasRepository.save(orgSaas);
                 return new OrgSaasResponse( 200, null, registeredWorkspace.getId(), registeredWorkspace.getRegisterDate());
             } catch (Exception e) {
+                orgSaas.setStatus(99);
+                orgSaasRepository.save(orgSaas);
                 return new OrgSaasResponse(198, e.getMessage(), null, null);
             }
         } catch (IOException | InterruptedException e) {
@@ -333,6 +335,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 }
             }
 
+            orgSaas.setStatus(1);
             orgSaas.setSpaceId(driveInfo[0]);
             OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
 
