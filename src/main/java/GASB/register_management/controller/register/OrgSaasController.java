@@ -57,7 +57,14 @@ public class OrgSaasController {
         if(validateDto.getExceptionMessage() != null) {
             return new OrgSaasResponse(400, validateDto.getExceptionMessage(), (Boolean) null);
         }
-        orgSaasRequest.setOrgId(Math.toIntExact(validateDto.getOrgId()));
+        // orgId를 JWT에서 추출하여 요청 객체에 설정
+        try {
+            orgSaasRequest.setOrgId(Math.toIntExact(validateDto.getOrgId()));
+        } catch (ArithmeticException e) {
+            return new OrgSaasResponse(400, "Org ID exceeds allowable range.", (Boolean) null);
+        }
+
+        // 서비스 호출
         return orgSaasService.registerOrgSaas(orgSaasRequest);
     }
 
