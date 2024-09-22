@@ -186,7 +186,8 @@ public class OrgSaasServiceImple implements OrgSaasService {
             Workspace workspace = optionalWorkspace.get();
 
             try{
-                List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
+                String decToken = AESUtil.decrypt(orgSaasRequest.getApiToken(), aesKey);
+                List<String> slackInfo = slackTeamInfo.getTeamInfo(decToken);
 
                 orgSaas.setSpaceId(slackInfo.get(1));
                 orgSaasRepository.save(orgSaas);
