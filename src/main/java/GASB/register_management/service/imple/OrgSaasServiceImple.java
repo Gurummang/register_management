@@ -194,7 +194,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
                 workspace.setSpaceName(slackInfo.get(0));
                 workspace.setAlias(orgSaasRequest.getAlias());
                 workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
-                workspace.setApiToken(AESUtil.encrypt(orgSaasRequest.getApiToken(), aesKey));
+                workspace.setApiToken(orgSaasRequest.getApiToken());
                 workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
                 workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
                 Workspace registeredWorkspace = workspaceRepository.save(workspace);
