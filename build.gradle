@@ -60,6 +60,9 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-oauth2-client'
 	implementation 'org.springframework.security:spring-security-oauth2-jose'
 	testImplementation 'org.springframework.security:spring-security-test'
+
+	// 필요한 경우, Servlet API 명시적 추가
+	compileOnly 'javax.servlet:javax.servlet-api:4.0.1' // 실행 시 포함되지 않음 (톰캣 같은 서버에서 제공됨)
 }
 
 tasks.named('test') {
