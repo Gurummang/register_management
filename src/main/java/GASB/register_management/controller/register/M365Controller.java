@@ -50,12 +50,15 @@ public class M365Controller {
         log.info("codeVerifier: {}", codeVerifier);
         String codeChallenge = generateCodeChallenge(codeVerifier);  // code_verifier로부터 code_challenge 생성
 
+        // 스코프가 2개 이상일 때, 구분자 변경
+        String formattedScope = scope.replace(",", " ");
+
         String loginUri = UriComponentsBuilder.fromHttpUrl(authorityUrl)
                 .queryParam("client_id", clientId)
                 .queryParam("response_type", "code")
                 .queryParam("redirect_uri", redirectUri)
                 .queryParam("response_mode", "query")
-                .queryParam("scope", scope)
+                .queryParam("scope", formattedScope)
                 .queryParam("state", "12345")  // CSRF 방지를 위한 state 값
                 .queryParam("code_challenge", codeChallenge)  // PKCE code_challenge
                 .queryParam("code_challenge_method", "S256")  // PKCE 메서드 지정
