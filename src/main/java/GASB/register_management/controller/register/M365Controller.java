@@ -10,13 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -39,16 +34,10 @@ public class M365Controller {
     private final String authorityUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
     private final String tokenUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/token";  // 토큰 요청 URL
 
-    // PKCE에 사용되는 code_verifier를 저장하는 필드 (임시로 관리)
-    private String codeVerifier;
-
     // 1. 사용자가 접근해야 할 login_uri 생성
     @GetMapping("/getUrl")
-    public String getLoginUri() throws Exception {
+    public String getLoginUri() {
         log.info("Here");
-        codeVerifier = generateCodeVerifier();  // code_verifier 생성
-        log.info("codeVerifier: {}", codeVerifier);
-        String codeChallenge = generateCodeChallenge(codeVerifier);  // code_verifier로부터 code_challenge 생성
 
         // 스코프가 2개 이상일 때, 구분자 변경
         String formattedScope = scope.replace(",", " ");
@@ -60,8 +49,7 @@ public class M365Controller {
                 .queryParam("response_mode", "query")
                 .queryParam("scope", formattedScope)
                 .queryParam("state", "12345")  // CSRF 방지를 위한 state 값
-                .queryParam("code_challenge", codeChallenge)  // PKCE code_challenge
-                .queryParam("code_challenge_method", "S256")  // PKCE 메서드 지정
+                .queryParam("prompt", "consent")  // 사용자 동의를 다시 요청
                 .toUriString();
 
         log.info("Generated login_uri: {}", loginUri);
@@ -95,7 +83,6 @@ public class M365Controller {
 
         AuthorizationCodeParameters parameters = AuthorizationCodeParameters.builder(authorizationCode, new URI(redirectUri))
                 .scopes(scopes)
-                .codeVerifier(codeVerifier)  // PKCE code_verifier 추가
                 .build();
 
         CompletableFuture<IAuthenticationResult> future = app.acquireToken(parameters);
@@ -103,22 +90,5 @@ public class M365Controller {
 
         // Access Token 반환
         return result.accessToken();
-    }
-
-    // PKCE code_verifier 생성
-    private String generateCodeVerifier() {
-        // 두 개의 UUID를 결합하여 43자 이상의 랜덤 문자열 생성
-        String verifier = UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
-
-        // 필요 시 43자 이상으로 자르고 반환 (필요한 만큼만 자르도록 처리)
-        return verifier.length() >= 64 ? verifier.substring(0, 64) : verifier;
-    }
-
-
-    // PKCE code_challenge 생성 (code_verifier의 SHA256 해시값)
-    private String generateCodeChallenge(String codeVerifier) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(codeVerifier.getBytes(StandardCharsets.UTF_8));
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
     }
 }
