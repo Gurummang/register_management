@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -79,7 +80,11 @@ public class M365Controller {
                 .authority("https://login.microsoftonline.com/common/")  // 인증 서버 URL
                 .build();
 
-        Set<String> scopes = Collections.singleton(scope);
+        // 스코프 처리: 스코프가 ','로 구분되어 있는 경우, 공백으로 구분된 형태로 변환
+        String formattedScope = scope.replace(",", " ");
+
+        // 스코프들을 공백으로 나눠 Set<String>에 추가
+        Set<String> scopes = new HashSet<>(Arrays.asList(formattedScope.split(" ")));
 
         AuthorizationCodeParameters parameters = AuthorizationCodeParameters.builder(authorizationCode, new URI(redirectUri))
                 .scopes(scopes)
