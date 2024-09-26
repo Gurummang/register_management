@@ -3,15 +3,22 @@ package GASB.register_management.controller.register;
 import com.microsoft.aad.msal4j.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -72,6 +79,33 @@ public class M365Controller {
 
         return "Access Token received successfully";
     }
+
+//    // M365에서 사용자 목록을 가져오는 메서드 (POST로 변경)
+//    @PostMapping("/getUsers")
+//    public String getM365Users(@RequestBody Map<String, String> body) throws Exception {
+//        String accessToken = body.get("accessToken");
+//
+//        // Microsoft Graph API 엔드포인트
+//        String usersEndpoint = "https://graph.microsoft.com/v1.0/users";
+//
+//        // HTTP 요청을 위한 헤더 설정 (Bearer 토큰 포함)
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Authorization", "Bearer " + accessToken);
+//        headers.set("Accept", "application/json");
+//
+//        // HTTP 요청 보내기
+//        RestTemplate restTemplate = new RestTemplate();
+//        HttpEntity<String> entity = new HttpEntity<>(headers);
+//
+//        // 사용자 목록을 가져오기 위한 GET 요청
+//        ResponseEntity<String> response = restTemplate.exchange(usersEndpoint, HttpMethod.GET, entity, String.class);
+//
+//        // 반환된 JSON 사용자 목록
+//        String usersJson = response.getBody();
+//        log.info("User List: " + usersJson);
+//
+//        return usersJson;  // 사용자 목록을 반환하거나 원하는 대로 처리
+//    }
 
     // MSAL을 사용하여 Authorization Code로 Access Token을 요청하는 메서드
     private String requestAccessTokenWithMSAL(String authorizationCode) throws Exception {
