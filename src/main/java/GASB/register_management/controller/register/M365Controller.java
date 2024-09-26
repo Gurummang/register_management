@@ -56,22 +56,22 @@ public class M365Controller {
     }
 
     // 2. 토큰을 처리할 redirect_uri (Authorization Code를 수신)
-//    @GetMapping("/token")
-//    public String handleAuthorizationCode(
-//            @RequestParam("code") String authorizationCode,
-//            @RequestParam("state") String state,
-//            HttpServletResponse response) throws IOException {
-//
-//        log.info("Received Authorization Code: {}", authorizationCode);
-//        log.info("Received state: {}", state);
-//
-//        // Access Token 요청을 위한 로직 추가
+    @GetMapping("/token")
+    public String handleAuthorizationCode(
+            @RequestParam("code") String authorizationCode,
+            @RequestParam("state") String state) {
+
+        log.info("Received Authorization Code: {}", authorizationCode);
+        log.info("Received state: {}", state);
+
+        // Access Token 요청을 위한 로직 추가
 //        String accessToken = requestAccessToken(authorizationCode);
-//        log.info("Access Token: {}", accessToken);
-//
-//        return "Access Token received successfully";
-//    }
-//
+        String accessToken = "Not the yet";
+        log.info("Access Token: {}", accessToken);
+
+        return "Access Token received successfully";
+    }
+
 //    // Authorization Code로 Access Token을 요청하는 메서드
 //    private String requestAccessToken(String authorizationCode) {
 //        RestTemplate restTemplate = new RestTemplate();
