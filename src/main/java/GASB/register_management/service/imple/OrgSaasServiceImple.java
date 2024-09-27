@@ -16,7 +16,6 @@ import GASB.register_management.repository.WorkspaceRepository;
 import GASB.register_management.util.api.StartScan;
 import GASB.register_management.util.validation.SlackTeamInfo;
 import GASB.register_management.util.AESUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,15 +117,30 @@ public class OrgSaasServiceImple implements OrgSaasService {
         Org org = orgOpt.get();
         Saas saas = saasOpt.get();
 
+        if(orgSaasRequest.getSaasId() == 3) {
+            orgSaas.setOrg(org);
+            orgSaas.setSaas(saas);
+            orgSaas.setSpaceId("M365");
+            OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
+
+            workspace.setOrgSaas(regiOrgSaas);
+            workspace.setSpaceName("M365");
+            workspace.setAlias(orgSaasRequest.getAlias());
+            workspace.setAdminEmail(orgSaasRequest.getAdminEmail());
+            workspace.setWebhookUrl(orgSaasRequest.getWebhookUrl());
+            workspace.setApiToken("M365");
+            workspace.setRegisterDate(Timestamp.valueOf(LocalDateTime.now()));
+            Workspace regiWorksapce = workspaceRepository.save(workspace);
+
+            return new OrgSaasResponse(200, "Waiting M365", regiWorksapce.getId(), regiWorksapce.getRegisterDate());
+        }
+
         if(orgSaasRequest.getSaasId() == 6) {
-//            orgSaas.setOrgId(orgSaasRequest.getOrgId());
-//            orgSaas.setSaasId(orgSaasRequest.getSaasId());
             orgSaas.setOrg(org);
             orgSaas.setSaas(saas);
             orgSaas.setSpaceId("TEMP");
             OrgSaas regiOrgSaas = orgSaasRepository.save(orgSaas);
 
-//            workspace.setId(regiOrgSaas.getId());
             workspace.setOrgSaas(regiOrgSaas);
             workspace.setSpaceName("TEMP");
             workspace.setAlias(orgSaasRequest.getAlias());
@@ -142,8 +156,6 @@ public class OrgSaasServiceImple implements OrgSaasService {
         try {
             List<String> slackInfo = slackTeamInfo.getTeamInfo(orgSaasRequest.getApiToken());
 
-//            orgSaas.setOrgId(orgSaasRequest.getOrgId());
-//            orgSaas.setSaasId(orgSaasRequest.getSaasId());
             orgSaas.setOrg(org);
             orgSaas.setSaas(saas);
             orgSaas.setSpaceId(slackInfo.get(1));
@@ -355,6 +367,66 @@ public class OrgSaasServiceImple implements OrgSaasService {
             }
             log.info("Send orgSaasId (={}) to gd_init_queue",saveOrgSaas.getOrgId());
             rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getRoutingKey(), saveOrgSaas.getId());
+        }
+    }
+
+    @Override
+    public void updateOrgSaasMS(List<String[]> drives, String accessToken) {
+        List<OrgSaas> m365OrgSaasList = orgSaasRepository.findBySpaceId("M365");
+
+        if (m365OrgSaasList.isEmpty()) {
+            return;
+        }
+
+        // 드라이브 리스트 순회
+        for (int i = 0; i < drives.size(); i++) {
+            String[] driveInfo = drives.get(i);  // [0]: 드라이브 ID, [1]: 드라이브 이름
+
+            OrgSaas orgSaas;
+            Workspace workspace;
+
+            if (i < m365OrgSaasList.size()) {
+                // 기존 M365 튜플 업데이트
+                orgSaas = m365OrgSaasList.get(i);
+            } else {
+                // M365 튜플을 복제하여 새로 저장
+                OrgSaas originalOrgSaas = m365OrgSaasList.get(0);  // 첫 번째 M365 튜플을 기준으로 복사
+                orgSaas = new OrgSaas();
+                Optional<Org> orgOpt = orgRepository.findById(originalOrgSaas.getOrgId());
+                Optional<Saas> saasOpt = saasRepository.findById(originalOrgSaas.getSaasId());
+
+                if (orgOpt.isEmpty() || saasOpt.isEmpty()) {
+                    log.error("Org or Saas not found");
+                    continue;
+                }
+
+                Org org = orgOpt.get();
+                Saas saas = saasOpt.get();
+                orgSaas.setOrg(org);
+                orgSaas.setSaas(saas);
+                orgSaas.setSpaceId("M365");  // 임시로 M365로 설정
+                orgSaas = orgSaasRepository.save(orgSaas);  // 복제된 튜플 저장
+
+                workspace = new Workspace();
+                workspace.setOrgSaas(orgSaas);
+                workspaceRepository.save(workspace);
+            }
+
+            orgSaas.setStatus(1);
+            orgSaas.setSpaceId(driveInfo[0]);  // 드라이브 ID로 업데이트
+            OrgSaas saveOrgSaas = orgSaasRepository.save(orgSaas);
+
+            Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaas.getId());
+            if (optionalWorkspace.isPresent()) {
+                workspace = optionalWorkspace.get();
+                workspace.setSpaceName(driveInfo[1]);  // 드라이브 이름으로 업데이트
+//                workspace.setApiToken(AESUtil.encrypt(accessToken, aesKey));  // 토큰 저장
+                workspace.setApiToken(accessToken);
+                workspaceRepository.save(workspace);
+            }
+
+//            log.info("Send orgSaasId (={}) to ms_init_queue", saveOrgSaas.getOrgId());
+//            rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getRoutingKey(), saveOrgSaas.getId());
         }
     }
 }
