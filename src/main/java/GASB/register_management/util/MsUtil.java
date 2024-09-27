@@ -86,6 +86,7 @@ public class MsUtil {
 
         // JSON 파싱 후 필요한 드라이브 ID와 이름을 추출
         String driveInfoJson = response.getBody();
+        log.info("Drive List: " + driveInfoJson);
         List<String[]> driveList = parseDriveInfo(driveInfoJson); // 드라이브 정보 추출 로직은 별도로 구현 필요
 
         return driveList;
