@@ -7,15 +7,19 @@ import GASB.register_management.dto.register.ValidateDto;
 import GASB.register_management.repository.AdminRepository;
 import GASB.register_management.service.register.OrgSaasService;
 import GASB.register_management.util.GoogleUtil;
+import GASB.register_management.util.MsUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ExecutionException;
 
 @CrossOrigin(origins = {"http://localhost:5173","http://127.0.0.1:5173, http://localhost:8080"})
 @RestController
@@ -26,12 +30,14 @@ public class OrgSaasController {
     private final OrgSaasService orgSaasService;
     private final GoogleUtil googleUtil;
     private final AdminRepository adminRepository;
+    private final MsUtil msUtil;
 
     @Autowired
-    public OrgSaasController(OrgSaasService orgSaasService, GoogleUtil googleUtil, AdminRepository adminRepository) {
+    public OrgSaasController(OrgSaasService orgSaasService, GoogleUtil googleUtil, AdminRepository adminRepository, MsUtil msUtil) {
         this.orgSaasService = orgSaasService;
         this.googleUtil = googleUtil;
         this.adminRepository = adminRepository;
+        this.msUtil = msUtil;
     }
 
 
@@ -131,6 +137,15 @@ public class OrgSaasController {
     public void token(@RequestParam("code") String code){
         googleUtil.func(code);
     }
+
+    @GetMapping("/azure/token")
+    public void azureToken(@RequestParam("code") String authorizationCode,
+                           @RequestParam("state") String state) throws MalformedURLException, URISyntaxException, ExecutionException, InterruptedException {
+        msUtil.func(authorizationCode);
+
+//        return "Access Token received successfully";
+    }
+
 
     private ValidateDto validateJwt(HttpServletRequest servletRequest) {
         ValidateDto validateDto = new ValidateDto();
