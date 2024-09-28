@@ -17,6 +17,7 @@ import java.util.Map;
 @EnableRabbit
 public class RabbitMQConfig {
 
+    // 기존 Google Drive 관련 설정
     @Value("${rabbitmq.exchange}")
     private String exchangeName;
 
@@ -26,14 +27,31 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.init.routing-key}")
     private String initRoutingKey;
 
+    // MS 관련 설정 추가
+    @Value("${rabbitmq.O365_INIT_QUEUE}")
+    private String o365InitQueueName;
+
+    @Value("${rabbitmq.O365_ROUTING_KEY}")
+    private String o365RoutingKey;
+
     @Bean
     Queue myQueue() {
         return new Queue(initQueueName, true, false, false);
     }
 
     @Bean
+    Queue o365Queue() {
+        return new Queue(o365InitQueueName, true, false, false);
+    }
+
+    @Bean
     Binding initQueueBinding(Queue myQueue, DirectExchange exchange) {
         return BindingBuilder.bind(myQueue).to(exchange).with(initRoutingKey);
+    }
+
+    @Bean
+    Binding o365QueueBinding(Queue o365Queue, DirectExchange exchange) {
+        return BindingBuilder.bind(o365Queue).to(exchange).with(o365RoutingKey);
     }
 
     // 교환기(Exchange) 설정
@@ -50,11 +68,14 @@ public class RabbitMQConfig {
         return rabbitTemplate;
     }
 
-    public String getExchangeName() {
-        return exchangeName;
-    }
+    public String getExchangeName() { return exchangeName; }
 
     public String getRoutingKey() {
         return initRoutingKey;
+    }
+
+    // O365용 Routing Key Getter 추가
+    public String getO365RoutingKey() {
+        return o365RoutingKey;
     }
 }
