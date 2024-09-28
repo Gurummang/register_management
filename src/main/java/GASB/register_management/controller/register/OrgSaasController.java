@@ -68,22 +68,21 @@ public class OrgSaasController {
     }
 
     @PostMapping("/register")
-//    @ValidateJWT
+    @ValidateJWT
     public OrgSaasResponse register(@RequestBody OrgSaasRequest orgSaasRequest, HttpServletRequest servletRequest) {
-//        ValidateDto validateDto = validateJwt(servletRequest);
-//        if(validateDto.getErrorMessage() != null) {
-//            return new OrgSaasResponse(400, validateDto.getErrorMessage(), (Boolean) null);
-//        }
-//        if(validateDto.getExceptionMessage() != null) {
-//            return new OrgSaasResponse(400, validateDto.getExceptionMessage(), (Boolean) null);
-//        }
-//        // orgId를 JWT에서 추출하여 요청 객체에 설정
-//        try {
-//            orgSaasRequest.setOrgId(Math.toIntExact(validateDto.getOrgId()));
-//        } catch (ArithmeticException e) {
-//            return new OrgSaasResponse(400, "Org ID exceeds allowable range.", (Boolean) null);
-//        }
-
+        ValidateDto validateDto = validateJwt(servletRequest);
+        if(validateDto.getErrorMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getErrorMessage(), (Boolean) null);
+        }
+        if(validateDto.getExceptionMessage() != null) {
+            return new OrgSaasResponse(400, validateDto.getExceptionMessage(), (Boolean) null);
+        }
+        // orgId를 JWT에서 추출하여 요청 객체에 설정
+        try {
+            orgSaasRequest.setOrgId(Math.toIntExact(validateDto.getOrgId()));
+        } catch (ArithmeticException e) {
+            return new OrgSaasResponse(400, "Org ID exceeds allowable range.", (Boolean) null);
+        }
         // 서비스 호출
         return orgSaasService.registerOrgSaas(orgSaasRequest);
     }
