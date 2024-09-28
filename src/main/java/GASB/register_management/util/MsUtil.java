@@ -107,8 +107,10 @@ public class MsUtil {
                 String id = driveNode.path("id").asText(); // 드라이브 id
                 String name = driveNode.path("name").asText(); // 드라이브 name
 
-                // id와 name을 [id, name] 배열로 저장하고 리스트에 추가
-                driveList.add(new String[]{id, name});
+                // "PersonalCacheLibrary"가 아닌 드라이브만 리스트에 추가
+                if (!"PersonalCacheLibrary".equals(name)) {
+                    driveList.add(new String[]{id, name});
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -117,6 +119,7 @@ public class MsUtil {
 
         return driveList; // [id, name] 배열의 리스트 반환
     }
+
 
     private String requestAccessTokenWithMSAL(String authorizationCode) throws MalformedURLException, ExecutionException, InterruptedException, URISyntaxException {
         // MSAL 라이브러리 사용
