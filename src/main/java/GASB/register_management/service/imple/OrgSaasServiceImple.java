@@ -420,8 +420,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
             if (optionalWorkspace.isPresent()) {
                 workspace = optionalWorkspace.get();
                 workspace.setSpaceName(driveInfo[1]);  // 드라이브 이름으로 업데이트
-//                workspace.setApiToken(AESUtil.encrypt(accessToken, aesKey));  // 토큰 저장
-                workspace.setApiToken(accessToken);
+                workspace.setApiToken(AESUtil.encrypt(accessToken, aesKey));  // 토큰 저장
                 workspaceRepository.save(workspace);
             }
 
