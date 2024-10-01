@@ -7,17 +7,16 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Map;
 
 @Configuration
 @EnableRabbit
 public class RabbitMQConfig {
 
-    // 기존 Google Drive 관련 설정
     @Value("${rabbitmq.exchange}")
     private String exchangeName;
 
@@ -27,7 +26,6 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.init.routing-key}")
     private String initRoutingKey;
 
-    // MS 관련 설정 추가
     @Value("${rabbitmq.O365_INIT_QUEUE}")
     private String o365InitQueueName;
 
@@ -54,17 +52,23 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(o365Queue).to(exchange).with(o365RoutingKey);
     }
 
-    // 교환기(Exchange) 설정
     @Bean
     DirectExchange exchange() {
         return new DirectExchange(exchangeName);
     }
 
-    // RabbitTemplate 설정 (기본 라우팅 키 사용)
+    // 메시지 변환기 설정 (Jackson2JsonMessageConverter)
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    // RabbitTemplate 설정 (메시지 변환기 적용)
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setExchange(exchangeName);
+        rabbitTemplate.setMessageConverter(jsonMessageConverter()); // 메시지 변환기 설정
         return rabbitTemplate;
     }
 
@@ -74,7 +78,6 @@ public class RabbitMQConfig {
         return initRoutingKey;
     }
 
-    // O365용 Routing Key Getter 추가
     public String getO365RoutingKey() {
         return o365RoutingKey;
     }
