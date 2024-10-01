@@ -73,7 +73,7 @@ public class MsUtil {
         }
 
         // OrgSaasService를 통해 얻어온 리스트와 토큰을 전달하여 업데이트
-//        orgSaasService.updateOrgSaasMS(driveList, accessToken);
+        orgSaasService.updateOrgSaasMS(driveList, accessToken, refreshToken);
     }
 
     private List<String[]> getDriveList(String accessToken) {

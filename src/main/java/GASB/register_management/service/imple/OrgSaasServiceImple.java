@@ -371,7 +371,7 @@ public class OrgSaasServiceImple implements OrgSaasService {
     }
 
     @Override
-    public void updateOrgSaasMS(List<String[]> drives, String accessToken) {
+    public void updateOrgSaasMS(List<String[]> drives, String accessToken,String refreshToken) {
         List<OrgSaas> m365OrgSaasList = orgSaasRepository.findBySpaceId("M365");
 
         if (m365OrgSaasList.isEmpty()) {
@@ -419,8 +419,10 @@ public class OrgSaasServiceImple implements OrgSaasService {
             Optional<Workspace> optionalWorkspace = workspaceRepository.findById(orgSaas.getId());
             if (optionalWorkspace.isPresent()) {
                 workspace = optionalWorkspace.get();
-                workspace.setSpaceName(driveInfo[1]);  // 드라이브 이름으로 업데이트
-                workspace.setApiToken(AESUtil.encrypt(accessToken, aesKey));  // 토큰 저장
+                workspace.setSpaceName("M365");  // 드라이브 이름으로 업데이트
+//                workspace.setApiToken(AESUtil.encrypt(accessToken, aesKey));  // 토큰 저장
+                workspace.setApiToken(accessToken);
+                workspace.setRefreshToken(refreshToken);
                 workspaceRepository.save(workspace);
             }
 
