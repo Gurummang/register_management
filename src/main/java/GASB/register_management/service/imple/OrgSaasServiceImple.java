@@ -423,11 +423,13 @@ public class OrgSaasServiceImple implements OrgSaasService {
 //                workspace.setApiToken(AESUtil.encrypt(accessToken, aesKey));  // 토큰 저장
                 workspace.setApiToken(accessToken);
                 workspace.setRefreshToken(refreshToken);
-                workspaceRepository.save(workspace);
+                Workspace saveWorkspace = workspaceRepository.save(workspace);
+                log.info("Send orgSaasId (={}) to ms_init_queue", saveWorkspace.getId());
+                rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getO365RoutingKey(), saveWorkspace.getId());
             }
 
-            log.info("Send orgSaasId (={}) to ms_init_queue", saveOrgSaas.getId());
-            rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getO365RoutingKey(), saveOrgSaas.getId());
+//            log.info("Send orgSaasId (={}) to ms_init_queue", saveOrgSaas.getId());
+//            rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getO365RoutingKey(), saveOrgSaas.getId());
         }
     }
 }
