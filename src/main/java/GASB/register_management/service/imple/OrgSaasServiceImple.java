@@ -420,9 +420,8 @@ public class OrgSaasServiceImple implements OrgSaasService {
             if (optionalWorkspace.isPresent()) {
                 workspace = optionalWorkspace.get();
                 workspace.setSpaceName("M365");  // 드라이브 이름으로 업데이트
-//                workspace.setApiToken(AESUtil.encrypt(accessToken, aesKey));  // 토큰 저장
-                workspace.setApiToken(accessToken);
-                workspace.setRefreshToken(refreshToken);
+                workspace.setApiToken(AESUtil.encrypt(accessToken, aesKey));  // 토큰 저장
+                workspace.setRefreshToken(AESUtil.encrypt(refreshToken, aesKey));
                 Workspace saveWorkspace = workspaceRepository.save(workspace);
                 log.info("WorkspaceId is (Integer)={}", saveWorkspace.getId());
                 int workspaceId = saveWorkspace.getId();
