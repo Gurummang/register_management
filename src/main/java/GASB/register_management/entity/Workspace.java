@@ -20,6 +20,8 @@ public class Workspace {
     private String adminEmail;
     @Column(name = "token", length = 1024)
     private String apiToken;       // api_key, api_token
+    @Column(name = "refresh_token")
+    private String refreshToken;
     @Column(name = "webhook")
     private String webhookUrl; // webhook은 workspace당 한개로!
     private String alias = "NULL";
