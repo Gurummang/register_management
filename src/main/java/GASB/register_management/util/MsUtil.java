@@ -8,12 +8,11 @@ import com.microsoft.aad.msal4j.IAuthenticationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,18 +53,27 @@ public class MsUtil {
 
     public void func(String authCode) throws MalformedURLException, ExecutionException, InterruptedException, URISyntaxException {
         // Access Token 얻기
-        String token = requestAccessTokenWithMSAL(authCode);
-        log.info("Token: " + token);
+//        String token = requestAccessTokenWithMSAL(authCode);
+//        log.info("Token: " + token);
+
+        Map<String, String> tokens = requestTokensWithAuthCode(authCode);
+        String accessToken = tokens.get("access_token");
+        String refreshToken = tokens.get("refresh_token");
+
+        log.info("Access Token: {}", accessToken);
+        if (refreshToken != null) {
+            log.info("Refresh Token: {}", refreshToken);
+        }
 
         // OneDrive나 SharePoint의 드라이브 리스트 가져오기
-        List<String[]> driveList = getDriveList(token);
+        List<String[]> driveList = getDriveList(accessToken);
 
-        if(driveList.isEmpty()){
+        if (driveList.isEmpty()) {
             log.info("No drive found");
         }
 
         // OrgSaasService를 통해 얻어온 리스트와 토큰을 전달하여 업데이트
-        orgSaasService.updateOrgSaasMS(driveList, token);
+//        orgSaasService.updateOrgSaasMS(driveList, accessToken);
     }
 
     private List<String[]> getDriveList(String accessToken) {
@@ -120,26 +128,58 @@ public class MsUtil {
         return driveList; // [id, name] 배열의 리스트 반환
     }
 
+//    private String requestAccessTokenWithMSAL(String authorizationCode) throws MalformedURLException, ExecutionException, InterruptedException, URISyntaxException {
+//        // MSAL 라이브러리 사용
+//        ConfidentialClientApplication app = ConfidentialClientApplication.builder(clientId, ClientCredentialFactory.createFromSecret(clientSecret))
+//                .authority("https://login.microsoftonline.com/common/")  // 인증 서버 URL
+//                .build();
+//
+//        // 스코프 처리: 스코프가 ','로 구분되어 있는 경우, 공백으로 구분된 형태로 변환
+//        String formattedScope = scope.replace(",", " ");
+//
+//        // 스코프들을 공백으로 나눠 Set<String>에 추가
+//        Set<String> scopes = new HashSet<>(Arrays.asList(formattedScope.split(" ")));
+//
+//        AuthorizationCodeParameters parameters = AuthorizationCodeParameters.builder(authorizationCode, new URI(redirectUri))
+//                .scopes(scopes)
+//                .build();
+//
+//        CompletableFuture<IAuthenticationResult> future = app.acquireToken(parameters);
+//        IAuthenticationResult result = future.get();
+//
+//        return result.accessToken();
+//    }
 
-    private String requestAccessTokenWithMSAL(String authorizationCode) throws MalformedURLException, ExecutionException, InterruptedException, URISyntaxException {
-        // MSAL 라이브러리 사용
-        ConfidentialClientApplication app = ConfidentialClientApplication.builder(clientId, ClientCredentialFactory.createFromSecret(clientSecret))
-                .authority("https://login.microsoftonline.com/common/")  // 인증 서버 URL
-                .build();
+    public Map<String, String> requestTokensWithAuthCode(String authCode) {
+        String tokenUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+        RestTemplate restTemplate = new RestTemplate();
 
-        // 스코프 처리: 스코프가 ','로 구분되어 있는 경우, 공백으로 구분된 형태로 변환
-        String formattedScope = scope.replace(",", " ");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        // 스코프들을 공백으로 나눠 Set<String>에 추가
-        Set<String> scopes = new HashSet<>(Arrays.asList(formattedScope.split(" ")));
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", clientId);
+        body.add("client_secret", clientSecret);
+        body.add("code", authCode); // Authorization Code
+        body.add("redirect_uri", redirectUri);
+        body.add("grant_type", "authorization_code");
+        body.add("scope", "https://graph.microsoft.com/.default offline_access");
 
-        AuthorizationCodeParameters parameters = AuthorizationCodeParameters.builder(authorizationCode, new URI(redirectUri))
-                .scopes(scopes)
-                .build();
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
+        ResponseEntity<String> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, requestEntity, String.class);
 
-        CompletableFuture<IAuthenticationResult> future = app.acquireToken(parameters);
-        IAuthenticationResult result = future.get();
+        Map<String, String> tokens = new HashMap<>();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(response.getBody());
+            tokens.put("access_token", jsonNode.get("access_token").asText());
+            if (jsonNode.has("refresh_token")) {
+                tokens.put("refresh_token", jsonNode.get("refresh_token").asText());
+            }
+        } catch (IOException e) {
+            log.error("Error parsing the token response: {}", e.getMessage());
+        }
 
-        return result.accessToken();
+        return tokens; // Access Token과 Refresh Token 반환
     }
 }
