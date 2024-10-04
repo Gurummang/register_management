@@ -61,8 +61,11 @@ public class GoogleUtil {
                 log.error("Unexpected runtime error: {}", e.getMessage());
                 updateWithDelete();
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("Failed to obtain credentials: {}", e.getMessage());
+            updateWithDelete();
+        } catch (Exception e) {
+            log.error("General error: {}", e.getMessage());
             updateWithDelete();
         }
     }
@@ -70,9 +73,8 @@ public class GoogleUtil {
     private void updateWithDelete() {
         List<String[]> drives = new ArrayList<>();
         drives.add(new String[]{"DELETE"});
-        orgSaasService.updateOrgSaasGD(drives, null);
+        orgSaasService.updateOrgSaasGD(drives, "");
     }
-
 
     private Drive getDriveService(Credential credential) {
         try {
