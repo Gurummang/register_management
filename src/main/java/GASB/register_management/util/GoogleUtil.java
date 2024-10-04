@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,8 +61,8 @@ public class GoogleUtil {
                 List<String[]> drives = new ArrayList<>();
                 drives.add(new String[]{"DELETE"});
                 orgSaasService.updateOrgSaasGD(drives, null);
-            } catch (Exception e) {
-                log.error("Unexpected error in processing Google Drive data: {}", e.getMessage());
+            } catch (RuntimeException e) {
+                log.error("Unexpected runtime error in processing Google Drive data: {}", e.getMessage());
                 List<String[]> drives = new ArrayList<>();
                 drives.add(new String[]{"DELETE"});
                 orgSaasService.updateOrgSaasGD(drives, null);
@@ -75,16 +76,20 @@ public class GoogleUtil {
     }
 
 
-    private Drive getDriveService(Credential credential){
+    private Drive getDriveService(Credential credential) {
         try {
             return new Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
                     .setApplicationName(APPLICATION_NAME)
                     .build();
-        } catch (Exception e) {
-            log.error("An error occurred while creating the Drive service: {}", e.getMessage());
-            throw new RuntimeException("Failed to create Drive service", e);
+        } catch (IOException e) {
+            log.error("An error occurred while creating the Drive service due to IO issues: {}", e.getMessage());
+            throw new RuntimeException("Failed to create Drive service due to IO issues", e);
+        } catch (GeneralSecurityException e) {
+            log.error("An error occurred while creating the Drive service due to security configuration issues: {}", e.getMessage());
+            throw new RuntimeException("Failed to create Drive service due to security configuration issues", e);
         }
     }
+
 
     private List<String[]> getAllSharedDriveIdsAndNames(Drive drive) throws IOException {
         List<String[]> sharedDrivesInfo = new ArrayList<>();
