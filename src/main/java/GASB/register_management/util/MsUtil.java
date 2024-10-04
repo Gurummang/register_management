@@ -1,10 +1,6 @@
 package GASB.register_management.util;
 
 import GASB.register_management.service.register.OrgSaasService;
-import com.microsoft.aad.msal4j.AuthorizationCodeParameters;
-import com.microsoft.aad.msal4j.ClientCredentialFactory;
-import com.microsoft.aad.msal4j.ConfidentialClientApplication;
-import com.microsoft.aad.msal4j.IAuthenticationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,15 +14,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+
 
 @Service
 @Slf4j
@@ -41,9 +30,6 @@ public class MsUtil {
     @Value("${spring.security.oauth2.client.registration.azure.redirect_uri}")
     private String redirectUri;
 
-    @Value("${spring.security.oauth2.client.registration.azure.scope}")
-    private String scope;
-
     private final OrgSaasService orgSaasService;
 
     @Autowired
@@ -51,30 +37,22 @@ public class MsUtil {
         this.orgSaasService = orgSaasService;
     }
 
-    public void func(String authCode) throws MalformedURLException, ExecutionException, InterruptedException, URISyntaxException {
-        // Access Token 얻기
-//        String token = requestAccessTokenWithMSAL(authCode);
-//        log.info("Token: " + token);
-
+    public void func(String authCode) {
         Map<String, String> tokens = requestTokensWithAuthCode(authCode);
         String accessToken = tokens.get("access_token");
         String refreshToken = tokens.get("refresh_token");
 
-        log.info("Access Token: {}", accessToken);
-        if (refreshToken != null) {
-            log.info("Refresh Token: {}", refreshToken);
-        }
-
         // OneDrive나 SharePoint의 드라이브 리스트 가져오기
         List<String[]> driveList = getDriveList(accessToken);
 
-        if (driveList.isEmpty()) {
-            log.info("No drive found");
-        }
-
         // OrgSaasService를 통해 얻어온 리스트와 토큰을 전달하여 업데이트
-        orgSaasService.updateOrgSaasMS(driveList, accessToken, refreshToken);
+        if (driveList != null && accessToken != null && refreshToken != null) {
+            orgSaasService.updateOrgSaasMS(driveList, accessToken, refreshToken);
+        } else {
+            log.warn("One or more required parameters are null. Skipping updateOrgSaasMS call.");
+        }
     }
+
 
     private List<String[]> getDriveList(String accessToken) {
         // OneDrive API 엔드포인트 (필요에 따라 SharePoint 엔드포인트로 변경 가능)
@@ -94,10 +72,8 @@ public class MsUtil {
 
         // JSON 파싱 후 필요한 드라이브 ID와 이름을 추출
         String driveInfoJson = response.getBody();
-        log.info("Drive List: " + driveInfoJson);
-        List<String[]> driveList = parseDriveInfo(driveInfoJson); // 드라이브 정보 추출 로직은 별도로 구현 필요
 
-        return driveList;
+        return parseDriveInfo(driveInfoJson);
     }
 
     private List<String[]> parseDriveInfo(String json) {
@@ -121,34 +97,12 @@ public class MsUtil {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
             log.error("Error parsing drive information from JSON: {}", e.getMessage());
         }
 
         return driveList; // [id, name] 배열의 리스트 반환
     }
 
-//    private String requestAccessTokenWithMSAL(String authorizationCode) throws MalformedURLException, ExecutionException, InterruptedException, URISyntaxException {
-//        // MSAL 라이브러리 사용
-//        ConfidentialClientApplication app = ConfidentialClientApplication.builder(clientId, ClientCredentialFactory.createFromSecret(clientSecret))
-//                .authority("https://login.microsoftonline.com/common/")  // 인증 서버 URL
-//                .build();
-//
-//        // 스코프 처리: 스코프가 ','로 구분되어 있는 경우, 공백으로 구분된 형태로 변환
-//        String formattedScope = scope.replace(",", " ");
-//
-//        // 스코프들을 공백으로 나눠 Set<String>에 추가
-//        Set<String> scopes = new HashSet<>(Arrays.asList(formattedScope.split(" ")));
-//
-//        AuthorizationCodeParameters parameters = AuthorizationCodeParameters.builder(authorizationCode, new URI(redirectUri))
-//                .scopes(scopes)
-//                .build();
-//
-//        CompletableFuture<IAuthenticationResult> future = app.acquireToken(parameters);
-//        IAuthenticationResult result = future.get();
-//
-//        return result.accessToken();
-//    }
 
     public Map<String, String> requestTokensWithAuthCode(String authCode) {
         String tokenUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
