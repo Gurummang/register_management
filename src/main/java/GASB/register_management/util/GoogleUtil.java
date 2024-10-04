@@ -52,27 +52,25 @@ public class GoogleUtil {
 
                 orgSaasService.updateOrgSaasGD(drives, credential.getAccessToken());
             } catch (IOException e) {
-                log.error("Error while retrieving Google Drive data: {}", e.getMessage());
-                List<String[]> drives = new ArrayList<>();
-                drives.add(new String[]{"DELETE"});
-                orgSaasService.updateOrgSaasGD(drives, null);
+                log.error("Failed to retrieve Google Drive data: {}", e.getMessage());
+                updateWithDelete();
             } catch (NullPointerException e) {
-                log.error("Received null value where not expected: {}", e.getMessage());
-                List<String[]> drives = new ArrayList<>();
-                drives.add(new String[]{"DELETE"});
-                orgSaasService.updateOrgSaasGD(drives, null);
+                log.error("Unexpected null value: {}", e.getMessage());
+                updateWithDelete();
             } catch (RuntimeException e) {
-                log.error("Unexpected runtime error in processing Google Drive data: {}", e.getMessage());
-                List<String[]> drives = new ArrayList<>();
-                drives.add(new String[]{"DELETE"});
-                orgSaasService.updateOrgSaasGD(drives, null);
+                log.error("Unexpected runtime error: {}", e.getMessage());
+                updateWithDelete();
             }
         } catch (Exception e) {
-            log.error("Unexpected error while obtaining credentials: {}", e.getMessage());
-            List<String[]> drives = new ArrayList<>();
-            drives.add(new String[]{"DELETE"});
-            orgSaasService.updateOrgSaasGD(drives, null);
+            log.error("Failed to obtain credentials: {}", e.getMessage());
+            updateWithDelete();
         }
+    }
+
+    private void updateWithDelete() {
+        List<String[]> drives = new ArrayList<>();
+        drives.add(new String[]{"DELETE"});
+        orgSaasService.updateOrgSaasGD(drives, null);
     }
 
 
@@ -82,11 +80,11 @@ public class GoogleUtil {
                     .setApplicationName(APPLICATION_NAME)
                     .build();
         } catch (IOException e) {
-            log.error("An error occurred while creating the Drive service due to IO issues: {}", e.getMessage());
-            throw new RuntimeException("Failed to create Drive service due to IO issues", e);
+            log.error("Failed to create Drive service: {}", e.getMessage());
+            throw new RuntimeException("Failed to create Drive service", e);
         } catch (GeneralSecurityException e) {
-            log.error("An error occurred while creating the Drive service due to security configuration issues: {}", e.getMessage());
-            throw new RuntimeException("Failed to create Drive service due to security configuration issues", e);
+            log.error("Security configuration error: {}", e.getMessage());
+            throw new RuntimeException("Failed to create Drive service", e);
         }
     }
 
@@ -104,7 +102,7 @@ public class GoogleUtil {
         return sharedDrivesInfo;
     }
 
-    private Credential getCredential(String code){
+    private Credential getCredential(String code) {
         try {
             GoogleTokenResponse tokenResponse = googleAuthorizationCodeFlow.newTokenRequest(code)
                     .setRedirectUri(redirectUri)
@@ -112,10 +110,10 @@ public class GoogleUtil {
 
             return googleAuthorizationCodeFlow.createAndStoreCredential(tokenResponse, "user");
         } catch (TokenResponseException e) {
-            log.error("Error obtaining token response: {}", e.getMessage());
+            log.error("Token response error: {}", e.getMessage());
             throw new RuntimeException("Failed to obtain token response", e);
         } catch (IOException e) {
-            log.error("IO Exception during token exchange: {}", e.getMessage());
+            log.error("Failed to obtain token: {}", e.getMessage());
             throw new RuntimeException("Failed to obtain token", e);
         }
     }
